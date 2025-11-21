@@ -26,6 +26,7 @@ import type * as presentations from "../presentations.js";
 import type * as reviewForms from "../reviewForms.js";
 import type * as serviceDesk from "../serviceDesk.js";
 import type * as system_auth_google from "../system/auth/google.js";
+import type * as utils_sectionCompletionHelpers from "../utils/sectionCompletionHelpers.js";
 import type * as utils_tokenUtils from "../utils/tokenUtils.js";
 
 /**
@@ -50,6 +51,7 @@ declare const fullApi: ApiFromModules<{
   reviewForms: typeof reviewForms;
   serviceDesk: typeof serviceDesk;
   "system/auth/google": typeof system_auth_google;
+  "utils/sectionCompletionHelpers": typeof utils_sectionCompletionHelpers;
   "utils/tokenUtils": typeof utils_tokenUtils;
 }>;
 export declare const api: FilterApi<

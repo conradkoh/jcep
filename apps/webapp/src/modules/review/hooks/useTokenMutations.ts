@@ -43,6 +43,7 @@ export function useUpdateJCReflectionByToken(accessToken: string | null | undefi
   return useCallback(
     async (args: {
       formId: Id<'reviewForms'>;
+      nextRotationPreference: 'RK' | 'DR' | 'AR' | 'ER';
       activitiesParticipated: QuestionResponse;
       learningsFromJCEP: QuestionResponse;
       whatToDoDifferently: QuestionResponse;

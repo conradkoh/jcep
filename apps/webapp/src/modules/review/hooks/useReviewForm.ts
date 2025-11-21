@@ -20,6 +20,11 @@ import type {
   UpdateJCReflectionParams,
   UpdateParticularsParams,
 } from '../types';
+import {
+  isBuddyEvaluationComplete,
+  isJCFeedbackComplete,
+  isJCReflectionComplete,
+} from '../utils/sectionCompletionHelpers';
 
 /**
  * Hook to get a single review form with computed state
@@ -43,11 +48,42 @@ export function useReviewForm(formId: Id<'reviewForms'> | null | undefined): Rev
       };
     }
 
+    // Use helper functions to validate complete sections with meaningful content
+    const buddyComplete = isBuddyEvaluationComplete(form);
+    const jcReflectionComplete = isJCReflectionComplete(form);
+    const jcFeedbackComplete = isJCFeedbackComplete(form);
+
+    // DEBUG: Log section completion status
+    console.log('[useReviewForm] Section Completion Debug:', {
+      formId: form._id,
+      buddyEvaluation: {
+        exists: form.buddyEvaluation !== null,
+        complete: buddyComplete,
+      },
+      jcReflection: {
+        exists: form.jcReflection !== null,
+        complete: jcReflectionComplete,
+        nextRotationPreference: form.nextRotationPreference,
+        hasAllFields: form.jcReflection
+          ? {
+              activitiesParticipated: form.jcReflection.activitiesParticipated.answer.trim() !== '',
+              learningsFromJCEP: form.jcReflection.learningsFromJCEP.answer.trim() !== '',
+              whatToDoDifferently: form.jcReflection.whatToDoDifferently.answer.trim() !== '',
+              goalsForNextRotation: form.jcReflection.goalsForNextRotation.answer.trim() !== '',
+            }
+          : null,
+      },
+      jcFeedback: {
+        exists: form.jcFeedback !== null,
+        complete: jcFeedbackComplete,
+      },
+    });
+
     return {
       particulars: true, // Always true if form exists
-      buddyEvaluation: form.buddyEvaluation !== null,
-      jcReflection: form.jcReflection !== null,
-      jcFeedback: form.jcFeedback !== null,
+      buddyEvaluation: buddyComplete,
+      jcReflection: jcReflectionComplete,
+      jcFeedback: jcFeedbackComplete,
     };
   }, [form]);
 

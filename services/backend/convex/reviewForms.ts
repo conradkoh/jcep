@@ -924,6 +924,7 @@ export const updateJCReflectionByToken = mutation({
   args: {
     accessToken: v.string(),
     formId: v.id('reviewForms'),
+    nextRotationPreference: ageGroupValidator,
     activitiesParticipated: questionResponseValidator,
     learningsFromJCEP: questionResponseValidator,
     whatToDoDifferently: questionResponseValidator,
@@ -951,6 +952,7 @@ export const updateJCReflectionByToken = mutation({
     }
 
     await ctx.db.patch(args.formId, {
+      nextRotationPreference: args.nextRotationPreference,
       jcReflection: {
         activitiesParticipated: args.activitiesParticipated,
         learningsFromJCEP: args.learningsFromJCEP,

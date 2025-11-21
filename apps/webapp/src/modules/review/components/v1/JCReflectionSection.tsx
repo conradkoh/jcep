@@ -1,7 +1,7 @@
 'use client';
 
 import { EyeOff } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -55,8 +55,21 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
     form.jcReflection?.goalsForNextRotation.answer || ''
   );
 
+  // Use refs to always get current state values (for autosave closures)
+  const activitiesParticipatedRef = useRef(activitiesParticipated);
+  const learningsFromJCEPRef = useRef(learningsFromJCEP);
+  const whatToDoDifferentlyRef = useRef(whatToDoDifferently);
+  const goalsForNextRotationRef = useRef(goalsForNextRotation);
+
+  // Keep refs in sync with state
+  activitiesParticipatedRef.current = activitiesParticipated;
+  learningsFromJCEPRef.current = learningsFromJCEP;
+  whatToDoDifferentlyRef.current = whatToDoDifferently;
+  goalsForNextRotationRef.current = goalsForNextRotation;
+
   // Track which fields are currently being saved
   const [savingFields, setSavingFields] = useState<Set<FieldName>>(new Set());
+  const [nextRotationPreferenceSaving, setNextRotationPreferenceSaving] = useState(false);
 
   const labelTexts = {
     nextRotationPreference: 'Where would you like to go for your next rotation?',
@@ -112,6 +125,44 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
   const learningsFromJCEPAutosave = useAutosave(createFieldSaveFn('learningsFromJCEP'), 1500);
   const whatToDoDifferentlyAutosave = useAutosave(createFieldSaveFn('whatToDoDifferently'), 1500);
   const goalsForNextRotationAutosave = useAutosave(createFieldSaveFn('goalsForNextRotation'), 1500);
+
+  // Autosave for nextRotationPreference changes
+  const nextRotationPreferenceAutosave = useAutosave(
+    async (preference: AgeGroup) => {
+      console.log('[JCReflectionSection] Autosaving nextRotationPreference:', {
+        preference,
+        activitiesParticipated: activitiesParticipatedRef.current,
+        learningsFromJCEP: learningsFromJCEPRef.current,
+        whatToDoDifferently: whatToDoDifferentlyRef.current,
+        goalsForNextRotation: goalsForNextRotationRef.current,
+      });
+
+      await onUpdate({
+        nextRotationPreference: preference,
+        activitiesParticipated: {
+          questionText: JC_REFLECTION_QUESTIONS.activitiesParticipated,
+          answer: activitiesParticipatedRef.current,
+        },
+        learningsFromJCEP: {
+          questionText: JC_REFLECTION_QUESTIONS.learningsFromJCEP,
+          answer: learningsFromJCEPRef.current,
+        },
+        whatToDoDifferently: {
+          questionText: JC_REFLECTION_QUESTIONS.whatToDoDifferently,
+          answer: whatToDoDifferentlyRef.current,
+        },
+        goalsForNextRotation: {
+          questionText: JC_REFLECTION_QUESTIONS.goalsForNextRotation,
+          answer: goalsForNextRotationRef.current,
+        },
+      });
+
+      console.log('[JCReflectionSection] Autosave completed successfully');
+      // Clear saving state after successful save
+      setNextRotationPreferenceSaving(false);
+    },
+    1500
+  );
 
   const handleSave = async () => {
     try {
@@ -290,12 +341,29 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
 
       <div className="space-y-4 rounded-lg border border-border bg-card p-4">
         <div>
-          <Label htmlFor="nextRotationPreference" className="text-sm font-medium text-foreground">
-            {labelTexts.nextRotationPreference}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="nextRotationPreference" className="text-sm font-medium text-foreground">
+              {labelTexts.nextRotationPreference}
+            </Label>
+            <SaveIndicator
+              status={
+                nextRotationPreferenceSaving || nextRotationPreferenceAutosave.isSaving
+                  ? 'modified'
+                  : form.jcReflection && form.nextRotationPreference
+                    ? 'saved'
+                    : 'none'
+              }
+            />
+          </div>
           <Select
             value={nextRotationPreference}
-            onValueChange={(value) => setNextRotationPreference(value as AgeGroup)}
+            onValueChange={(value) => {
+              const newValue = value as AgeGroup;
+              setNextRotationPreference(newValue);
+              // Mark as saving and trigger autosave when dropdown value changes
+              setNextRotationPreferenceSaving(true);
+              nextRotationPreferenceAutosave.debouncedSave(newValue);
+            }}
           >
             <SelectTrigger className="mt-1">
               <SelectValue placeholder="Select preferred age group" />

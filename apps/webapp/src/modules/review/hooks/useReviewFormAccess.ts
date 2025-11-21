@@ -57,7 +57,7 @@ export interface ReviewFormAccessReturn {
 
   updateJCReflection: (args: {
     formId: Id<'reviewForms'>;
-    nextRotationPreference?: string;
+    nextRotationPreference: 'RK' | 'DR' | 'AR' | 'ER';
     activitiesParticipated: QuestionResponse;
     learningsFromJCEP: QuestionResponse;
     whatToDoDifferently: QuestionResponse;
@@ -160,24 +160,19 @@ export function useReviewFormAccess(
   const updateJCReflection = useCallback(
     async (args: {
       formId: Id<'reviewForms'>;
-      nextRotationPreference?: string;
+      nextRotationPreference: 'RK' | 'DR' | 'AR' | 'ER';
       activitiesParticipated: QuestionResponse;
       learningsFromJCEP: QuestionResponse;
       whatToDoDifferently: QuestionResponse;
       goalsForNextRotation: QuestionResponse;
     }) => {
       if (isTokenAccess) {
-        // Token access doesn't include nextRotationPreference
-        const { nextRotationPreference: _unused, ...tokenArgs } = args;
-        await updateJCReflectionToken(tokenArgs);
+        // Token access also includes nextRotationPreference
+        await updateJCReflectionToken(args);
         return;
       }
-      // Session access requires nextRotationPreference
-      if (!args.nextRotationPreference) {
-        throw new Error('nextRotationPreference is required for session-based updates');
-      }
-      // Type assertion safe here because we've checked nextRotationPreference exists
-      await updateJCReflectionSession(args as Parameters<typeof updateJCReflectionSession>[0]);
+      // Session access
+      await updateJCReflectionSession(args);
     },
     [isTokenAccess, updateJCReflectionToken, updateJCReflectionSession]
   );

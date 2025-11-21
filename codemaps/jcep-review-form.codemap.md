@@ -455,6 +455,27 @@ Page -> Admin: Show all responses with filters
     validateJCFeedback(data: Partial<UpdateJCFeedbackParams>): ValidationResult
     ```
 
+- `apps/webapp/src/modules/review/utils/sectionCompletionHelpers.ts` - Section completion validation utilities
+
+  - **Functions**:
+    ```typescript
+    isBuddyEvaluationComplete(form: ReviewForm): boolean
+    isJCReflectionComplete(form: ReviewForm): boolean
+    isJCFeedbackComplete(form: ReviewForm): boolean
+    isFormFullyComplete(form: ReviewForm): boolean
+    getSectionCompletionSummary(form: ReviewForm): {
+      buddyEvaluation: boolean;
+      jcReflection: boolean;
+      jcFeedback: boolean;
+      allComplete: boolean;
+      completedCount: number;
+      totalSections: number;
+    }
+    ```
+  - **Purpose**: Validates that sections have all required fields filled with non-empty trimmed values
+  - **Tests**: `apps/webapp/src/modules/review/utils/sectionCompletionHelpers.test.ts`
+  - **Documentation**: `docs/review-form-section-completion.md`
+
 - `apps/webapp/src/modules/review/constants/schemaVersions.ts` - Schema version constants
   - **Constants**:
     ```typescript
@@ -763,6 +784,35 @@ export const submitReviewForm = mutation({
   },
 });
 ```
+
+## Backend Utilities
+
+- `services/backend/convex/utils/sectionCompletionHelpers.ts` - Section completion validation utilities (backend)
+
+  - **Functions**:
+    ```typescript
+    isBuddyEvaluationComplete(form: Doc<'reviewForms'>): boolean
+    isJCReflectionComplete(form: Doc<'reviewForms'>): boolean
+    isJCFeedbackComplete(form: Doc<'reviewForms'>): boolean
+    isFormFullyComplete(form: Doc<'reviewForms'>): boolean
+    getSectionCompletionSummary(form: Doc<'reviewForms'>): {
+      buddyEvaluation: boolean;
+      jcReflection: boolean;
+      jcFeedback: boolean;
+      allComplete: boolean;
+      completedCount: number;
+      totalSections: number;
+    }
+    ```
+  - **Purpose**: Backend validation to ensure sections have all required fields filled with non-empty trimmed values
+  - **Use Cases**:
+    - Server-side validation before form submission
+    - Access control decisions based on completion status
+    - API response filtering based on section completion
+  - **Documentation**: `docs/review-form-section-completion.md`
+
+- `services/backend/convex/utils/tokenUtils.ts` - Token generation and validation utilities
+  - **Purpose**: Secure token generation for anonymous access links
 
 ## Backend Schema
 
