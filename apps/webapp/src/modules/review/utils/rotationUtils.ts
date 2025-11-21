@@ -29,23 +29,24 @@ export function getDefaultRotationQuarter(): number {
 /**
  * Format a rotation label for display
  * @param year - The rotation year
- * @param quarter - The rotation quarter (1-4)
- * @returns Formatted string like "2025 Q1"
+ * @param rotationNumber - The rotation number (1-4)
+ * @returns Formatted string like "2025 Rotation 1"
  */
-export function formatRotationLabel(year: number, quarter: number): string {
-  return `${year} Q${quarter}`;
+export function formatRotationLabel(year: number, rotationNumber: number): string {
+  return `${year} Rotation ${rotationNumber}`;
 }
 
 /**
- * Get rotation quarter options for dropdowns
+ * Get rotation number options for dropdowns
  * Returns array of options with value and label
+ * Note: Rotation numbers (1-4) are independent of calendar quarters
  */
 export function getRotationQuarterOptions(): Array<{ value: number; label: string }> {
   return [
-    { value: 1, label: 'Rotation 1 (Q1: Jan-Mar)' },
-    { value: 2, label: 'Rotation 2 (Q2: Apr-Jun)' },
-    { value: 3, label: 'Rotation 3 (Q3: Jul-Sep)' },
-    { value: 4, label: 'Rotation 4 (Q4: Oct-Dec)' },
+    { value: 1, label: 'Rotation 1' },
+    { value: 2, label: 'Rotation 2' },
+    { value: 3, label: 'Rotation 3' },
+    { value: 4, label: 'Rotation 4' },
   ];
 }
 
