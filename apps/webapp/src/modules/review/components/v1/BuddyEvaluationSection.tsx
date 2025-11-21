@@ -1,7 +1,7 @@
 'use client';
 
 import { EyeOff } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -41,6 +41,29 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
   // Track which fields are currently being saved (modified but not yet saved)
   const [savingFields, setSavingFields] = useState<Set<FieldName>>(new Set());
 
+  // Create refs to hold the latest state values to prevent stale closures in autosave
+  const tasksParticipatedRef = useRef(tasksParticipated);
+  const strengthsRef = useRef(strengths);
+  const areasForImprovementRef = useRef(areasForImprovement);
+  const wordsOfEncouragementRef = useRef(wordsOfEncouragement);
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    tasksParticipatedRef.current = tasksParticipated;
+  }, [tasksParticipated]);
+
+  useEffect(() => {
+    strengthsRef.current = strengths;
+  }, [strengths]);
+
+  useEffect(() => {
+    areasForImprovementRef.current = areasForImprovement;
+  }, [areasForImprovement]);
+
+  useEffect(() => {
+    wordsOfEncouragementRef.current = wordsOfEncouragement;
+  }, [wordsOfEncouragement]);
+
   const labelTexts = {
     tasksParticipated: BUDDY_EVALUATION_QUESTIONS.tasksParticipated,
     strengths: BUDDY_EVALUATION_QUESTIONS.strengths,
@@ -49,47 +72,42 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
   } as const;
 
   // Autosave function for a specific field
+  // Uses refs to avoid stale closure issues when multiple fields change rapidly
   const createFieldSaveFn = useCallback(
-    (field: FieldName) =>
-      async (data: {
-        tasksParticipated: string;
-        strengths: string;
-        areasForImprovement: string;
-        wordsOfEncouragement: string;
-      }) => {
-        await onUpdate({
-          tasksParticipated: {
-            questionText: BUDDY_EVALUATION_QUESTIONS.tasksParticipated,
-            answer: data.tasksParticipated,
-          },
-          strengths: {
-            questionText: BUDDY_EVALUATION_QUESTIONS.strengths,
-            answer: data.strengths,
-          },
-          areasForImprovement: {
-            questionText: BUDDY_EVALUATION_QUESTIONS.areasForImprovement,
-            answer: data.areasForImprovement,
-          },
-          wordsOfEncouragement: {
-            questionText: BUDDY_EVALUATION_QUESTIONS.wordsOfEncouragement,
-            answer: data.wordsOfEncouragement,
-          },
-        });
-        // Clear this field from saving state after successful save
-        setSavingFields((prev) => {
-          const next = new Set(prev);
-          next.delete(field);
-          return next;
-        });
-      },
+    (field: FieldName) => async () => {
+      await onUpdate({
+        tasksParticipated: {
+          questionText: BUDDY_EVALUATION_QUESTIONS.tasksParticipated,
+          answer: tasksParticipatedRef.current, // Use ref for latest value
+        },
+        strengths: {
+          questionText: BUDDY_EVALUATION_QUESTIONS.strengths,
+          answer: strengthsRef.current, // Use ref for latest value
+        },
+        areasForImprovement: {
+          questionText: BUDDY_EVALUATION_QUESTIONS.areasForImprovement,
+          answer: areasForImprovementRef.current, // Use ref for latest value
+        },
+        wordsOfEncouragement: {
+          questionText: BUDDY_EVALUATION_QUESTIONS.wordsOfEncouragement,
+          answer: wordsOfEncouragementRef.current, // Use ref for latest value
+        },
+      });
+      // Clear this field from saving state after successful save
+      setSavingFields((prev) => {
+        const next = new Set(prev);
+        next.delete(field);
+        return next;
+      });
+    },
     [onUpdate]
   );
 
   // Create separate autosave instances for each field
-  const tasksParticipatedAutosave = useAutosave(createFieldSaveFn('tasksParticipated'), 1500);
-  const strengthsAutosave = useAutosave(createFieldSaveFn('strengths'), 1500);
-  const areasForImprovementAutosave = useAutosave(createFieldSaveFn('areasForImprovement'), 1500);
-  const wordsOfEncouragementAutosave = useAutosave(createFieldSaveFn('wordsOfEncouragement'), 1500);
+  const tasksParticipatedAutosave = useAutosave<void>(createFieldSaveFn('tasksParticipated'), 1500);
+  const strengthsAutosave = useAutosave<void>(createFieldSaveFn('strengths'), 1500);
+  const areasForImprovementAutosave = useAutosave<void>(createFieldSaveFn('areasForImprovement'), 1500);
+  const wordsOfEncouragementAutosave = useAutosave<void>(createFieldSaveFn('wordsOfEncouragement'), 1500);
 
   const handleSave = async () => {
     try {
@@ -122,24 +140,23 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
     setSavingFields((prev) => new Set(prev).add(field));
 
     // Update state and trigger field-specific autosave
-    const data = { tasksParticipated, strengths, areasForImprovement, wordsOfEncouragement };
-
+    // Note: Pass undefined as the autosave callback reads from refs
     switch (field) {
       case 'tasksParticipated':
         setTasksParticipated(value);
-        tasksParticipatedAutosave.debouncedSave({ ...data, tasksParticipated: value });
+        tasksParticipatedAutosave.debouncedSave(undefined);
         break;
       case 'strengths':
         setStrengths(value);
-        strengthsAutosave.debouncedSave({ ...data, strengths: value });
+        strengthsAutosave.debouncedSave(undefined);
         break;
       case 'areasForImprovement':
         setAreasForImprovement(value);
-        areasForImprovementAutosave.debouncedSave({ ...data, areasForImprovement: value });
+        areasForImprovementAutosave.debouncedSave(undefined);
         break;
       case 'wordsOfEncouragement':
         setWordsOfEncouragement(value);
-        wordsOfEncouragementAutosave.debouncedSave({ ...data, wordsOfEncouragement: value });
+        wordsOfEncouragementAutosave.debouncedSave(undefined);
         break;
     }
   };

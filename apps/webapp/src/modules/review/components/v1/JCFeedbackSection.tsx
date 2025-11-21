@@ -1,7 +1,7 @@
 'use client';
 
 import { EyeOff } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -35,22 +35,36 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
   // Track which fields are currently being saved
   const [savingFields, setSavingFields] = useState<Set<FieldName>>(new Set());
 
+  // Create refs to hold the latest state values to prevent stale closures in autosave
+  const gratitudeToBuddyRef = useRef(gratitudeToBuddy);
+  const programFeedbackRef = useRef(programFeedback);
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    gratitudeToBuddyRef.current = gratitudeToBuddy;
+  }, [gratitudeToBuddy]);
+
+  useEffect(() => {
+    programFeedbackRef.current = programFeedback;
+  }, [programFeedback]);
+
   const labelTexts = {
     gratitudeToBuddy: JC_FEEDBACK_QUESTIONS.gratitudeToBuddy,
     programFeedback: JC_FEEDBACK_QUESTIONS.programFeedback,
   } as const;
 
   // Autosave function for a specific field
+  // Uses refs to avoid stale closure issues when multiple fields change rapidly
   const createFieldSaveFn = useCallback(
-    (field: FieldName) => async (data: { gratitudeToBuddy: string; programFeedback: string }) => {
+    (field: FieldName) => async () => {
       await onUpdate({
         gratitudeToBuddy: {
           questionText: JC_FEEDBACK_QUESTIONS.gratitudeToBuddy,
-          answer: data.gratitudeToBuddy,
+          answer: gratitudeToBuddyRef.current, // Use ref for latest value
         },
         programFeedback: {
           questionText: JC_FEEDBACK_QUESTIONS.programFeedback,
-          answer: data.programFeedback,
+          answer: programFeedbackRef.current, // Use ref for latest value
         },
       });
       // Clear this field from saving state after successful save
@@ -64,8 +78,8 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
   );
 
   // Create separate autosave instances for each field
-  const gratitudeToBuddyAutosave = useAutosave(createFieldSaveFn('gratitudeToBuddy'), 1500);
-  const programFeedbackAutosave = useAutosave(createFieldSaveFn('programFeedback'), 1500);
+  const gratitudeToBuddyAutosave = useAutosave<void>(createFieldSaveFn('gratitudeToBuddy'), 1500);
+  const programFeedbackAutosave = useAutosave<void>(createFieldSaveFn('programFeedback'), 1500);
 
   const handleSave = async () => {
     try {
@@ -90,16 +104,15 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
     setSavingFields((prev) => new Set(prev).add(field));
 
     // Update state and trigger field-specific autosave
-    const data = { gratitudeToBuddy, programFeedback };
-
+    // Note: Pass undefined as the autosave callback reads from refs
     switch (field) {
       case 'gratitudeToBuddy':
         setGratitudeToBuddy(value);
-        gratitudeToBuddyAutosave.debouncedSave({ ...data, gratitudeToBuddy: value });
+        gratitudeToBuddyAutosave.debouncedSave(undefined);
         break;
       case 'programFeedback':
         setProgramFeedback(value);
-        programFeedbackAutosave.debouncedSave({ ...data, programFeedback: value });
+        programFeedbackAutosave.debouncedSave(undefined);
         break;
     }
   };

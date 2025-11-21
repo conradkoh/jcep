@@ -2,12 +2,11 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { JCReflectionSection } from './JCReflectionSection';
-import type { ReviewForm, AgeGroup } from '../../types';
-import type { Id } from '@/convex/_generated/dataModel';
+import type { ReviewForm } from '../../types';
 
 // biome-ignore lint/suspicious/noExplicitAny: Mock data requires type assertions for testing
 const createMockForm = (overrides?: Partial<ReviewForm>): ReviewForm => ({
-  _id: 'test-form-id' as Id<'reviewForms'>,
+  _id: 'test-form-id' as any,
   _creationTime: Date.now(),
   schemaVersion: 1,
   buddyAccessToken: 'token1',
@@ -19,9 +18,9 @@ const createMockForm = (overrides?: Partial<ReviewForm>): ReviewForm => ({
   visibilityChangedBy: null,
   rotationYear: 2025,
   rotationQuarter: 1,
-  buddyUserId: 'buddy-id' as Id<'users'>,
+  buddyUserId: 'buddy-id' as any,
   buddyName: 'Test Buddy',
-  juniorCommanderUserId: 'jc-id' as Id<'users'>,
+  juniorCommanderUserId: 'jc-id' as any,
   juniorCommanderName: 'Test JC',
   ageGroup: 'RK',
   evaluationDate: Date.now(),
@@ -32,7 +31,7 @@ const createMockForm = (overrides?: Partial<ReviewForm>): ReviewForm => ({
   status: 'draft',
   submittedAt: null,
   submittedBy: null,
-  createdBy: 'admin-id' as Id<'users'>,
+  createdBy: 'admin-id' as any,
   ...overrides,
 });
 
@@ -52,7 +51,7 @@ describe('JCReflectionSection', () => {
           whatToDoDifferently: { questionText: 'Q3', answer: '' },
           goalsForNextRotation: { questionText: 'Q4', answer: '' },
           completedAt: Date.now(),
-          completedBy: 'jc-id' as Id<'users'>,
+          completedBy: 'jc-id' as any,
         },
       });
 
@@ -95,7 +94,7 @@ describe('JCReflectionSection', () => {
           whatToDoDifferently: { questionText: 'Q3', answer: 'Different' },
           goalsForNextRotation: { questionText: 'Q4', answer: 'Goals' },
           completedAt: Date.now(),
-          completedBy: 'jc-id' as Id<'users'>,
+          completedBy: 'jc-id' as any,
         },
       });
 
