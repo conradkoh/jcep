@@ -5,17 +5,12 @@ import { useCallback, useRef, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useAutosave } from '../../hooks/useAutosave';
 import type { AgeGroup, QuestionResponse, ReviewForm } from '../../types';
+import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
 import { validatePayload } from '../../utils/autosaveHelpers';
+import { AgeGroupSelect } from '../AgeGroupSelect';
 import { JC_REFLECTION_QUESTIONS } from './formQuestions';
 import { SaveIndicator } from './SaveIndicator';
 
@@ -112,7 +107,13 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
         // Validate payload in development
         validatePayload(
           payload,
-          ['nextRotationPreference', 'activitiesParticipated', 'learningsFromJCEP', 'whatToDoDifferently', 'goalsForNextRotation'],
+          [
+            'nextRotationPreference',
+            'activitiesParticipated',
+            'learningsFromJCEP',
+            'whatToDoDifferently',
+            'goalsForNextRotation',
+          ],
           `JCReflectionSection ${field} autosave`
         );
 
@@ -138,51 +139,54 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
   const goalsForNextRotationAutosave = useAutosave(createFieldSaveFn('goalsForNextRotation'), 1500);
 
   // Autosave for nextRotationPreference changes
-  const nextRotationPreferenceAutosave = useAutosave(
-    async (preference: AgeGroup) => {
-      console.log('[JCReflectionSection] Autosaving nextRotationPreference:', {
-        preference,
-        activitiesParticipated: activitiesParticipatedRef.current,
-        learningsFromJCEP: learningsFromJCEPRef.current,
-        whatToDoDifferently: whatToDoDifferentlyRef.current,
-        goalsForNextRotation: goalsForNextRotationRef.current,
-      });
+  const nextRotationPreferenceAutosave = useAutosave(async (preference: AgeGroup) => {
+    console.log('[JCReflectionSection] Autosaving nextRotationPreference:', {
+      preference,
+      activitiesParticipated: activitiesParticipatedRef.current,
+      learningsFromJCEP: learningsFromJCEPRef.current,
+      whatToDoDifferently: whatToDoDifferentlyRef.current,
+      goalsForNextRotation: goalsForNextRotationRef.current,
+    });
 
-      const payload = {
-        nextRotationPreference: preference,
-        activitiesParticipated: {
-          questionText: JC_REFLECTION_QUESTIONS.activitiesParticipated,
-          answer: activitiesParticipatedRef.current,
-        },
-        learningsFromJCEP: {
-          questionText: JC_REFLECTION_QUESTIONS.learningsFromJCEP,
-          answer: learningsFromJCEPRef.current,
-        },
-        whatToDoDifferently: {
-          questionText: JC_REFLECTION_QUESTIONS.whatToDoDifferently,
-          answer: whatToDoDifferentlyRef.current,
-        },
-        goalsForNextRotation: {
-          questionText: JC_REFLECTION_QUESTIONS.goalsForNextRotation,
-          answer: goalsForNextRotationRef.current,
-        },
-      };
+    const payload = {
+      nextRotationPreference: preference,
+      activitiesParticipated: {
+        questionText: JC_REFLECTION_QUESTIONS.activitiesParticipated,
+        answer: activitiesParticipatedRef.current,
+      },
+      learningsFromJCEP: {
+        questionText: JC_REFLECTION_QUESTIONS.learningsFromJCEP,
+        answer: learningsFromJCEPRef.current,
+      },
+      whatToDoDifferently: {
+        questionText: JC_REFLECTION_QUESTIONS.whatToDoDifferently,
+        answer: whatToDoDifferentlyRef.current,
+      },
+      goalsForNextRotation: {
+        questionText: JC_REFLECTION_QUESTIONS.goalsForNextRotation,
+        answer: goalsForNextRotationRef.current,
+      },
+    };
 
-      // Validate payload in development
-      validatePayload(
-        payload,
-        ['nextRotationPreference', 'activitiesParticipated', 'learningsFromJCEP', 'whatToDoDifferently', 'goalsForNextRotation'],
-        'JCReflectionSection nextRotationPreference autosave'
-      );
+    // Validate payload in development
+    validatePayload(
+      payload,
+      [
+        'nextRotationPreference',
+        'activitiesParticipated',
+        'learningsFromJCEP',
+        'whatToDoDifferently',
+        'goalsForNextRotation',
+      ],
+      'JCReflectionSection nextRotationPreference autosave'
+    );
 
-      await onUpdate(payload);
+    await onUpdate(payload);
 
-      console.log('[JCReflectionSection] Autosave completed successfully');
-      // Clear saving state after successful save
-      setNextRotationPreferenceSaving(false);
-    },
-    1500
-  );
+    console.log('[JCReflectionSection] Autosave completed successfully');
+    // Clear saving state after successful save
+    setNextRotationPreferenceSaving(false);
+  }, 1500);
 
   const handleSave = async () => {
     try {
@@ -301,7 +305,11 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
             <Label className="text-sm font-medium text-muted-foreground">
               Next Rotation Preference
             </Label>
-            <p className="mt-1 text-foreground">{form.nextRotationPreference}</p>
+            <p className="mt-1 text-foreground">
+              {form.nextRotationPreference
+                ? getAgeGroupLabel(form.nextRotationPreference)
+                : 'Not specified'}
+            </p>
           </div>
 
           <div>
@@ -375,26 +383,17 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
               }
             />
           </div>
-          <Select
+          <AgeGroupSelect
             value={nextRotationPreference}
             onValueChange={(value) => {
-              const newValue = value as AgeGroup;
-              setNextRotationPreference(newValue);
+              setNextRotationPreference(value);
               // Mark as saving and trigger autosave when dropdown value changes
               setNextRotationPreferenceSaving(true);
-              nextRotationPreferenceAutosave.debouncedSave(newValue);
+              nextRotationPreferenceAutosave.debouncedSave(value);
             }}
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue placeholder="Select preferred age group" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="RK">RK (Rainbows/Kindergarten)</SelectItem>
-              <SelectItem value="DR">DR (Daisies/Reception)</SelectItem>
-              <SelectItem value="AR">AR (Acorns/Reception)</SelectItem>
-              <SelectItem value="ER">ER (Eagles/Reception)</SelectItem>
-            </SelectContent>
-          </Select>
+            placeholder="Select preferred age group"
+            className="mt-1"
+          />
         </div>
 
         <div>

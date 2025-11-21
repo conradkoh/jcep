@@ -1,11 +1,11 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { JCReflectionSection } from './JCReflectionSection';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ReviewForm } from '../../types';
+import { JCReflectionSection } from './JCReflectionSection';
 
-// biome-ignore lint/suspicious/noExplicitAny: Mock data requires type assertions for testing
 const createMockForm = (overrides?: Partial<ReviewForm>): ReviewForm => ({
+  // biome-ignore lint/suspicious/noExplicitAny: Test mock requires type assertion
   _id: 'test-form-id' as any,
   _creationTime: Date.now(),
   schemaVersion: 1,
@@ -18,8 +18,10 @@ const createMockForm = (overrides?: Partial<ReviewForm>): ReviewForm => ({
   visibilityChangedBy: null,
   rotationYear: 2025,
   rotationQuarter: 1,
+  // biome-ignore lint/suspicious/noExplicitAny: Test mock requires type assertion
   buddyUserId: 'buddy-id' as any,
   buddyName: 'Test Buddy',
+  // biome-ignore lint/suspicious/noExplicitAny: Test mock requires type assertion
   juniorCommanderUserId: 'jc-id' as any,
   juniorCommanderName: 'Test JC',
   ageGroup: 'RK',
@@ -31,6 +33,7 @@ const createMockForm = (overrides?: Partial<ReviewForm>): ReviewForm => ({
   status: 'draft',
   submittedAt: null,
   submittedBy: null,
+  // biome-ignore lint/suspicious/noExplicitAny: Test mock requires type assertion
   createdBy: 'admin-id' as any,
   ...overrides,
 });
@@ -51,6 +54,7 @@ describe('JCReflectionSection', () => {
           whatToDoDifferently: { questionText: 'Q3', answer: '' },
           goalsForNextRotation: { questionText: 'Q4', answer: '' },
           completedAt: Date.now(),
+          // biome-ignore lint/suspicious/noExplicitAny: Test mock requires type assertion
           completedBy: 'jc-id' as any,
         },
       });
@@ -81,7 +85,6 @@ describe('JCReflectionSection', () => {
         { timeout: 2500 }
       );
     });
-
   });
 
   describe('Read-only mode', () => {
@@ -94,13 +97,14 @@ describe('JCReflectionSection', () => {
           whatToDoDifferently: { questionText: 'Q3', answer: 'Different' },
           goalsForNextRotation: { questionText: 'Q4', answer: 'Goals' },
           completedAt: Date.now(),
+          // biome-ignore lint/suspicious/noExplicitAny: Test mock requires type assertion
           completedBy: 'jc-id' as any,
         },
       });
 
       render(<JCReflectionSection form={form} canEdit={false} onUpdate={vi.fn()} />);
 
-      expect(screen.getByText('DR')).toBeInTheDocument();
+      expect(screen.getByText('Discovery Rangers')).toBeInTheDocument();
     });
 
     it('should not show nextRotationPreference when null', () => {
@@ -111,8 +115,9 @@ describe('JCReflectionSection', () => {
 
       render(<JCReflectionSection form={form} canEdit={false} onUpdate={vi.fn()} />);
 
-      expect(screen.queryByText(/DR|RK|AR|ER/)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/Discovery Rangers|Ranger Kids|Adventure Rangers|Expedition Rangers/)
+      ).not.toBeInTheDocument();
     });
   });
 });
-

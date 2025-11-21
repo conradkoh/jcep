@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 import { useCreateReviewForm } from '../../hooks/useReviewForm';
 import type { AgeGroup } from '../../types';
 import { getDefaultRotationQuarter, getRotationQuarterOptions } from '../../utils/rotationUtils';
+import { AgeGroupSelect } from '../AgeGroupSelect';
 
 interface ReviewFormCreateProps {
   currentUserId: Id<'users'>;
@@ -160,17 +161,12 @@ export function ReviewFormCreate({ currentUserId }: ReviewFormCreateProps) {
           <Label htmlFor="ageGroup" className="text-sm font-medium text-foreground">
             Age Group
           </Label>
-          <Select value={ageGroup} onValueChange={(value) => setAgeGroup(value as AgeGroup)}>
-            <SelectTrigger className="mt-1">
-              <SelectValue placeholder="Select age group" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="RK">RK (Rainbows/Kindergarten)</SelectItem>
-              <SelectItem value="DR">DR (Daisies/Reception)</SelectItem>
-              <SelectItem value="AR">AR (Acorns/Reception)</SelectItem>
-              <SelectItem value="ER">ER (Eagles/Reception)</SelectItem>
-            </SelectContent>
-          </Select>
+          <AgeGroupSelect
+            value={ageGroup}
+            onValueChange={setAgeGroup}
+            placeholder="Select age group"
+            className="mt-1"
+          />
         </div>
 
         <div>

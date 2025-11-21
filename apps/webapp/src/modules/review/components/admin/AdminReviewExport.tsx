@@ -5,6 +5,7 @@ import { DateTime } from 'luxon';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import type { ReviewForm } from '../../types';
+import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
 
 interface AdminReviewExportProps {
   forms: ReviewForm[];
@@ -39,10 +40,10 @@ export function AdminReviewExport({ forms, year }: AdminReviewExportProps) {
         form.rotationYear,
         form.juniorCommanderName,
         form.buddyName,
-        form.ageGroup,
+        getAgeGroupLabel(form.ageGroup),
         DateTime.fromMillis(form.evaluationDate).toFormat('yyyy-MM-dd'),
         form.status,
-        form.nextRotationPreference || '',
+        form.nextRotationPreference ? getAgeGroupLabel(form.nextRotationPreference) : '',
         form.buddyEvaluation ? 'Yes' : 'No',
         form.jcReflection ? 'Yes' : 'No',
         form.jcFeedback ? 'Yes' : 'No',

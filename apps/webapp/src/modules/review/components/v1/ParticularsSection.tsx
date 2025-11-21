@@ -19,17 +19,11 @@ import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import type { AgeGroup, ReviewForm } from '../../types';
 import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
 import { formatRotationLabel } from '../../utils/rotationUtils';
+import { AgeGroupSelect } from '../AgeGroupSelect';
 
 interface ParticularsSectionProps {
   form: ReviewForm;
@@ -217,17 +211,12 @@ export function ParticularsSection({
           <Label htmlFor="ageGroup" className="text-sm font-medium text-foreground">
             Age Group
           </Label>
-          <Select value={ageGroup} onValueChange={(value) => setAgeGroup(value as AgeGroup)}>
-            <SelectTrigger className="mt-1">
-              <SelectValue placeholder="Select age group" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="RK">RK (Rainbows/Kindergarten)</SelectItem>
-              <SelectItem value="DR">DR (Daisies/Reception)</SelectItem>
-              <SelectItem value="AR">AR (Acorns/Reception)</SelectItem>
-              <SelectItem value="ER">ER (Eagles/Reception)</SelectItem>
-            </SelectContent>
-          </Select>
+          <AgeGroupSelect
+            value={ageGroup}
+            onValueChange={setAgeGroup}
+            placeholder="Select age group"
+            className="mt-1"
+          />
         </div>
 
         <div>
