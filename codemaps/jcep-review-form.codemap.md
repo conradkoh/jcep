@@ -36,23 +36,27 @@ Digital implementation of the Junior Commander Exposure Programme (JCEP) rotatio
 
 Based on the paper form structure, the optimal digital flow is:
 
-### Stage 1: Form Initialization (By Admin) **[V2: Enhanced]**
+### Stage 1: Form Initialization (By Admin) **[V2: Implemented]**
 
-- **V1 (Current)**: Admin or Buddy creates form with both names assigned
-- **V2 (Planned)**: Admin pre-creates form, system generates secret access tokens
+- **V2.1 (Current)**: Admin pre-creates form with buddy and JC names
+  - Admin accesses admin listing page at `/app/review` (system admin only)
+  - Creates form specifying both buddy and JC names (no pre-filled assumptions)
+  - System generates secret access tokens automatically
+  - Admin redirected back to listing page showing all forms
+  - Listing shows copy buttons for both Buddy and JC links
   - Buddy receives unique link: `/review/token/{buddyToken}`
   - JC receives unique link: `/review/token/{jcToken}`
   - Tokens allow anonymous access before account linking
   - Admin controls when responses become visible to each party
 
-### Stage 2: Buddy Evaluation Section (By Buddy) **[V2: Visibility Control]**
+### Stage 2: Buddy Evaluation Section (By Buddy) **[V2: Implemented]**
 
-- **V1 (Current)**: Buddy completes section, JC can see immediately
-- **V2 (Planned)**: Buddy completes section, hidden from JC until admin reveals
-
+- **V2.1 (Current)**: Buddy completes section, hidden from JC until admin reveals
   - Buddy accesses via token link (anonymous) or account (if linked)
-  - Responses saved but marked as hidden from JC
+  - Buddy sees their name, JC's name, and JC's response status
+  - Responses saved but marked as hidden from JC by default
   - Admin toggles `buddyResponsesVisibleToJC` flag when ready
+  - Buddy can see completion progress: not started / in progress (X/Y sections) / completed
 
 - Buddy completes their evaluation section:
   1. Lists tasks the Junior Commander participated in
@@ -60,17 +64,17 @@ Based on the paper form structure, the optimal digital flow is:
   3. Identifies areas for improvement with examples
   4. Provides words of encouragement and guidance
 
-### Stage 3: Junior Commander Reflection (By Junior Commander) **[V2: Visibility Control]**
+### Stage 3: Junior Commander Reflection (By Junior Commander) **[V2: Implemented]**
 
-- **V1 (Current)**: JC completes section, Buddy can see immediately
-- **V2 (Planned)**: JC completes section, hidden from Buddy until admin reveals
-
+- **V2.1 (Current)**: JC completes section, hidden from Buddy until admin reveals
   - JC accesses via token link (anonymous) or account (if linked)
-  - Responses saved but marked as hidden from Buddy
+  - JC sees their name, Buddy's name, and Buddy's response status
+  - Responses saved but marked as hidden from Buddy by default
   - Admin toggles `jcResponsesVisibleToBuddy` flag when ready
+  - JC can see completion progress: not started / in progress (X/Y sections) / completed
 
 - Junior Commander completes their section:
-  1. Documents next rotation preference (RK/DR/AR/ER)
+  1. Documents next rotation preference (Ranger Kids/Discovery Rangers/Adventure Rangers/Expedition Rangers)
   2. Describes memorable/impactful activities participated in
   3. Reflects on learnings from JCEP experience (devotions, ministry impact)
   4. Identifies what they would have done differently in current rotation
@@ -98,6 +102,17 @@ Based on the paper form structure, the optimal digital flow is:
 - Quick access to edit any form
 - Status tracking across all assignments
 
+## Age Groups
+
+The JCEP program uses the following age group classifications:
+
+- **RK** = Ranger Kids
+- **DR** = Discovery Rangers
+- **AR** = Adventure Rangers
+- **ER** = Expedition Rangers
+
+These labels should be displayed in full throughout the UI for clarity.
+
 ## Data Model Considerations
 
 **Key Requirements:**
@@ -111,6 +126,8 @@ Based on the paper form structure, the optimal digital flow is:
 - **Capture question text with each response** to preserve context when questions change
 - **Organize UI components by version** (v1, v2, etc.) for complete isolation between schema versions
 - **Admin view** to list and filter all responses by year across all users
+- **Admin listing page** shows all forms with copy buttons for token distribution
+- **Participant status tracking** shows not started / in progress (X/Y sections) / completed
 
 ## Sequence Diagram
 
