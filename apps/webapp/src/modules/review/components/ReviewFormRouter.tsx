@@ -3,17 +3,23 @@
 import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 import { SUPPORTED_SCHEMA_VERSIONS } from '../constants/schemaVersions';
 import { useReviewForm } from '../hooks/useReviewForm';
+import { useReviewFormByToken } from '../hooks/useReviewFormByToken';
 import { ReviewFormView as V1ReviewFormView } from './v1/ReviewFormView';
 
 interface ReviewFormRouterProps {
   formId: Id<'reviewForms'>;
+  accessToken?: string | null;
 }
 
 /**
  * Routes to the correct version of the review form based on schema version
  */
-export function ReviewFormRouter({ formId }: ReviewFormRouterProps) {
-  const { form, isLoading } = useReviewForm(formId);
+export function ReviewFormRouter({ formId, accessToken }: ReviewFormRouterProps) {
+  // Use token-based access if token is provided, otherwise use session-based access
+  const sessionBasedData = useReviewForm(accessToken ? null : formId);
+  const tokenBasedData = useReviewFormByToken(accessToken);
+
+  const { form, isLoading } = accessToken ? tokenBasedData : sessionBasedData;
 
   if (isLoading) {
     return (

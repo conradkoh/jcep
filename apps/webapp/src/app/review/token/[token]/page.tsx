@@ -119,7 +119,7 @@ export default function TokenAccessPage() {
       </Card>
 
       {/* Form content */}
-      <ReviewFormRouter formId={form._id} />
+      <ReviewFormRouter formId={form._id} accessToken={token} />
     </div>
   );
 }
