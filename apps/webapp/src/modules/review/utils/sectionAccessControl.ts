@@ -24,9 +24,11 @@ export interface SectionAccessRules {
  * @returns Section access rules
  *
  * @remarks
- * Current logic (will be improved later):
- * - Buddy can access and edit Buddy Evaluation section
- * - JC can access and edit JC Reflection and JC Feedback sections
+ * Access logic with visibility control:
+ * - Buddy can always access and edit their own Buddy Evaluation section
+ * - Buddy can VIEW JC sections if admin enables jcResponsesVisibleToBuddy
+ * - JC can always access and edit their own JC Reflection and Feedback sections
+ * - JC can VIEW Buddy Evaluation if admin enables buddyResponsesVisibleToJC
  * - Admin can access all sections but cannot edit via token access
  * - All sections are locked when form is submitted
  */
@@ -57,16 +59,31 @@ export function getSectionAccessRules(
 
   // Buddy access
   if (accessLevel === 'buddy') {
+    // Buddy can always access their own evaluation
     rules.canAccessBuddyEvaluation = true;
     rules.canEditBuddyEvaluation = !isSubmitted;
+
+    // Buddy can VIEW JC sections if visibility is enabled
+    if (form.jcResponsesVisibleToBuddy) {
+      rules.canAccessJCReflection = true;
+      rules.canAccessJCFeedback = true;
+      // Buddy can only view, not edit JC sections
+    }
   }
 
   // JC access
   if (accessLevel === 'jc') {
+    // JC can always access their own sections
     rules.canAccessJCReflection = true;
     rules.canAccessJCFeedback = true;
     rules.canEditJCReflection = !isSubmitted;
     rules.canEditJCFeedback = !isSubmitted;
+
+    // JC can VIEW Buddy Evaluation if visibility is enabled
+    if (form.buddyResponsesVisibleToJC) {
+      rules.canAccessBuddyEvaluation = true;
+      // JC can only view, not edit Buddy section
+    }
   }
 
   return rules;
@@ -90,12 +107,12 @@ export function getSectionLockMessage(
     if (section === 'buddy') {
       return 'You have access to this section';
     }
-    return 'This section is only accessible to the Junior Commander';
+    return 'This section will be visible once the administrator enables visibility';
   }
 
   if (accessLevel === 'jc') {
     if (section === 'buddy') {
-      return 'This section is only accessible to the Buddy';
+      return 'This section will be visible once the administrator enables visibility';
     }
     return 'You have access to this section';
   }
