@@ -170,6 +170,7 @@ export const getReviewFormsByYear = query({
   args: {
     ...SessionIdArg,
     year: v.number(),
+    quarter: v.optional(v.number()), // Optional quarter filter (1-4)
   },
   handler: async (ctx, args) => {
     const user = await getAuthUser(ctx, { sessionId: args.sessionId });
@@ -177,21 +178,48 @@ export const getReviewFormsByYear = query({
       throw new Error('Not authenticated');
     }
 
-    // Get forms where user is buddy
-    const buddyForms = await ctx.db
-      .query('reviewForms')
-      .withIndex('by_year_and_buddy', (q) =>
-        q.eq('rotationYear', args.year).eq('buddyUserId', user._id)
-      )
-      .collect();
+    let buddyForms: Doc<'reviewForms'>[];
+    let jcForms: Doc<'reviewForms'>[];
 
-    // Get forms where user is JC
-    const jcForms = await ctx.db
-      .query('reviewForms')
-      .withIndex('by_year_and_jc', (q) =>
-        q.eq('rotationYear', args.year).eq('juniorCommanderUserId', user._id)
-      )
-      .collect();
+    if (args.quarter !== undefined) {
+      // Get forms where user is buddy (with quarter filter)
+      buddyForms = await ctx.db
+        .query('reviewForms')
+        .withIndex('by_year_quarter_and_buddy', (q) =>
+          q
+            .eq('rotationYear', args.year)
+            .eq('rotationQuarter', args.quarter)
+            .eq('buddyUserId', user._id)
+        )
+        .collect();
+
+      // Get forms where user is JC (with quarter filter)
+      jcForms = await ctx.db
+        .query('reviewForms')
+        .withIndex('by_year_quarter_and_jc', (q) =>
+          q
+            .eq('rotationYear', args.year)
+            .eq('rotationQuarter', args.quarter)
+            .eq('juniorCommanderUserId', user._id)
+        )
+        .collect();
+    } else {
+      // Get forms where user is buddy (no quarter filter)
+      buddyForms = await ctx.db
+        .query('reviewForms')
+        .withIndex('by_year_and_buddy', (q) =>
+          q.eq('rotationYear', args.year).eq('buddyUserId', user._id)
+        )
+        .collect();
+
+      // Get forms where user is JC (no quarter filter)
+      jcForms = await ctx.db
+        .query('reviewForms')
+        .withIndex('by_year_and_jc', (q) =>
+          q.eq('rotationYear', args.year).eq('juniorCommanderUserId', user._id)
+        )
+        .collect();
+    }
 
     // Combine and deduplicate
     const allForms = [...buddyForms, ...jcForms];
@@ -281,6 +309,7 @@ export const getAllReviewFormsByYear = query({
   args: {
     ...SessionIdArg,
     year: v.number(),
+    quarter: v.optional(v.number()), // Optional quarter filter (1-4)
     status: v.optional(reviewFormStatusValidator),
     ageGroup: v.optional(ageGroupValidator),
   },
@@ -295,9 +324,28 @@ export const getAllReviewFormsByYear = query({
       throw new Error('Not authorized - admin access required');
     }
 
-    // Query by year and optional status
+    // Query by year, quarter (if provided), and optional status
     let forms: Doc<'reviewForms'>[];
-    if (args.status !== undefined) {
+
+    if (args.quarter !== undefined && args.status !== undefined) {
+      // Both quarter and status specified - use combined index
+      const status = args.status;
+      forms = await ctx.db
+        .query('reviewForms')
+        .withIndex('by_year_quarter_and_status', (q) =>
+          q.eq('rotationYear', args.year).eq('rotationQuarter', args.quarter).eq('status', status)
+        )
+        .collect();
+    } else if (args.quarter !== undefined) {
+      // Only quarter specified
+      forms = await ctx.db
+        .query('reviewForms')
+        .withIndex('by_rotation_year_quarter', (q) =>
+          q.eq('rotationYear', args.year).eq('rotationQuarter', args.quarter)
+        )
+        .collect();
+    } else if (args.status !== undefined) {
+      // Only status specified
       const status = args.status;
       forms = await ctx.db
         .query('reviewForms')
@@ -306,6 +354,7 @@ export const getAllReviewFormsByYear = query({
         )
         .collect();
     } else {
+      // Neither quarter nor status specified
       forms = await ctx.db
         .query('reviewForms')
         .withIndex('by_rotation_year', (q) => q.eq('rotationYear', args.year))
@@ -328,6 +377,7 @@ export const createReviewForm = mutation({
   args: {
     ...SessionIdArg,
     rotationYear: v.number(),
+    rotationQuarter: v.number(), // 1-4
     buddyUserId: v.id('users'),
     buddyName: v.string(),
     juniorCommanderUserId: v.union(v.id('users'), v.null()),
@@ -373,6 +423,11 @@ export const createReviewForm = mutation({
       throw new Error('Token collision detected. Please try again.');
     }
 
+    // Validate rotationQuarter is 1-4
+    if (args.rotationQuarter < 1 || args.rotationQuarter > 4) {
+      throw new Error('rotationQuarter must be between 1 and 4');
+    }
+
     const formId = await ctx.db.insert('reviewForms', {
       schemaVersion: CURRENT_SCHEMA_VERSION,
 
@@ -388,6 +443,7 @@ export const createReviewForm = mutation({
       visibilityChangedBy: null,
 
       rotationYear: args.rotationYear,
+      rotationQuarter: args.rotationQuarter,
       buddyUserId: args.buddyUserId,
       buddyName: args.buddyName,
       juniorCommanderUserId: args.juniorCommanderUserId,
