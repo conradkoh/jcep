@@ -3,7 +3,7 @@
  * Stores and retrieves access tokens from localStorage.
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const TOKEN_STORAGE_KEY = 'jcep_review_token';
 
@@ -28,7 +28,7 @@ export function useTokenAuth() {
   }, []);
 
   // Store token in localStorage
-  const setToken = (token: string | null) => {
+  const setToken = useCallback((token: string | null) => {
     if (token) {
       localStorage.setItem(TOKEN_STORAGE_KEY, token);
     } else {
@@ -38,16 +38,16 @@ export function useTokenAuth() {
       token,
       isLoading: false,
     });
-  };
+  }, []);
 
   // Clear token from localStorage
-  const clearToken = () => {
+  const clearToken = useCallback(() => {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
     setState({
       token: null,
       isLoading: false,
     });
-  };
+  }, []);
 
   return {
     token: state.token,
