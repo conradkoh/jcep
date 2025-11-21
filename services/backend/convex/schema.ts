@@ -253,6 +253,7 @@ export default defineSchema({
 
     // Particulars
     rotationYear: v.number(), // For indexing by year (e.g., 2025)
+    rotationQuarter: v.number(), // Quarter within the year (1-4) for up to 4 rotations per year
     buddyUserId: v.id('users'), // The Buddy assigned to this JC
     buddyName: v.string(), // Buddy's display name
     juniorCommanderUserId: v.union(v.id('users'), v.null()), // Null if JC not registered
@@ -344,11 +345,15 @@ export default defineSchema({
   })
     .index('by_schema_version', ['schemaVersion'])
     .index('by_rotation_year', ['rotationYear'])
+    .index('by_rotation_year_quarter', ['rotationYear', 'rotationQuarter']) // NEW: Query by year + quarter
     .index('by_buddy', ['buddyUserId'])
     .index('by_junior_commander', ['juniorCommanderUserId'])
     .index('by_year_and_buddy', ['rotationYear', 'buddyUserId'])
     .index('by_year_and_jc', ['rotationYear', 'juniorCommanderUserId'])
+    .index('by_year_quarter_and_buddy', ['rotationYear', 'rotationQuarter', 'buddyUserId']) // NEW
+    .index('by_year_quarter_and_jc', ['rotationYear', 'rotationQuarter', 'juniorCommanderUserId']) // NEW
     .index('by_year_and_status', ['rotationYear', 'status'])
+    .index('by_year_quarter_and_status', ['rotationYear', 'rotationQuarter', 'status']) // NEW
     .index('by_status', ['status'])
     .index('by_buddy_access_token', ['buddyAccessToken'])
     .index('by_jc_access_token', ['jcAccessToken']),
