@@ -259,6 +259,7 @@ export function AdminReviewListingTable({ forms, onFormDeleted }: AdminReviewLis
                 <TableHead>Buddy</TableHead>
                 <TableHead>JC</TableHead>
                 <TableHead>Age Group</TableHead>
+                <TableHead>Next Rotation Preference</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Buddy Progress</TableHead>
                 <TableHead>JC Progress</TableHead>
@@ -275,6 +276,13 @@ export function AdminReviewListingTable({ forms, onFormDeleted }: AdminReviewLis
                   <TableCell>{form.buddyName}</TableCell>
                   <TableCell>{form.juniorCommanderName}</TableCell>
                   <TableCell>{getAgeGroupLabel(form.ageGroup)}</TableCell>
+                  <TableCell>
+                    {form.nextRotationPreference ? (
+                      getAgeGroupLabel(form.nextRotationPreference)
+                    ) : (
+                      <span className="text-muted-foreground">Pending</span>
+                    )}
+                  </TableCell>
                   <TableCell>{getStatusBadge(form.status)}</TableCell>
                   <TableCell>{getBuddyProgress(form)}</TableCell>
                   <TableCell>{getJCProgress(form)}</TableCell>
