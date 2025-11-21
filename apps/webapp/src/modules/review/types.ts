@@ -8,7 +8,7 @@ import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 export type AgeGroup = 'RK' | 'DR' | 'AR' | 'ER';
 
 // Form completion status
-export type ReviewFormStatus = 'draft' | 'in_progress' | 'submitted';
+export type ReviewFormStatus = 'not_started' | 'in_progress' | 'complete' | 'submitted';
 
 // Schema version for form structure
 export type ReviewFormSchemaVersion = 1; // Increment for breaking changes

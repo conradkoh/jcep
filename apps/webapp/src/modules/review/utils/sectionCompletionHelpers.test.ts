@@ -36,7 +36,7 @@ const createMockForm = (overrides?: Partial<ReviewForm>): ReviewForm => ({
   buddyEvaluation: null,
   jcReflection: null,
   jcFeedback: null,
-  status: 'draft',
+  status: 'not_started',
   submittedAt: null,
   submittedBy: null,
   createdBy: 'admin-id' as any,

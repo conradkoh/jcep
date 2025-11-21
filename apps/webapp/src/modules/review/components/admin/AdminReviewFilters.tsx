@@ -119,8 +119,9 @@ export function AdminReviewFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="not_started">Not Started</SelectItem>
               <SelectItem value="in_progress">In progress</SelectItem>
+              <SelectItem value="complete">Complete</SelectItem>
               <SelectItem value="submitted">Submitted</SelectItem>
             </SelectContent>
           </Select>

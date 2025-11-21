@@ -40,12 +40,14 @@ export function AdminReviewDashboard() {
 
   // Calculate statistics
   const stats = useMemo(() => {
-    if (!filteredForms) return { total: 0, draft: 0, inProgress: 0, submitted: 0 };
+    if (!filteredForms)
+      return { total: 0, notStarted: 0, inProgress: 0, complete: 0, submitted: 0 };
 
     return {
       total: filteredForms.length,
-      draft: filteredForms.filter((f) => f.status === 'draft').length,
+      notStarted: filteredForms.filter((f) => f.status === 'not_started').length,
       inProgress: filteredForms.filter((f) => f.status === 'in_progress').length,
+      complete: filteredForms.filter((f) => f.status === 'complete').length,
       submitted: filteredForms.filter((f) => f.status === 'submitted').length,
     };
   }, [filteredForms]);
@@ -67,7 +69,7 @@ export function AdminReviewDashboard() {
         <AdminReviewExport forms={filteredForms} year={year} />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardContent className="p-6">
             <div className="text-2xl font-bold text-foreground">{stats.total}</div>
@@ -76,14 +78,20 @@ export function AdminReviewDashboard() {
         </Card>
         <Card>
           <CardContent className="p-6">
-            <div className="text-2xl font-bold text-foreground">{stats.draft}</div>
-            <p className="text-sm text-muted-foreground">Draft</p>
+            <div className="text-2xl font-bold text-foreground">{stats.notStarted}</div>
+            <p className="text-sm text-muted-foreground">Not Started</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6">
             <div className="text-2xl font-bold text-foreground">{stats.inProgress}</div>
             <p className="text-sm text-muted-foreground">In Progress</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-2xl font-bold text-foreground">{stats.complete}</div>
+            <p className="text-sm text-muted-foreground">Complete</p>
           </CardContent>
         </Card>
         <Card>

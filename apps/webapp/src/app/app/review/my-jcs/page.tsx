@@ -20,6 +20,7 @@ import { RequireLogin } from '@/modules/auth/RequireLogin';
 import { useReviewFormsByBuddy } from '@/modules/review/hooks/useReviewForm';
 import type { ReviewForm } from '@/modules/review/types';
 import { getAgeGroupLabel } from '@/modules/review/utils/ageGroupLabels';
+import { getSectionCompletionSummary } from '@/modules/review/utils/sectionCompletionHelpers';
 
 /**
  * Content component for the buddy dashboard page.
@@ -56,13 +57,14 @@ function _BuddyDashboardContent() {
 
   // Calculate statistics
   const stats = useMemo(() => {
-    if (!forms) return { total: 0, completed: 0, inProgress: 0, draft: 0 };
+    if (!forms) return { total: 0, completed: 0, inProgress: 0, notStarted: 0, complete: 0 };
 
     return {
       total: forms.length,
       completed: forms.filter((f) => f.status === 'submitted').length,
       inProgress: forms.filter((f) => f.status === 'in_progress').length,
-      draft: forms.filter((f) => f.status === 'draft').length,
+      notStarted: forms.filter((f) => f.status === 'not_started').length,
+      complete: forms.filter((f) => f.status === 'complete').length,
     };
   }, [forms]);
 
@@ -70,11 +72,9 @@ function _BuddyDashboardContent() {
    * Generates a completion badge for a review form based on section completion status.
    */
   const getCompletionBadge = useCallback((form: ReviewForm) => {
-    const hasEvaluation = form.buddyEvaluation !== null;
-    const hasReflection = form.jcReflection !== null;
-    const hasFeedback = form.jcFeedback !== null;
+    const { allComplete, completedCount, totalSections } = getSectionCompletionSummary(form);
 
-    if (hasEvaluation && hasReflection && hasFeedback) {
+    if (allComplete) {
       return (
         <Badge
           variant="outline"
@@ -86,14 +86,13 @@ function _BuddyDashboardContent() {
       );
     }
 
-    const completedSections = [hasEvaluation, hasReflection, hasFeedback].filter(Boolean).length;
     return (
       <Badge
         variant="outline"
         className="bg-yellow-50 dark:bg-yellow-950/20 text-yellow-700 dark:text-yellow-400"
       >
         <Circle className="h-3 w-3 mr-1" />
-        {completedSections}/3 Sections
+        {completedCount}/{totalSections} Sections
       </Badge>
     );
   }, []);
@@ -103,16 +102,22 @@ function _BuddyDashboardContent() {
    */
   const getStatusBadge = useCallback((status: ReviewForm['status']) => {
     switch (status) {
-      case 'draft':
+      case 'not_started':
         return (
           <Badge variant="outline" className="bg-gray-50 dark:bg-gray-950/20">
-            Draft
+            Not Started
           </Badge>
         );
       case 'in_progress':
         return (
           <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950/20">
             In Progress
+          </Badge>
+        );
+      case 'complete':
+        return (
+          <Badge variant="outline" className="bg-green-50 dark:bg-green-950/20">
+            Complete
           </Badge>
         );
       case 'submitted':
@@ -166,10 +171,12 @@ function _BuddyDashboardContent() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Draft</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Not Started</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">{stats.draft}</div>
+            <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
+              {stats.notStarted}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -216,8 +223,9 @@ function _BuddyDashboardContent() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="not_started">Not Started</SelectItem>
                 <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="complete">Complete</SelectItem>
                 <SelectItem value="submitted">Submitted</SelectItem>
               </SelectContent>
             </Select>

@@ -338,7 +338,12 @@ export default defineSchema({
     ),
 
     // Meta
-    status: v.union(v.literal('draft'), v.literal('in_progress'), v.literal('submitted')),
+    status: v.union(
+      v.literal('not_started'),
+      v.literal('in_progress'),
+      v.literal('complete'),
+      v.literal('submitted')
+    ),
     submittedAt: v.union(v.number(), v.null()),
     submittedBy: v.union(v.id('users'), v.null()),
     createdBy: v.id('users'),

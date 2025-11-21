@@ -11,19 +11,15 @@ import { Progress } from '@/components/ui/progress';
 import type { ReviewForm } from '../types';
 import { getAgeGroupLabel } from '../utils/ageGroupLabels';
 import { formatRotationLabel } from '../utils/rotationUtils';
+import { getSectionCompletionSummary } from '../utils/sectionCompletionHelpers';
 
 interface ReviewFormCardProps {
   form: ReviewForm;
 }
 
 export function ReviewFormCard({ form }: ReviewFormCardProps) {
-  const completedSections = [
-    form.buddyEvaluation !== null,
-    form.jcReflection !== null,
-    form.jcFeedback !== null,
-  ].filter(Boolean).length;
-  const totalSections = 3;
-  const progressPercentage = Math.round((completedSections / totalSections) * 100);
+  const { completedCount, totalSections } = getSectionCompletionSummary(form);
+  const progressPercentage = Math.round((completedCount / totalSections) * 100);
 
   const formatDate = (timestamp: number) => DateTime.fromMillis(timestamp).toFormat('dd MMM yyyy');
   const ageGroupLabel = getAgeGroupLabel(form.ageGroup);
@@ -34,10 +30,12 @@ export function ReviewFormCard({ form }: ReviewFormCardProps) {
 
   const statusCopy = (() => {
     switch (form.status) {
-      case 'draft':
-        return { label: 'Draft', className: 'bg-muted text-muted-foreground' };
+      case 'not_started':
+        return { label: 'Not Started', className: 'bg-muted text-muted-foreground' };
       case 'in_progress':
         return { label: 'In Progress', className: 'bg-blue-50 text-blue-700 dark:bg-blue-950/30' };
+      case 'complete':
+        return { label: 'Complete', className: 'bg-green-50 text-green-700 dark:bg-green-950/30' };
       case 'submitted':
         return { label: 'Submitted', className: 'bg-green-50 text-green-700 dark:bg-green-950/30' };
       default:
@@ -90,7 +88,7 @@ export function ReviewFormCard({ form }: ReviewFormCardProps) {
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>Sections completed</span>
             <span className="font-medium text-foreground">
-              {completedSections}/{totalSections}
+              {completedCount}/{totalSections}
             </span>
           </div>
           <Progress

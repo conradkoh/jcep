@@ -8,6 +8,11 @@
 'use client';
 
 import type { ReviewForm, TokenAccessLevel } from '../types';
+import {
+  isBuddyEvaluationComplete,
+  isJCFeedbackComplete,
+  isJCReflectionComplete,
+} from '../utils/sectionCompletionHelpers';
 
 export interface ParticipantInfoCardProps {
   form: ReviewForm;
@@ -15,18 +20,33 @@ export interface ParticipantInfoCardProps {
 }
 
 const getBuddyProgress = (form: ReviewForm) => {
-  if (form.buddyEvaluation === null) {
+  if (!form.buddyEvaluation) {
     return 'Not started';
   }
-  return 'Completed';
+  const isComplete = isBuddyEvaluationComplete(form);
+  if (isComplete) {
+    return 'Completed';
+  }
+  return 'In progress';
 };
 
 const getJCProgress = (form: ReviewForm) => {
-  const completed = [form.jcReflection !== null, form.jcFeedback !== null].filter(Boolean).length;
-  const total = 2;
+  const hasReflection = form.jcReflection !== null;
+  const hasFeedback = form.jcFeedback !== null;
 
-  if (completed === 0) return 'Not started';
-  if (completed === total) return 'Completed';
+  if (!hasReflection && !hasFeedback) {
+    return 'Not started';
+  }
+
+  const reflectionComplete = isJCReflectionComplete(form);
+  const feedbackComplete = isJCFeedbackComplete(form);
+
+  if (reflectionComplete && feedbackComplete) {
+    return 'Completed';
+  }
+
+  const completed = [reflectionComplete, feedbackComplete].filter(Boolean).length;
+  const total = 2;
   return `${completed}/${total} sections`;
 };
 

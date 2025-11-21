@@ -46,16 +46,22 @@ export function AdminReviewTable({ forms, onFormDeleted }: AdminReviewTableProps
 
   const getStatusBadge = (status: ReviewForm['status']) => {
     switch (status) {
-      case 'draft':
+      case 'not_started':
         return (
           <Badge variant="outline" className="bg-gray-50 dark:bg-gray-950/20">
-            Draft
+            Not Started
           </Badge>
         );
       case 'in_progress':
         return (
           <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950/20">
             In Progress
+          </Badge>
+        );
+      case 'complete':
+        return (
+          <Badge variant="outline" className="bg-green-50 dark:bg-green-950/20">
+            Complete
           </Badge>
         );
       case 'submitted':

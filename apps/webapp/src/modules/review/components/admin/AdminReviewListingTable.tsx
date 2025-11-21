@@ -34,6 +34,11 @@ import { useDeleteReviewForm, useToggleResponseVisibility } from '../../hooks/us
 import type { ReviewForm } from '../../types';
 import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
 import { formatRotationLabel } from '../../utils/rotationUtils';
+import {
+  isBuddyEvaluationComplete,
+  isJCFeedbackComplete,
+  isJCReflectionComplete,
+} from '../../utils/sectionCompletionHelpers';
 
 interface AdminReviewListingTableProps {
   forms: ReviewForm[];
@@ -51,16 +56,22 @@ export function AdminReviewListingTable({ forms, onFormDeleted }: AdminReviewLis
 
   const getStatusBadge = (status: ReviewForm['status']) => {
     switch (status) {
-      case 'draft':
+      case 'not_started':
         return (
           <Badge variant="outline" className="bg-gray-50 dark:bg-gray-950/20">
-            Draft
+            Not Started
           </Badge>
         );
       case 'in_progress':
         return (
           <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950/20">
             In Progress
+          </Badge>
+        );
+      case 'complete':
+        return (
+          <Badge variant="outline" className="bg-green-50 dark:bg-green-950/20">
+            Complete
           </Badge>
         );
       case 'submitted':
@@ -73,7 +84,9 @@ export function AdminReviewListingTable({ forms, onFormDeleted }: AdminReviewLis
   };
 
   const getBuddyProgress = (form: ReviewForm) => {
-    if (form.buddyEvaluation === null) {
+    const isComplete = isBuddyEvaluationComplete(form);
+
+    if (!form.buddyEvaluation) {
       return (
         <Badge
           variant="outline"
@@ -83,31 +96,8 @@ export function AdminReviewListingTable({ forms, onFormDeleted }: AdminReviewLis
         </Badge>
       );
     }
-    return (
-      <Badge
-        variant="outline"
-        className="bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400"
-      >
-        Completed
-      </Badge>
-    );
-  };
 
-  const getJCProgress = (form: ReviewForm) => {
-    const completed = [form.jcReflection !== null, form.jcFeedback !== null].filter(Boolean).length;
-    const total = 2;
-
-    if (completed === 0) {
-      return (
-        <Badge
-          variant="outline"
-          className="bg-gray-50 dark:bg-gray-950/20 text-gray-600 dark:text-gray-400"
-        >
-          Not Started
-        </Badge>
-      );
-    }
-    if (completed === total) {
+    if (isComplete) {
       return (
         <Badge
           variant="outline"
@@ -117,6 +107,50 @@ export function AdminReviewListingTable({ forms, onFormDeleted }: AdminReviewLis
         </Badge>
       );
     }
+
+    return (
+      <Badge
+        variant="outline"
+        className="bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400"
+      >
+        In Progress
+      </Badge>
+    );
+  };
+
+  const getJCProgress = (form: ReviewForm) => {
+    const reflectionComplete = isJCReflectionComplete(form);
+    const feedbackComplete = isJCFeedbackComplete(form);
+    const hasReflection = form.jcReflection !== null;
+    const hasFeedback = form.jcFeedback !== null;
+
+    // Not started: neither section exists
+    if (!hasReflection && !hasFeedback) {
+      return (
+        <Badge
+          variant="outline"
+          className="bg-gray-50 dark:bg-gray-950/20 text-gray-600 dark:text-gray-400"
+        >
+          Not Started
+        </Badge>
+      );
+    }
+
+    // Both complete
+    if (reflectionComplete && feedbackComplete) {
+      return (
+        <Badge
+          variant="outline"
+          className="bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400"
+        >
+          Completed
+        </Badge>
+      );
+    }
+
+    // In progress: at least one section exists but not both complete
+    const completed = [reflectionComplete, feedbackComplete].filter(Boolean).length;
+    const total = 2;
     return (
       <Badge
         variant="outline"

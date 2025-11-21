@@ -10,6 +10,11 @@ import { SessionIdArg } from 'convex-helpers/server/sessions';
 import { getAuthUser } from '../modules/auth/getAuthUser';
 import type { Doc } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
+import {
+  isBuddyEvaluationComplete,
+  isJCFeedbackComplete,
+  isJCReflectionComplete,
+} from './utils/sectionCompletionHelpers';
 import { generateSecureToken, isTokenExpired } from './utils/tokenUtils';
 
 // Schema version constant
@@ -59,8 +64,9 @@ function _validateTokenAccess(
 
 // Review form status validator
 const reviewFormStatusValidator = v.union(
-  v.literal('draft'),
+  v.literal('not_started'),
   v.literal('in_progress'),
+  v.literal('complete'),
   v.literal('submitted')
 );
 
@@ -69,6 +75,44 @@ const questionResponseValidator = v.object({
   questionText: v.string(),
   answer: v.string(),
 });
+
+/**
+ * Calculates the form status based on completion of buddy and JC sections.
+ * This centralizes the logic for determining form status:
+ * - not_started: Neither buddy nor JC has started
+ * - in_progress: Either buddy or JC has started but not both completed
+ * - complete: Both buddy and JC sections are completed
+ * - submitted: Form has been explicitly submitted (handled separately)
+ *
+ * Note: This function does not change 'submitted' status - once submitted, status
+ * can only be changed by admin actions or explicit resubmission flows.
+ */
+function calculateFormStatus(
+  form: Doc<'reviewForms'>
+): 'not_started' | 'in_progress' | 'complete' | 'submitted' {
+  // Don't change status if already submitted
+  if (form.status === 'submitted') {
+    return 'submitted';
+  }
+
+  const buddyComplete = isBuddyEvaluationComplete(form);
+  const jcReflectionComplete = isJCReflectionComplete(form);
+  const jcFeedbackComplete = isJCFeedbackComplete(form);
+  const jcComplete = jcReflectionComplete && jcFeedbackComplete;
+
+  // Both buddy and JC are complete
+  if (buddyComplete && jcComplete) {
+    return 'complete';
+  }
+
+  // At least one has started (buddy has evaluation OR JC has reflection OR JC has feedback)
+  if (buddyComplete || jcReflectionComplete || jcFeedbackComplete) {
+    return 'in_progress';
+  }
+
+  // Neither has started
+  return 'not_started';
+}
 
 /**
  * Get a single review form by ID
@@ -486,7 +530,7 @@ export const createReviewForm = mutation({
       buddyEvaluation: null,
       jcReflection: null,
       jcFeedback: null,
-      status: 'draft',
+      status: 'not_started',
       submittedAt: null,
       submittedBy: null,
       createdBy: user._id,
@@ -599,8 +643,14 @@ export const updateBuddyEvaluation = mutation({
         completedAt: Date.now(),
         completedBy: user._id,
       },
-      status: 'in_progress',
     });
+
+    // Recalculate status based on completion
+    const updatedForm = await ctx.db.get(args.formId);
+    if (updatedForm) {
+      const newStatus = calculateFormStatus(updatedForm);
+      await ctx.db.patch(args.formId, { status: newStatus });
+    }
   },
 });
 
@@ -652,8 +702,14 @@ export const updateJCReflection = mutation({
         completedAt: Date.now(),
         completedBy: user._id,
       },
-      status: 'in_progress',
     });
+
+    // Recalculate status based on completion
+    const updatedForm = await ctx.db.get(args.formId);
+    if (updatedForm) {
+      const newStatus = calculateFormStatus(updatedForm);
+      await ctx.db.patch(args.formId, { status: newStatus });
+    }
   },
 });
 
@@ -699,8 +755,14 @@ export const updateJCFeedback = mutation({
         completedAt: Date.now(),
         completedBy: user._id,
       },
-      status: 'in_progress',
     });
+
+    // Recalculate status based on completion
+    const updatedForm = await ctx.db.get(args.formId);
+    if (updatedForm) {
+      const newStatus = calculateFormStatus(updatedForm);
+      await ctx.db.patch(args.formId, { status: newStatus });
+    }
   },
 });
 
@@ -951,8 +1013,14 @@ export const updateBuddyEvaluationByToken = mutation({
         completedAt: Date.now(),
         completedBy: null, // Anonymous access
       },
-      status: 'in_progress',
     });
+
+    // Recalculate status based on completion
+    const updatedForm = await ctx.db.get(args.formId);
+    if (updatedForm) {
+      const newStatus = calculateFormStatus(updatedForm);
+      await ctx.db.patch(args.formId, { status: newStatus });
+    }
   },
 });
 
@@ -1010,8 +1078,14 @@ export const updateJCReflectionByToken = mutation({
         completedAt: Date.now(),
         completedBy: null, // Anonymous access
       },
-      status: 'in_progress',
     });
+
+    // Recalculate status based on completion
+    const updatedForm = await ctx.db.get(args.formId);
+    if (updatedForm) {
+      const newStatus = calculateFormStatus(updatedForm);
+      await ctx.db.patch(args.formId, { status: newStatus });
+    }
   },
 });
 
@@ -1058,7 +1132,13 @@ export const updateJCFeedbackByToken = mutation({
         completedAt: Date.now(),
         completedBy: null, // Anonymous access
       },
-      status: 'in_progress',
     });
+
+    // Recalculate status based on completion
+    const updatedForm = await ctx.db.get(args.formId);
+    if (updatedForm) {
+      const newStatus = calculateFormStatus(updatedForm);
+      await ctx.db.patch(args.formId, { status: newStatus });
+    }
   },
 });
