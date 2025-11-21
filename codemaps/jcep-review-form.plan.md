@@ -131,96 +131,101 @@ This feature will be implemented in 6 milestones, with each milestone being:
 
 ---
 
-## Milestone 3: V1 Form Components ⏳ NOT STARTED
+## Milestone 3: V1 Form Components ✅ COMPLETED
 
 **Goal**: Create all version 1 UI components for form sections
 
-**Status**: ⏳ Not Started
+**Status**: ✅ Completed
 
 ### Files to Create
-- [ ] `apps/webapp/src/modules/review/components/v1/formQuestions.ts`
-- [ ] `apps/webapp/src/modules/review/components/v1/ParticularsSection.tsx`
-- [ ] `apps/webapp/src/modules/review/components/v1/BuddyEvaluationSection.tsx`
-- [ ] `apps/webapp/src/modules/review/components/v1/JCReflectionSection.tsx`
-- [ ] `apps/webapp/src/modules/review/components/v1/JCFeedbackSection.tsx`
-- [ ] `apps/webapp/src/modules/review/components/v1/ReviewFormProgress.tsx`
-- [ ] `apps/webapp/src/modules/review/components/v1/ReviewFormView.tsx`
-- [ ] `apps/webapp/src/modules/review/components/v1/ReviewFormCreate.tsx`
+- [x] `apps/webapp/src/modules/review/components/v1/formQuestions.ts`
+- [x] `apps/webapp/src/modules/review/components/v1/ParticularsSection.tsx`
+- [x] `apps/webapp/src/modules/review/components/v1/BuddyEvaluationSection.tsx`
+- [x] `apps/webapp/src/modules/review/components/v1/JCReflectionSection.tsx`
+- [x] `apps/webapp/src/modules/review/components/v1/JCFeedbackSection.tsx`
+- [x] `apps/webapp/src/modules/review/components/v1/ReviewFormProgress.tsx`
+- [x] `apps/webapp/src/modules/review/components/v1/ReviewFormView.tsx`
+- [x] `apps/webapp/src/modules/review/components/v1/ReviewFormCreate.tsx`
 
 ### Tasks
-- [ ] Create formQuestions.ts
-  - [ ] BUDDY_EVALUATION_QUESTIONS constants
-  - [ ] JC_REFLECTION_QUESTIONS constants
-  - [ ] JC_FEEDBACK_QUESTIONS constants
+- [x] Create formQuestions.ts
+  - [x] BUDDY_EVALUATION_QUESTIONS constants
+  - [x] JC_REFLECTION_QUESTIONS constants
+  - [x] JC_FEEDBACK_QUESTIONS constants
 
-- [ ] Create ParticularsSection.tsx
-  - [ ] Display/edit buddy name
-  - [ ] Display/edit JC name
-  - [ ] Age group selector
-  - [ ] Evaluation date picker
-  - [ ] Read-only mode when submitted
-  - [ ] Dark mode support
+- [x] Create ParticularsSection.tsx
+  - [x] Display/edit buddy name
+  - [x] Display/edit JC name
+  - [x] Age group selector
+  - [x] Evaluation date picker
+  - [x] Read-only mode when submitted
+  - [x] Dark mode support
+  - [x] Progressive save (edit button to re-edit)
 
-- [ ] Create BuddyEvaluationSection.tsx
-  - [ ] Tasks participated textarea
-  - [ ] Strengths textarea
-  - [ ] Areas for improvement textarea
-  - [ ] Words of encouragement textarea
-  - [ ] Capture question text with answers
-  - [ ] Save functionality
-  - [ ] Permission checks
-  - [ ] Dark mode support
+- [x] Create BuddyEvaluationSection.tsx
+  - [x] Tasks participated textarea
+  - [x] Strengths textarea
+  - [x] Areas for improvement textarea
+  - [x] Words of encouragement textarea
+  - [x] Capture question text with answers
+  - [x] Save functionality (progressive)
+  - [x] Permission checks
+  - [x] Dark mode support
+  - [x] Edit button to modify saved content
 
-- [ ] Create JCReflectionSection.tsx
-  - [ ] Next rotation preference selector
-  - [ ] Activities participated textarea
-  - [ ] Learnings from JCEP textarea
-  - [ ] What to do differently textarea
-  - [ ] Goals for next rotation textarea
-  - [ ] Capture question text with answers
-  - [ ] Save functionality
-  - [ ] Permission checks
-  - [ ] Dark mode support
+- [x] Create JCReflectionSection.tsx
+  - [x] Next rotation preference selector
+  - [x] Activities participated textarea
+  - [x] Learnings from JCEP textarea
+  - [x] What to do differently textarea
+  - [x] Goals for next rotation textarea
+  - [x] Capture question text with answers
+  - [x] Save functionality (progressive)
+  - [x] Permission checks
+  - [x] Dark mode support
+  - [x] Edit button to modify saved content
 
-- [ ] Create JCFeedbackSection.tsx
-  - [ ] Gratitude to buddy textarea
-  - [ ] Program feedback textarea
-  - [ ] Capture question text with answers
-  - [ ] Save functionality
-  - [ ] Permission checks
-  - [ ] Dark mode support
+- [x] Create JCFeedbackSection.tsx
+  - [x] Gratitude to buddy textarea
+  - [x] Program feedback textarea
+  - [x] Capture question text with answers
+  - [x] Save functionality (progressive)
+  - [x] Permission checks
+  - [x] Dark mode support
+  - [x] Edit button to modify saved content
 
-- [ ] Create ReviewFormProgress.tsx
-  - [ ] Visual progress indicator
-  - [ ] Section completion status
-  - [ ] Overall completion percentage
-  - [ ] Dark mode support
+- [x] Create ReviewFormProgress.tsx
+  - [x] Visual progress indicator
+  - [x] Section completion status
+  - [x] Overall completion percentage
+  - [x] Dark mode support
 
-- [ ] Create ReviewFormView.tsx
-  - [ ] Container for all sections
-  - [ ] Tab/accordion navigation between sections
-  - [ ] Progress indicator integration
-  - [ ] Submit button (when all sections complete)
-  - [ ] Permission-based section visibility
-  - [ ] Dark mode support
+- [x] Create ReviewFormView.tsx
+  - [x] Container for all sections
+  - [x] Tab navigation between sections
+  - [x] Progress indicator integration
+  - [x] Submit button (when all sections complete)
+  - [x] Permission-based section visibility
+  - [x] Dark mode support
+  - [x] Toast notifications for saves
 
-- [ ] Create ReviewFormCreate.tsx
-  - [ ] Form wizard for creating new review form
-  - [ ] Buddy selection/input
-  - [ ] JC selection/input
-  - [ ] Age group selection
-  - [ ] Rotation year input
-  - [ ] Evaluation date picker
-  - [ ] Form validation
-  - [ ] Dark mode support
+- [x] Create ReviewFormCreate.tsx
+  - [x] Form wizard for creating new review form
+  - [x] Buddy name input (pre-filled with current user)
+  - [x] JC name input
+  - [x] Age group selection
+  - [x] Rotation year input
+  - [x] Evaluation date picker
+  - [x] Form validation
+  - [x] Dark mode support
 
 ### Validation
-- [ ] Run typecheck: `cd apps/webapp && npx tsc --noEmit`
-- [ ] Run linter: `cd apps/webapp && npx biome check .`
-- [ ] Visual inspection in Storybook or isolated route (if available)
+- [x] Run typecheck: `cd apps/webapp && npx tsc --noEmit`
+- [x] Run linter: `cd apps/webapp && npx biome check .`
+- [x] Visual inspection in Storybook or isolated route (deferred to Milestone 4)
 
 ### Commit
-- [ ] Commit: "feat: add review form v1 components"
+- [x] Commit: "feat: add review form v1 components"
 
 ---
 

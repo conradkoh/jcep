@@ -1,0 +1,203 @@
+'use client';
+
+import { CalendarIcon } from 'lucide-react';
+import { DateTime } from 'luxon';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { cn } from '@/lib/utils';
+import type { AgeGroup, ReviewForm } from '../../types';
+
+interface ParticularsSectionProps {
+  form: ReviewForm;
+  canEdit: boolean;
+  onUpdate: (updates: {
+    buddyName?: string;
+    juniorCommanderName?: string;
+    ageGroup?: AgeGroup;
+    evaluationDate?: number;
+  }) => Promise<void>;
+}
+
+export function ParticularsSection({ form, canEdit, onUpdate }: ParticularsSectionProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [buddyName, setBuddyName] = useState(form.buddyName);
+  const [jcName, setJcName] = useState(form.juniorCommanderName);
+  const [ageGroup, setAgeGroup] = useState<AgeGroup>(form.ageGroup);
+  const [evaluationDate, setEvaluationDate] = useState(new Date(form.evaluationDate));
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await onUpdate({
+        buddyName,
+        juniorCommanderName: jcName,
+        ageGroup,
+        evaluationDate: evaluationDate.getTime(),
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Failed to update particulars:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setBuddyName(form.buddyName);
+    setJcName(form.juniorCommanderName);
+    setAgeGroup(form.ageGroup);
+    setEvaluationDate(new Date(form.evaluationDate));
+    setIsEditing(false);
+  };
+
+  const formatDate = (timestamp: number) => {
+    return DateTime.fromMillis(timestamp).toFormat('dd MMM yyyy');
+  };
+
+  if (!isEditing) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-foreground">Particulars</h3>
+          {canEdit && (
+            <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+              Edit
+            </Button>
+          )}
+        </div>
+
+        <div className="grid gap-4 rounded-lg border border-border bg-card p-4">
+          <div>
+            <Label className="text-sm font-medium text-muted-foreground">Rotation Year</Label>
+            <p className="text-foreground">{form.rotationYear}</p>
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium text-muted-foreground">Buddy Name</Label>
+            <p className="text-foreground">{form.buddyName}</p>
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium text-muted-foreground">
+              Junior Commander Name
+            </Label>
+            <p className="text-foreground">{form.juniorCommanderName}</p>
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium text-muted-foreground">Age Group</Label>
+            <p className="text-foreground">{form.ageGroup}</p>
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium text-muted-foreground">Evaluation Date</Label>
+            <p className="text-foreground">{formatDate(form.evaluationDate)}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-foreground">Particulars</h3>
+      </div>
+
+      <div className="grid gap-4 rounded-lg border border-border bg-card p-4">
+        <div>
+          <Label className="text-sm font-medium text-foreground">Rotation Year</Label>
+          <p className="text-sm text-muted-foreground">{form.rotationYear}</p>
+        </div>
+
+        <div>
+          <Label htmlFor="buddyName" className="text-sm font-medium text-foreground">
+            Buddy Name
+          </Label>
+          <Input
+            id="buddyName"
+            value={buddyName}
+            onChange={(e) => setBuddyName(e.target.value)}
+            className="mt-1"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="jcName" className="text-sm font-medium text-foreground">
+            Junior Commander Name
+          </Label>
+          <Input
+            id="jcName"
+            value={jcName}
+            onChange={(e) => setJcName(e.target.value)}
+            className="mt-1"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="ageGroup" className="text-sm font-medium text-foreground">
+            Age Group
+          </Label>
+          <Select value={ageGroup} onValueChange={(value) => setAgeGroup(value as AgeGroup)}>
+            <SelectTrigger className="mt-1">
+              <SelectValue placeholder="Select age group" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="RK">RK (Rainbows/Kindergarten)</SelectItem>
+              <SelectItem value="DR">DR (Daisies/Reception)</SelectItem>
+              <SelectItem value="AR">AR (Acorns/Reception)</SelectItem>
+              <SelectItem value="ER">ER (Eagles/Reception)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label className="text-sm font-medium text-foreground">Evaluation Date</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  'mt-1 w-full justify-start text-left font-normal',
+                  !evaluationDate && 'text-muted-foreground'
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {evaluationDate ? formatDate(evaluationDate.getTime()) : <span>Pick a date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={evaluationDate}
+                onSelect={(date) => date && setEvaluationDate(date)}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        <div className="flex gap-2">
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? 'Saving...' : 'Save'}
+          </Button>
+          <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
+            Cancel
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
