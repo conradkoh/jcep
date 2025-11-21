@@ -5,20 +5,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  useReviewForm,
-  useSubmitReviewForm,
-  useUpdateBuddyEvaluation,
-  useUpdateJCFeedback,
-  useUpdateJCReflection,
-  useUpdateParticulars,
-} from '../../hooks/useReviewForm';
-import { useReviewFormByToken } from '../../hooks/useReviewFormByToken';
-import {
-  useUpdateBuddyEvaluationByToken,
-  useUpdateJCFeedbackByToken,
-  useUpdateJCReflectionByToken,
-} from '../../hooks/useTokenMutations';
+import { useReviewFormAccess } from '../../hooks/useReviewFormAccess';
 import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
 import { TokenDisplay } from '../admin/TokenDisplay';
 import { VisibilityControls } from '../admin/VisibilityControls';
@@ -34,47 +21,23 @@ interface ReviewFormViewProps {
 }
 
 export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
-  // Use token-based access if token is provided
-  const sessionData = useReviewForm(accessToken ? null : formId);
-  const tokenData = useReviewFormByToken(accessToken);
-
-  // Extract common properties
-  const data = accessToken ? tokenData : sessionData;
-  const form = data.form;
-  const isLoading = data.isLoading;
-  const sectionCompletion = data.sectionCompletion;
-
-  // Handle differences in return types
-  const canEditBuddySection =
-    'canEditBuddySection' in data ? data.canEditBuddySection : data.canEditBuddyEvaluation;
-
-  const canEditJCSection =
-    'canEditJCSection' in data
-      ? data.canEditJCSection
-      : data.canEditJCReflection || data.canEditJCFeedback;
-
-  const isAdmin = 'isAdmin' in data ? data.isAdmin : false;
-
-  // Session-based mutations
-  const updateParticularsSession = useUpdateParticulars();
-  const updateBuddyEvaluationSession = useUpdateBuddyEvaluation();
-  const updateJCReflectionSession = useUpdateJCReflection();
-  const updateJCFeedbackSession = useUpdateJCFeedback();
-  const submitFormSession = useSubmitReviewForm();
-
-  // Token-based mutations
-  const updateBuddyEvaluationToken = useUpdateBuddyEvaluationByToken(accessToken);
-  const updateJCReflectionToken = useUpdateJCReflectionByToken(accessToken);
-  const updateJCFeedbackToken = useUpdateJCFeedbackByToken(accessToken);
-
-  // Select the appropriate mutations based on access type
-  const updateParticulars = accessToken ? null : updateParticularsSession;
-  const updateBuddyEvaluation = accessToken
-    ? updateBuddyEvaluationToken
-    : updateBuddyEvaluationSession;
-  const updateJCReflection = accessToken ? updateJCReflectionToken : updateJCReflectionSession;
-  const updateJCFeedback = accessToken ? updateJCFeedbackToken : updateJCFeedbackSession;
-  const submitForm = accessToken ? null : submitFormSession;
+  // Unified hook handles both session and token access automatically
+  const {
+    form,
+    isLoading,
+    sectionCompletion,
+    canEditParticulars,
+    canEditBuddyEvaluation,
+    canEditJCReflection,
+    canEditJCFeedback,
+    canSubmit,
+    isAdmin,
+    updateParticulars,
+    updateBuddyEvaluation,
+    updateJCReflection,
+    updateJCFeedback,
+    submitForm,
+  } = useReviewFormAccess(formId, accessToken);
 
   if (isLoading) {
     return (
@@ -121,7 +84,9 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
             {form.buddyName} & {form.juniorCommanderName} ({getAgeGroupLabel(form.ageGroup)})
           </p>
         </div>
-        {isComplete && !isSubmitted && <Button onClick={handleSubmit}>Submit Form</Button>}
+        {isComplete && !isSubmitted && canSubmit && (
+          <Button onClick={handleSubmit}>Submit Form</Button>
+        )}
         {isSubmitted && (
           <div className="rounded-md bg-green-50 px-3 py-1 text-sm font-medium text-green-700 dark:bg-green-950/20 dark:text-green-400">
             Submitted
@@ -154,7 +119,7 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
         <TabsContent value="particulars" className="space-y-4">
           <ParticularsSection
             form={form}
-            canEdit={!isSubmitted && canEditBuddySection && !accessToken}
+            canEdit={!isSubmitted && canEditParticulars}
             onUpdate={async (updates) => {
               if (!updateParticulars) {
                 toast.error('Particulars editing not available for token-based access');
@@ -174,7 +139,7 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
         <TabsContent value="buddy" className="space-y-4">
           <BuddyEvaluationSection
             form={form}
-            canEdit={!isSubmitted && canEditBuddySection}
+            canEdit={!isSubmitted && canEditBuddyEvaluation}
             onUpdate={async (data) => {
               try {
                 await updateBuddyEvaluation({ formId, ...data });
@@ -190,7 +155,7 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
         <TabsContent value="jc-reflection" className="space-y-4">
           <JCReflectionSection
             form={form}
-            canEdit={!isSubmitted && canEditJCSection}
+            canEdit={!isSubmitted && canEditJCReflection}
             onUpdate={async (data) => {
               try {
                 await updateJCReflection({ formId, ...data });
@@ -206,7 +171,7 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
         <TabsContent value="jc-feedback" className="space-y-4">
           <JCFeedbackSection
             form={form}
-            canEdit={!isSubmitted && canEditJCSection}
+            canEdit={!isSubmitted && canEditJCFeedback}
             onUpdate={async (data) => {
               try {
                 await updateJCFeedback({ formId, ...data });
