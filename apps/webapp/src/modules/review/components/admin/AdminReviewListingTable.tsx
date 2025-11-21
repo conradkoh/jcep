@@ -18,6 +18,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import Link from 'next/link';
+import type React from 'react';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import {
@@ -397,7 +398,7 @@ export function AdminReviewListingTable({ forms, onFormDeleted }: AdminReviewLis
  * @param status - The review form status
  * @returns Badge component with appropriate styling
  */
-function _getStatusBadge(status: ReviewForm['status']): JSX.Element {
+function _getStatusBadge(status: ReviewForm['status']): React.ReactElement {
   switch (status) {
     case 'not_started':
       return (
@@ -431,7 +432,7 @@ function _getStatusBadge(status: ReviewForm['status']): JSX.Element {
  * @param form - The review form to check
  * @returns Badge component showing buddy progress status
  */
-function _getBuddyProgress(form: ReviewForm): JSX.Element {
+function _getBuddyProgress(form: ReviewForm): React.ReactElement {
   const isComplete = isBuddyEvaluationComplete(form);
 
   if (!form.buddyEvaluation) {
@@ -471,7 +472,7 @@ function _getBuddyProgress(form: ReviewForm): JSX.Element {
  * @param form - The review form to check
  * @returns Badge component showing JC progress status
  */
-function _getJCProgress(form: ReviewForm): JSX.Element {
+function _getJCProgress(form: ReviewForm): React.ReactElement {
   const reflectionComplete = isJCReflectionComplete(form);
   const feedbackComplete = isJCFeedbackComplete(form);
   const hasReflection = form.jcReflection !== null;
