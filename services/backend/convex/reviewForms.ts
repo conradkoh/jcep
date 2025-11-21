@@ -871,7 +871,31 @@ export const toggleResponseVisibility = mutation({
  */
 
 /**
- * Update buddy evaluation via access token
+ * Update Buddy Evaluation section via anonymous access token.
+ * 
+ * @description
+ * This mutation allows Buddies to evaluate their Junior Commander using a
+ * secure access token. It saves all evaluation fields atomically.
+ * 
+ * @security
+ * - Token-based authentication (no user session required)
+ * - Validates token matches form.buddyAccessToken
+ * - Checks token expiration
+ * - Prevents editing of submitted forms
+ * 
+ * @critical
+ * ALL 4 fields are required. Missing fields will cause data loss. Frontend
+ * MUST pass all current values using refs to avoid stale closures.
+ * See apps/webapp/src/modules/review/components/v1/BuddyEvaluationSection.tsx
+ * 
+ * @param accessToken - The Buddy's access token for this form
+ * @param formId - The review form ID
+ * @param tasksParticipated - Response describing JC's participation
+ * @param strengths - Response describing JC's strengths with examples
+ * @param areasForImprovement - Response describing areas to improve with examples
+ * @param wordsOfEncouragement - Response with advice and encouragement
+ * 
+ * @throws Error if token is invalid, expired, form not found, or form is submitted
  */
 export const updateBuddyEvaluationByToken = mutation({
   args: {
@@ -918,7 +942,34 @@ export const updateBuddyEvaluationByToken = mutation({
 });
 
 /**
- * Update JC reflection via access token
+ * Update JC Reflection section via anonymous access token.
+ * 
+ * @description
+ * This mutation allows Junior Commanders to update their reflection responses
+ * using a secure access token. It saves all reflection fields including the
+ * next rotation preference.
+ * 
+ * @security
+ * - Token-based authentication (no user session required)
+ * - Validates token matches form.jcAccessToken
+ * - Checks token expiration
+ * - Prevents editing of submitted forms
+ * 
+ * @critical
+ * ALL fields are required, including nextRotationPreference. Missing fields
+ * will cause data loss. Frontend MUST pass all current values, not just the
+ * changed field. See apps/webapp/src/modules/review/components/v1/JCReflectionSection.tsx
+ * for the correct implementation using refs to avoid stale closures.
+ * 
+ * @param accessToken - The JC's access token for this form
+ * @param formId - The review form ID
+ * @param nextRotationPreference - Age group preference for next rotation (RK/DR/AR/ER)
+ * @param activitiesParticipated - Response with question text and answer
+ * @param learningsFromJCEP - Response with question text and answer
+ * @param whatToDoDifferently - Response with question text and answer
+ * @param goalsForNextRotation - Response with question text and answer
+ * 
+ * @throws Error if token is invalid, expired, form not found, or form is submitted
  */
 export const updateJCReflectionByToken = mutation({
   args: {
@@ -967,7 +1018,29 @@ export const updateJCReflectionByToken = mutation({
 });
 
 /**
- * Update JC feedback via access token
+ * Update JC Feedback section via anonymous access token.
+ * 
+ * @description
+ * This mutation allows Junior Commanders to provide feedback to their Buddy
+ * and the program using a secure access token. It saves both feedback fields.
+ * 
+ * @security
+ * - Token-based authentication (no user session required)
+ * - Validates token matches form.jcAccessToken
+ * - Checks token expiration
+ * - Prevents editing of submitted forms
+ * 
+ * @critical
+ * BOTH fields are required. Missing fields will cause data loss. Frontend
+ * MUST pass all current values using refs to avoid stale closures.
+ * See apps/webapp/src/modules/review/components/v1/JCFeedbackSection.tsx
+ * 
+ * @param accessToken - The JC's access token for this form
+ * @param formId - The review form ID
+ * @param gratitudeToBuddy - Response expressing gratitude to Buddy
+ * @param programFeedback - Response providing feedback on the program
+ * 
+ * @throws Error if token is invalid, expired, form not found, or form is submitted
  */
 export const updateJCFeedbackByToken = mutation({
   args: {
