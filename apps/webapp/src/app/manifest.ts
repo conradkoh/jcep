@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
   const startUrl = featureFlags.disableLogin ? '/' : '/app';
 
   return {
-    name: 'JCEP App',
+    name: 'JCEP',
     short_name: 'JCEP',
     description: 'A Next.js app with Convex backend',
     icons: [

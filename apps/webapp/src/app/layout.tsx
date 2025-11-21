@@ -26,15 +26,15 @@ export const viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'JCEP App',
+  title: 'JCEP',
   description: 'Junior Commander Evaluation Program',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'JCEP App',
+    title: 'JCEP',
   },
-  applicationName: 'JCEP App',
+  applicationName: 'JCEP',
   formatDetection: {
     telephone: false,
   },
