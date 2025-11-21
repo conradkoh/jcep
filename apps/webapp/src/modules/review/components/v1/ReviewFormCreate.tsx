@@ -55,7 +55,7 @@ export function ReviewFormCreate({ currentUserId, currentUserName }: ReviewFormC
 
     setIsCreating(true);
     try {
-      const formId = await createForm({
+      const response = await createForm({
         rotationYear,
         buddyUserId: currentUserId,
         buddyName: buddyName.trim(),
@@ -66,7 +66,8 @@ export function ReviewFormCreate({ currentUserId, currentUserName }: ReviewFormC
       });
 
       toast.success('Review form created successfully!');
-      router.push(`/app/review/${formId}`);
+      // Navigate to form with tokens in query params so they can be displayed
+      router.push(`/app/review/${response.formId}?showTokens=true`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to create form');
       setIsCreating(false);

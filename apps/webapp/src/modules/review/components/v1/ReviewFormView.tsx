@@ -13,6 +13,7 @@ import {
   useUpdateJCReflection,
   useUpdateParticulars,
 } from '../../hooks/useReviewForm';
+import { TokenDisplay } from '../admin/TokenDisplay';
 import { VisibilityControls } from '../admin/VisibilityControls';
 import { BuddyEvaluationSection } from './BuddyEvaluationSection';
 import { JCFeedbackSection } from './JCFeedbackSection';
@@ -86,9 +87,11 @@ export function ReviewFormView({ formId }: ReviewFormViewProps) {
 
       <Separator />
 
-      {/* Admin visibility controls */}
+      {/* Admin controls */}
       {isAdmin && (
         <>
+          <TokenDisplay form={form} />
+          <Separator />
           <VisibilityControls form={form} />
           <Separator />
         </>
