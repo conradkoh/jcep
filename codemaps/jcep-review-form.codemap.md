@@ -108,6 +108,17 @@ Based on the paper form structure, the optimal digital flow is:
 - Skip links for keyboard accessibility
 - Improved mobile responsiveness and visual hierarchy
 
+**Autosave & Form State (V2.2)** - See `jcep-review-form-autosave.plan.md`:
+
+- Field-level autosave with 1.5s debounce prevents data loss
+- Independent save indicators per field: "Modified" (amber ●) / "Saved" (green ✓)
+- Three explicit form states: `draft` → `in_progress` → `submitted`
+- Autosave updates sections but keeps form in `in_progress` state
+- Only explicit "Submit Form" button changes state to `submitted`
+- Section access control with locked section UI
+- Implemented: BuddyEvaluationSection
+- Planned: JCReflectionSection, JCFeedbackSection
+
 ## Age Groups
 
 The JCEP program uses the following age group classifications:
