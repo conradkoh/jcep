@@ -12,6 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ParticipantInfoCard } from '@/modules/review/components/ParticipantInfoCard';
 import { ReviewFormRouter } from '@/modules/review/components/ReviewFormRouter';
 import { useReviewFormByToken } from '@/modules/review/hooks/useReviewFormByToken';
 import { useTokenAuth } from '@/modules/review/hooks/useTokenAuth';
@@ -85,10 +86,11 @@ export default function TokenAccessPage() {
         <AlertDescription>
           You are accessing this form as:{' '}
           <strong>{accessLevel === 'buddy' ? 'Buddy' : 'Junior Commander'}</strong>
-          {accessLevel === 'buddy' && ` for ${form.juniorCommanderName}`}
-          {accessLevel === 'jc' && ` (${form.juniorCommanderName})`}
         </AlertDescription>
       </Alert>
+
+      {/* Participant information */}
+      {accessLevel && <ParticipantInfoCard form={form} accessLevel={accessLevel} />}
 
       {/* Privacy notice */}
       <Card className="mb-6">
