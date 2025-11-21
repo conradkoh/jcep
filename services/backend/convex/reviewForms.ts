@@ -10,7 +10,7 @@ import { SessionIdArg } from 'convex-helpers/server/sessions';
 import { getAuthUser } from '../modules/auth/getAuthUser';
 import type { Doc } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
-import { generateSecureToken } from './utils/tokenUtils';
+import { generateSecureToken, isTokenExpired } from './utils/tokenUtils';
 
 // Schema version constant
 export const CURRENT_SCHEMA_VERSION = 1;
@@ -807,5 +807,146 @@ export const toggleResponseVisibility = mutation({
     }
 
     await ctx.db.patch(args.formId, updates);
+  },
+});
+
+/**
+ * Token-based mutations for anonymous access
+ */
+
+/**
+ * Update buddy evaluation via access token
+ */
+export const updateBuddyEvaluationByToken = mutation({
+  args: {
+    accessToken: v.string(),
+    formId: v.id('reviewForms'),
+    tasksParticipated: questionResponseValidator,
+    strengths: questionResponseValidator,
+    areasForImprovement: questionResponseValidator,
+    wordsOfEncouragement: questionResponseValidator,
+  },
+  handler: async (ctx, args) => {
+    // Verify token
+    const form = await ctx.db.get(args.formId);
+    if (!form) {
+      throw new Error('Form not found');
+    }
+
+    if (form.buddyAccessToken !== args.accessToken) {
+      throw new Error('Invalid access token');
+    }
+
+    // Check if token is expired
+    if (isTokenExpired(form.tokenExpiresAt)) {
+      throw new Error('Access token has expired');
+    }
+
+    // Check if form is submitted
+    if (form.status === 'submitted') {
+      throw new Error('Cannot edit submitted form');
+    }
+
+    await ctx.db.patch(args.formId, {
+      buddyEvaluation: {
+        tasksParticipated: args.tasksParticipated,
+        strengths: args.strengths,
+        areasForImprovement: args.areasForImprovement,
+        wordsOfEncouragement: args.wordsOfEncouragement,
+        completedAt: Date.now(),
+        completedBy: null, // Anonymous access
+      },
+      status: 'in_progress',
+    });
+  },
+});
+
+/**
+ * Update JC reflection via access token
+ */
+export const updateJCReflectionByToken = mutation({
+  args: {
+    accessToken: v.string(),
+    formId: v.id('reviewForms'),
+    activitiesParticipated: questionResponseValidator,
+    learningsFromJCEP: questionResponseValidator,
+    whatToDoDifferently: questionResponseValidator,
+    goalsForNextRotation: questionResponseValidator,
+  },
+  handler: async (ctx, args) => {
+    // Verify token
+    const form = await ctx.db.get(args.formId);
+    if (!form) {
+      throw new Error('Form not found');
+    }
+
+    if (form.jcAccessToken !== args.accessToken) {
+      throw new Error('Invalid access token');
+    }
+
+    // Check if token is expired
+    if (isTokenExpired(form.tokenExpiresAt)) {
+      throw new Error('Access token has expired');
+    }
+
+    // Check if form is submitted
+    if (form.status === 'submitted') {
+      throw new Error('Cannot edit submitted form');
+    }
+
+    await ctx.db.patch(args.formId, {
+      jcReflection: {
+        activitiesParticipated: args.activitiesParticipated,
+        learningsFromJCEP: args.learningsFromJCEP,
+        whatToDoDifferently: args.whatToDoDifferently,
+        goalsForNextRotation: args.goalsForNextRotation,
+        completedAt: Date.now(),
+        completedBy: null, // Anonymous access
+      },
+      status: 'in_progress',
+    });
+  },
+});
+
+/**
+ * Update JC feedback via access token
+ */
+export const updateJCFeedbackByToken = mutation({
+  args: {
+    accessToken: v.string(),
+    formId: v.id('reviewForms'),
+    gratitudeToBuddy: questionResponseValidator,
+    programFeedback: questionResponseValidator,
+  },
+  handler: async (ctx, args) => {
+    // Verify token
+    const form = await ctx.db.get(args.formId);
+    if (!form) {
+      throw new Error('Form not found');
+    }
+
+    if (form.jcAccessToken !== args.accessToken) {
+      throw new Error('Invalid access token');
+    }
+
+    // Check if token is expired
+    if (isTokenExpired(form.tokenExpiresAt)) {
+      throw new Error('Access token has expired');
+    }
+
+    // Check if form is submitted
+    if (form.status === 'submitted') {
+      throw new Error('Cannot edit submitted form');
+    }
+
+    await ctx.db.patch(args.formId, {
+      jcFeedback: {
+        gratitudeToBuddy: args.gratitudeToBuddy,
+        programFeedback: args.programFeedback,
+        completedAt: Date.now(),
+        completedBy: null, // Anonymous access
+      },
+      status: 'in_progress',
+    });
   },
 });

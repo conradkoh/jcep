@@ -56,7 +56,7 @@ export function ReviewFormRouter({ formId, accessToken }: ReviewFormRouterProps)
   // Route to the appropriate version component
   switch (form.schemaVersion) {
     case 1:
-      return <V1ReviewFormView formId={formId} />;
+      return <V1ReviewFormView formId={formId} accessToken={accessToken} />;
     default:
       return (
         <div className="flex flex-col items-center justify-center p-8">
