@@ -32,11 +32,11 @@ Digital implementation of the Junior Commander Exposure Programme (JCEP) rotatio
 
 ## User Flow Analysis
 
-**Note**: V2 enhancements planned - see `jcep-review-form-v2-enhancements.plan.md` for token-based access and visibility controls.
+**Note**: V2 enhancements implemented - token-based access, visibility controls, and streamlined UI.
 
 Based on the paper form structure, the optimal digital flow is:
 
-### Stage 1: Form Initialization (By Admin) **[V2: Implemented]**
+### Stage 1: Form Initialization (By Admin) **[V2.1: Implemented]**
 
 - **V2.1 (Current)**: Admin pre-creates form with buddy and JC names
   - Admin accesses admin listing page at `/app/review` (system admin only)
@@ -88,21 +88,24 @@ Based on the paper form structure, the optimal digital flow is:
   1. Words of encouragement/gratitude to their Buddy
   2. Feedback for the JCEP programme (positive feedback and areas for improvement)
 
-### Stage 5: Review & Submit **[V2: Admin-Controlled Reveal]**
+### Stage 5: Review & Submit **[V2.1: Implemented]**
 
-- **V1 (Current)**: Both parties can review immediately, either can submit
-- **V2 (Planned)**: Admin controls visibility, then parties can review
-  - Admin reveals responses when appropriate
-  - Both parties review (now seeing each other's responses)
-  - Either party can submit to finalize
+- **V2.1 (Current)**: Admin controls visibility, streamlined UI
+  - Admin reveals responses when appropriate via visibility toggles
+  - Both parties review (seeing each other's responses when admin enables)
+  - Submit button appears when all sections complete
+  - Form header consolidated into Particulars section
+  - Stepper navigation replaces tabs for Buddy/JC sections
+  - Borderless participant info card on token access page
   - Form is archived under the specific rotation year
 
-**V2 Additional Feature**: Buddy Dashboard
-
-- Buddy can view `/app/review/my-jcs` to see all assigned JCs
-- Aggregated view of all forms where they are the buddy
-- Quick access to edit any form
-- Status tracking across all assignments
+**UI/UX Enhancements (V2.1)**:
+- Removed redundant privacy notice and access alerts on token page
+- Consolidated form header into Particulars section with submit button
+- Replaced tabs with visual stepper for section navigation
+- Simplified participant info card (borderless, concise text)
+- Skip links for keyboard accessibility
+- Improved mobile responsiveness and visual hierarchy
 
 ## Age Groups
 
