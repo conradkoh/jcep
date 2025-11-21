@@ -110,7 +110,7 @@ export function AdminReviewDashboard() {
           <p className="text-muted-foreground">Loading forms...</p>
         </div>
       ) : (
-        <AdminReviewTable forms={filteredForms} />
+        <AdminReviewTable forms={filteredForms} onFormDeleted={() => {}} />
       )}
     </div>
   );

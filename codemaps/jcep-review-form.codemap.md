@@ -100,6 +100,7 @@ Based on the paper form structure, the optimal digital flow is:
   - Form is archived under the specific rotation year
 
 **UI/UX Enhancements (V2.1)**:
+
 - Removed redundant privacy notice and access alerts on token page
 - Consolidated form header into Particulars section with submit button
 - Replaced tabs with visual stepper for section navigation

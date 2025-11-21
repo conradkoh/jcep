@@ -94,7 +94,7 @@ function ReviewListPageContent() {
       </div>
 
       {isAdmin && allForms ? (
-        <AdminReviewListingTable forms={allForms} />
+        <AdminReviewListingTable forms={allForms} onFormDeleted={() => {}} />
       ) : (
         <ReviewFormList year={selectedYear} />
       )}
