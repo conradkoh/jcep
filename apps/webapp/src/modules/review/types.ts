@@ -135,6 +135,8 @@ export interface CreateReviewFormParams {
 
 export interface UpdateParticularsParams {
   formId: Id<'reviewForms'>;
+  rotationYear?: number;
+  rotationQuarter?: number;
   buddyName?: string;
   juniorCommanderName?: string;
   ageGroup?: AgeGroup;

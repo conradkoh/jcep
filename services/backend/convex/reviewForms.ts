@@ -557,6 +557,8 @@ export const updateParticulars = mutation({
   args: {
     ...SessionIdArg,
     formId: v.id('reviewForms'),
+    rotationYear: v.optional(v.number()),
+    rotationQuarter: v.optional(v.number()),
     buddyName: v.optional(v.string()),
     juniorCommanderName: v.optional(v.string()),
     ageGroup: v.optional(ageGroupValidator),
@@ -587,6 +589,8 @@ export const updateParticulars = mutation({
     }
 
     const updates: Partial<typeof form> = {};
+    if (args.rotationYear !== undefined) updates.rotationYear = args.rotationYear;
+    if (args.rotationQuarter !== undefined) updates.rotationQuarter = args.rotationQuarter;
     if (args.buddyName !== undefined) updates.buddyName = args.buddyName;
     if (args.juniorCommanderName !== undefined)
       updates.juniorCommanderName = args.juniorCommanderName;
@@ -1140,5 +1144,58 @@ export const updateJCFeedbackByToken = mutation({
       const newStatus = calculateFormStatus(updatedForm);
       await ctx.db.patch(args.formId, { status: newStatus });
     }
+  },
+});
+
+/**
+ * Update particulars section via anonymous access token.
+ * Allows editing form metadata (rotation, names, age group, date) via token access.
+ * Either buddy or JC token can be used to update particulars.
+ */
+export const updateParticularsByToken = mutation({
+  args: {
+    accessToken: v.string(),
+    formId: v.id('reviewForms'),
+    rotationYear: v.optional(v.number()),
+    rotationQuarter: v.optional(v.number()),
+    buddyName: v.optional(v.string()),
+    juniorCommanderName: v.optional(v.string()),
+    ageGroup: v.optional(ageGroupValidator),
+    evaluationDate: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const form = await ctx.db.get(args.formId);
+    if (!form) {
+      throw new Error('Form not found');
+    }
+
+    // Check if form is submitted
+    if (form.status === 'submitted') {
+      throw new Error('Cannot edit submitted form');
+    }
+
+    // Validate token - allow either buddy or JC token
+    const isBuddyToken = form.buddyAccessToken === args.accessToken;
+    const isJCToken = form.jcAccessToken === args.accessToken;
+
+    if (!isBuddyToken && !isJCToken) {
+      throw new Error('Invalid access token');
+    }
+
+    // Check token expiration
+    if (form.tokenExpiresAt && form.tokenExpiresAt < Date.now()) {
+      throw new Error('Access token has expired');
+    }
+
+    const updates: Partial<typeof form> = {};
+    if (args.rotationYear !== undefined) updates.rotationYear = args.rotationYear;
+    if (args.rotationQuarter !== undefined) updates.rotationQuarter = args.rotationQuarter;
+    if (args.buddyName !== undefined) updates.buddyName = args.buddyName;
+    if (args.juniorCommanderName !== undefined)
+      updates.juniorCommanderName = args.juniorCommanderName;
+    if (args.ageGroup !== undefined) updates.ageGroup = args.ageGroup;
+    if (args.evaluationDate !== undefined) updates.evaluationDate = args.evaluationDate;
+
+    await ctx.db.patch(args.formId, updates);
   },
 });

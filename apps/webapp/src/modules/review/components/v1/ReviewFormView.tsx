@@ -3,12 +3,9 @@
 import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 import { Check, Lock } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Separator } from '@/components/ui/separator';
 import { useReviewFormAccess } from '../../hooks/useReviewFormAccess';
 import type { AccessLevel } from '../../utils/sectionAccessControl';
 import { getSectionAccessRules } from '../../utils/sectionAccessControl';
-import { TokenDisplay } from '../admin/TokenDisplay';
-import { VisibilityControls } from '../admin/VisibilityControls';
 import { BuddyEvaluationSection } from './BuddyEvaluationSection';
 import { JCFeedbackSection } from './JCFeedbackSection';
 import { JCReflectionSection } from './JCReflectionSection';
@@ -29,13 +26,11 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
     canEditBuddyEvaluation,
     canEditJCReflection,
     canEditJCFeedback,
-    canSubmit,
     isAdmin,
     updateParticulars,
     updateBuddyEvaluation,
     updateJCReflection,
     updateJCFeedback,
-    submitForm,
   } = useReviewFormAccess(formId, accessToken);
 
   // Determine access level for section locking
@@ -51,11 +46,6 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
     if (!form) return null;
     return getSectionAccessRules(accessLevel, form);
   }, [accessLevel, form]);
-
-  const isComplete =
-    sectionCompletion.buddyEvaluation &&
-    sectionCompletion.jcReflection &&
-    sectionCompletion.jcFeedback;
 
   const steps = useMemo(
     () => [
@@ -121,17 +111,6 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
 
   const isSubmitted = form.status === 'submitted';
 
-  const handleSubmit = async () => {
-    if (!submitForm) {
-      return;
-    }
-    try {
-      await submitForm(formId);
-    } catch (error) {
-      console.error('Failed to submit form:', error);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <a
@@ -141,34 +120,17 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
         Skip to form sections
       </a>
 
-      {/* Admin controls */}
-      {isAdmin && (
-        <>
-          <TokenDisplay form={form} />
-          <Separator />
-          <VisibilityControls form={form} />
-          <Separator />
-        </>
-      )}
-
       <div id="review-form-main" className="space-y-6">
         <ParticularsSection
           form={form}
-          canEdit={!isSubmitted && canEditParticulars}
+          canEdit={canEditParticulars}
           onUpdate={async (updates) => {
-            if (!updateParticulars) {
-              throw new Error('Particulars editing not available');
-            }
             await updateParticulars({ formId, ...updates });
           }}
-          rotationYear={form.rotationYear}
           buddyName={form.buddyName}
           juniorCommanderName={form.juniorCommanderName}
           ageGroup={form.ageGroup}
-          isComplete={isComplete}
           isSubmitted={isSubmitted}
-          canSubmit={canSubmit}
-          onSubmit={handleSubmit}
         />
 
         <Stepper activeStep={activeStep} steps={steps} onSelectStep={handleStepSelect} />

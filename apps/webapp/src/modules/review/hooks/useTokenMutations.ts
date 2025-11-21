@@ -6,7 +6,7 @@ import { api } from '@workspace/backend/convex/_generated/api';
 import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 import { useMutation } from 'convex/react';
 import { useCallback } from 'react';
-import type { QuestionResponse } from '../types';
+import type { AgeGroup, QuestionResponse } from '../types';
 
 /**
  * Hook to update buddy evaluation via token
@@ -72,6 +72,34 @@ export function useUpdateJCFeedbackByToken(accessToken: string | null | undefine
       formId: Id<'reviewForms'>;
       gratitudeToBuddy: QuestionResponse;
       programFeedback: QuestionResponse;
+    }) => {
+      if (!accessToken) {
+        throw new Error('No access token provided');
+      }
+      return await mutation({
+        accessToken,
+        ...args,
+      });
+    },
+    [mutation, accessToken]
+  );
+}
+
+/**
+ * Hook to update particulars via token
+ */
+export function useUpdateParticularsByToken(accessToken: string | null | undefined) {
+  const mutation = useMutation(api.reviewForms.updateParticularsByToken);
+
+  return useCallback(
+    async (args: {
+      formId: Id<'reviewForms'>;
+      rotationYear?: number;
+      rotationQuarter?: number;
+      buddyName?: string;
+      juniorCommanderName?: string;
+      ageGroup?: AgeGroup;
+      evaluationDate?: number;
     }) => {
       if (!accessToken) {
         throw new Error('No access token provided');

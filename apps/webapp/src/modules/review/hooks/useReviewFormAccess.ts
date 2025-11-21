@@ -20,6 +20,7 @@ import {
   useUpdateBuddyEvaluationByToken,
   useUpdateJCFeedbackByToken,
   useUpdateJCReflectionByToken,
+  useUpdateParticularsByToken,
 } from './useTokenMutations';
 
 export interface ReviewFormAccessReturn {
@@ -37,15 +38,15 @@ export interface ReviewFormAccessReturn {
   isAdmin: boolean;
 
   // Mutations (unified - work for both session and token access)
-  updateParticulars:
-    | ((args: {
-        formId: Id<'reviewForms'>;
-        buddyName?: string;
-        juniorCommanderName?: string;
-        ageGroup?: AgeGroup;
-        evaluationDate?: number;
-      }) => Promise<void>)
-    | null;
+  updateParticulars: (args: {
+    formId: Id<'reviewForms'>;
+    rotationYear?: number;
+    rotationQuarter?: number;
+    buddyName?: string;
+    juniorCommanderName?: string;
+    ageGroup?: AgeGroup;
+    evaluationDate?: number;
+  }) => Promise<void>;
 
   updateBuddyEvaluation: (args: {
     formId: Id<'reviewForms'>;
@@ -97,15 +98,21 @@ export function useReviewFormAccess(
   const submitFormSession = useSubmitReviewForm();
 
   // Token-based mutations
+  const updateParticularsToken = useUpdateParticularsByToken(accessToken);
   const updateBuddyEvaluationToken = useUpdateBuddyEvaluationByToken(accessToken);
   const updateJCReflectionToken = useUpdateJCReflectionByToken(accessToken);
   const updateJCFeedbackToken = useUpdateJCFeedbackByToken(accessToken);
 
   // Extract permissions (handle type differences)
   const canEditParticulars = useMemo(() => {
-    if (isTokenAccess) return false; // Token access cannot edit particulars
+    // Token access can edit particulars if form exists and is not submitted
+    if (isTokenAccess) {
+      // For token access, check if form exists and is not submitted
+      const form = tokenData.form;
+      return form ? form.status !== 'submitted' : false;
+    }
     return 'canEditParticulars' in data ? data.canEditParticulars : false;
-  }, [isTokenAccess, data]);
+  }, [isTokenAccess, tokenData, data]);
 
   const canEditBuddyEvaluation = useMemo(() => {
     if ('canEditBuddyEvaluation' in data) return data.canEditBuddyEvaluation;
@@ -135,10 +142,24 @@ export function useReviewFormAccess(
   }, [data]);
 
   // Create unified mutation functions
-  const updateParticulars = useMemo(() => {
-    if (isTokenAccess) return null;
-    return updateParticularsSession;
-  }, [isTokenAccess, updateParticularsSession]);
+  const updateParticulars = useCallback(
+    async (args: {
+      formId: Id<'reviewForms'>;
+      rotationYear?: number;
+      rotationQuarter?: number;
+      buddyName?: string;
+      juniorCommanderName?: string;
+      ageGroup?: 'RK' | 'DR' | 'AR' | 'ER';
+      evaluationDate?: number;
+    }) => {
+      if (isTokenAccess) {
+        await updateParticularsToken(args);
+        return;
+      }
+      await updateParticularsSession(args);
+    },
+    [isTokenAccess, updateParticularsToken, updateParticularsSession]
+  );
 
   const updateBuddyEvaluation = useCallback(
     async (args: {
