@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAutosave } from '../../hooks/useAutosave';
 import type { QuestionResponse, ReviewForm } from '../../types';
+import { validatePayload } from '../../utils/autosaveHelpers';
 import { JC_FEEDBACK_QUESTIONS } from './formQuestions';
 import { SaveIndicator } from './SaveIndicator';
 
@@ -57,7 +58,7 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
   // Uses refs to avoid stale closure issues when multiple fields change rapidly
   const createFieldSaveFn = useCallback(
     (field: FieldName) => async () => {
-      await onUpdate({
+      const payload = {
         gratitudeToBuddy: {
           questionText: JC_FEEDBACK_QUESTIONS.gratitudeToBuddy,
           answer: gratitudeToBuddyRef.current, // Use ref for latest value
@@ -66,7 +67,17 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
           questionText: JC_FEEDBACK_QUESTIONS.programFeedback,
           answer: programFeedbackRef.current, // Use ref for latest value
         },
-      });
+      };
+
+      // Validate payload in development
+      validatePayload(
+        payload,
+        ['gratitudeToBuddy', 'programFeedback'],
+        `JCFeedbackSection ${field} autosave`
+      );
+
+      await onUpdate(payload);
+
       // Clear this field from saving state after successful save
       setSavingFields((prev) => {
         const next = new Set(prev);

@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAutosave } from '../../hooks/useAutosave';
 import type { QuestionResponse, ReviewForm } from '../../types';
+import { validatePayload } from '../../utils/autosaveHelpers';
 import { BUDDY_EVALUATION_QUESTIONS } from './formQuestions';
 import { SaveIndicator } from './SaveIndicator';
 
@@ -75,7 +76,7 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
   // Uses refs to avoid stale closure issues when multiple fields change rapidly
   const createFieldSaveFn = useCallback(
     (field: FieldName) => async () => {
-      await onUpdate({
+      const payload = {
         tasksParticipated: {
           questionText: BUDDY_EVALUATION_QUESTIONS.tasksParticipated,
           answer: tasksParticipatedRef.current, // Use ref for latest value
@@ -92,7 +93,17 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
           questionText: BUDDY_EVALUATION_QUESTIONS.wordsOfEncouragement,
           answer: wordsOfEncouragementRef.current, // Use ref for latest value
         },
-      });
+      };
+
+      // Validate payload in development
+      validatePayload(
+        payload,
+        ['tasksParticipated', 'strengths', 'areasForImprovement', 'wordsOfEncouragement'],
+        `BuddyEvaluationSection ${field} autosave`
+      );
+
+      await onUpdate(payload);
+
       // Clear this field from saving state after successful save
       setSavingFields((prev) => {
         const next = new Set(prev);

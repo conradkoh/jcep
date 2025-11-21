@@ -15,6 +15,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useAutosave } from '../../hooks/useAutosave';
 import type { AgeGroup, QuestionResponse, ReviewForm } from '../../types';
+import { validatePayload } from '../../utils/autosaveHelpers';
 import { JC_REFLECTION_QUESTIONS } from './formQuestions';
 import { SaveIndicator } from './SaveIndicator';
 
@@ -88,7 +89,7 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
         whatToDoDifferently: string;
         goalsForNextRotation: string;
       }) => {
-        await onUpdate({
+        const payload = {
           nextRotationPreference,
           activitiesParticipated: {
             questionText: JC_REFLECTION_QUESTIONS.activitiesParticipated,
@@ -106,7 +107,17 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
             questionText: JC_REFLECTION_QUESTIONS.goalsForNextRotation,
             answer: data.goalsForNextRotation,
           },
-        });
+        };
+
+        // Validate payload in development
+        validatePayload(
+          payload,
+          ['nextRotationPreference', 'activitiesParticipated', 'learningsFromJCEP', 'whatToDoDifferently', 'goalsForNextRotation'],
+          `JCReflectionSection ${field} autosave`
+        );
+
+        await onUpdate(payload);
+
         // Clear this field from saving state after successful save
         setSavingFields((prev) => {
           const next = new Set(prev);
@@ -137,7 +148,7 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
         goalsForNextRotation: goalsForNextRotationRef.current,
       });
 
-      await onUpdate({
+      const payload = {
         nextRotationPreference: preference,
         activitiesParticipated: {
           questionText: JC_REFLECTION_QUESTIONS.activitiesParticipated,
@@ -155,7 +166,16 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
           questionText: JC_REFLECTION_QUESTIONS.goalsForNextRotation,
           answer: goalsForNextRotationRef.current,
         },
-      });
+      };
+
+      // Validate payload in development
+      validatePayload(
+        payload,
+        ['nextRotationPreference', 'activitiesParticipated', 'learningsFromJCEP', 'whatToDoDifferently', 'goalsForNextRotation'],
+        'JCReflectionSection nextRotationPreference autosave'
+      );
+
+      await onUpdate(payload);
 
       console.log('[JCReflectionSection] Autosave completed successfully');
       // Clear saving state after successful save
