@@ -303,17 +303,6 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
         <div className="space-y-4 rounded-lg border border-border bg-card p-4">
           <div>
             <Label className="text-sm font-medium text-muted-foreground">
-              Next Rotation Preference
-            </Label>
-            <p className="mt-1 text-foreground">
-              {form.nextRotationPreference
-                ? getAgeGroupLabel(form.nextRotationPreference)
-                : 'Not specified'}
-            </p>
-          </div>
-
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground">
               {form.jcReflection?.activitiesParticipated.questionText}
             </Label>
             <p className="mt-1 whitespace-pre-wrap text-foreground">
@@ -347,6 +336,17 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
               {form.jcReflection?.goalsForNextRotation.answer}
             </p>
           </div>
+
+          <div>
+            <Label className="text-sm font-medium text-muted-foreground">
+              Next Rotation Preference
+            </Label>
+            <p className="mt-1 text-foreground">
+              {form.nextRotationPreference
+                ? getAgeGroupLabel(form.nextRotationPreference)
+                : 'Not specified'}
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -368,34 +368,6 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
       <h3 className="text-lg font-semibold text-foreground">Junior Commander Reflection</h3>
 
       <div className="space-y-4 rounded-lg border border-border bg-card p-4">
-        <div>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="nextRotationPreference" className="text-sm font-medium text-foreground">
-              {labelTexts.nextRotationPreference}
-            </Label>
-            <SaveIndicator
-              status={
-                nextRotationPreferenceSaving || nextRotationPreferenceAutosave.isSaving
-                  ? 'modified'
-                  : form.jcReflection && form.nextRotationPreference
-                    ? 'saved'
-                    : 'none'
-              }
-            />
-          </div>
-          <AgeGroupSelect
-            value={nextRotationPreference}
-            onValueChange={(value) => {
-              setNextRotationPreference(value);
-              // Mark as saving and trigger autosave when dropdown value changes
-              setNextRotationPreferenceSaving(true);
-              nextRotationPreferenceAutosave.debouncedSave(value);
-            }}
-            placeholder="Select preferred age group"
-            className="mt-1"
-          />
-        </div>
-
         <div>
           <div className="flex items-center justify-between">
             <Label htmlFor="activitiesParticipated" className="text-sm font-medium text-foreground">
@@ -461,6 +433,34 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
             rows={4}
             className="mt-1"
             placeholder="Share a few goals and prayer needs for your next rotation..."
+          />
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="nextRotationPreference" className="text-sm font-medium text-foreground">
+              {labelTexts.nextRotationPreference}
+            </Label>
+            <SaveIndicator
+              status={
+                nextRotationPreferenceSaving || nextRotationPreferenceAutosave.isSaving
+                  ? 'modified'
+                  : form.jcReflection && form.nextRotationPreference
+                    ? 'saved'
+                    : 'none'
+              }
+            />
+          </div>
+          <AgeGroupSelect
+            value={nextRotationPreference}
+            onValueChange={(value) => {
+              setNextRotationPreference(value);
+              // Mark as saving and trigger autosave when dropdown value changes
+              setNextRotationPreferenceSaving(true);
+              nextRotationPreferenceAutosave.debouncedSave(value);
+            }}
+            placeholder="Select preferred age group"
+            className="mt-1"
           />
         </div>
 
