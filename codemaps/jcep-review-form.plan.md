@@ -229,87 +229,87 @@ This feature will be implemented in 6 milestones, with each milestone being:
 
 ---
 
-## Milestone 4: Routing & User Pages ⏳ NOT STARTED
+## Milestone 4: Routing & User Pages ✅ COMPLETED
 
 **Goal**: Create page routes and shared components for users to access review forms
 
-**Status**: ⏳ Not Started
+**Status**: ✅ Completed
 
 ### Files to Create
-- [ ] `apps/webapp/src/modules/review/components/ReviewFormRouter.tsx`
-- [ ] `apps/webapp/src/modules/review/components/ReviewFormList.tsx`
-- [ ] `apps/webapp/src/modules/review/components/ReviewFormCard.tsx`
-- [ ] `apps/webapp/src/modules/review/components/AgeGroupSelect.tsx`
-- [ ] `apps/webapp/src/app/app/review/page.tsx`
-- [ ] `apps/webapp/src/app/app/review/create/page.tsx`
-- [ ] `apps/webapp/src/app/app/review/[formId]/page.tsx`
-- [ ] `apps/webapp/src/app/app/review/[formId]/layout.tsx`
+- [x] `apps/webapp/src/modules/review/components/ReviewFormRouter.tsx`
+- [x] `apps/webapp/src/modules/review/components/ReviewFormList.tsx`
+- [x] `apps/webapp/src/modules/review/components/ReviewFormCard.tsx`
+- [x] `apps/webapp/src/modules/review/components/AgeGroupSelect.tsx`
+- [x] `apps/webapp/src/app/app/review/page.tsx`
+- [x] `apps/webapp/src/app/app/review/create/page.tsx`
+- [x] `apps/webapp/src/app/app/review/[formId]/page.tsx`
+- [x] `apps/webapp/src/app/app/review/[formId]/layout.tsx`
 
 ### Tasks
-- [ ] Create ReviewFormRouter.tsx
-  - [ ] Route to v1 components based on schemaVersion
-  - [ ] Handle unsupported versions gracefully
-  - [ ] Loading states
-  - [ ] Error states
+- [x] Create ReviewFormRouter.tsx
+  - [x] Route to v1 components based on schemaVersion
+  - [x] Handle unsupported versions gracefully
+  - [x] Loading states
+  - [x] Error states
 
-- [ ] Create ReviewFormList.tsx
-  - [ ] Display list of review forms
-  - [ ] Year filter dropdown
-  - [ ] Status badges
-  - [ ] Empty state
-  - [ ] Dark mode support
+- [x] Create ReviewFormList.tsx
+  - [x] Display list of review forms
+  - [x] Year filter dropdown
+  - [x] Status badges
+  - [x] Empty state
+  - [x] Dark mode support
 
-- [ ] Create ReviewFormCard.tsx
-  - [ ] Summary card for a review form
-  - [ ] Show key info (buddy, JC, age group, status)
-  - [ ] Completion indicator
-  - [ ] Click to navigate to detail
-  - [ ] Dark mode support
+- [x] Create ReviewFormCard.tsx
+  - [x] Summary card for a review form
+  - [x] Show key info (buddy, JC, age group, status)
+  - [x] Completion indicator
+  - [x] Click to navigate to detail
+  - [x] Dark mode support
 
-- [ ] Create AgeGroupSelect.tsx
-  - [ ] Dropdown for RK/DR/AR/ER selection
-  - [ ] Reusable across forms
-  - [ ] Dark mode support
+- [x] Create AgeGroupSelect.tsx
+  - [x] Dropdown for RK/DR/AR/ER selection
+  - [x] Reusable across forms
+  - [x] Dark mode support
 
-- [ ] Create review/page.tsx (List page)
-  - [ ] Use RequireLogin wrapper
-  - [ ] Parse year search param
-  - [ ] Display ReviewFormList
-  - [ ] Year filter controls
-  - [ ] "Create New" button
-  - [ ] Dark mode support
+- [x] Create review/page.tsx (List page)
+  - [x] Use RequireLogin wrapper
+  - [x] Parse year search param
+  - [x] Display ReviewFormList
+  - [x] Year filter controls
+  - [x] "Create New" button
+  - [x] Dark mode support
 
-- [ ] Create review/create/page.tsx
-  - [ ] Use RequireLogin wrapper
-  - [ ] Display ReviewFormCreate component
-  - [ ] Handle form submission
-  - [ ] Redirect to form detail on success
-  - [ ] Dark mode support
+- [x] Create review/create/page.tsx
+  - [x] Use RequireLogin wrapper
+  - [x] Display ReviewFormCreate component
+  - [x] Handle form submission
+  - [x] Redirect to form detail on success
+  - [x] Dark mode support
 
-- [ ] Create review/[formId]/page.tsx
-  - [ ] Use RequireLogin wrapper
-  - [ ] Parse formId param (await params)
-  - [ ] Use ReviewFormRouter to display correct version
-  - [ ] Handle not found
-  - [ ] Dark mode support
+- [x] Create review/[formId]/page.tsx
+  - [x] Use RequireLogin wrapper
+  - [x] Parse formId param (await params)
+  - [x] Use ReviewFormRouter to display correct version
+  - [x] Handle not found
+  - [x] Dark mode support
 
-- [ ] Create review/[formId]/layout.tsx
-  - [ ] Breadcrumb navigation
-  - [ ] Back to list button
-  - [ ] Dark mode support
+- [x] Create review/[formId]/layout.tsx
+  - [x] Breadcrumb navigation
+  - [x] Back to list button
+  - [x] Dark mode support
 
 ### Validation
-- [ ] Run typecheck: `cd apps/webapp && npx tsc --noEmit`
-- [ ] Run linter: `cd apps/webapp && npx biome check .`
-- [ ] Browser testing: Navigate to /app/review
-- [ ] Browser testing: Create new form
-- [ ] Browser testing: View form detail
-- [ ] Browser testing: Edit sections
-- [ ] Browser testing: Submit form
-- [ ] Test dark mode toggle
+- [x] Run typecheck: `cd apps/webapp && npx tsc --noEmit`
+- [x] Run linter: `cd apps/webapp && npx biome check .`
+- [ ] Browser testing: Navigate to /app/review (deferred to Milestone 6)
+- [ ] Browser testing: Create new form (deferred to Milestone 6)
+- [ ] Browser testing: View form detail (deferred to Milestone 6)
+- [ ] Browser testing: Edit sections (deferred to Milestone 6)
+- [ ] Browser testing: Submit form (deferred to Milestone 6)
+- [ ] Test dark mode toggle (deferred to Milestone 6)
 
 ### Commit
-- [ ] Commit: "feat: add review form user pages and routing"
+- [x] Commit: "feat: add review form user pages and routing"
 
 ---
 
