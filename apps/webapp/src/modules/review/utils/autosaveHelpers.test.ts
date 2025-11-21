@@ -1,14 +1,13 @@
 import { renderHook } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { useLatestValue, validatePayload, createPayloadBuilder } from './autosaveHelpers';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { createPayloadBuilder, useLatestValue, validatePayload } from './autosaveHelpers';
 
 describe('autosaveHelpers', () => {
   describe('useLatestValue', () => {
     it('should keep ref in sync with value', () => {
-      const { result, rerender } = renderHook(
-        ({ value }) => useLatestValue(value),
-        { initialProps: { value: 'initial' } }
-      );
+      const { result, rerender } = renderHook(({ value }) => useLatestValue(value), {
+        initialProps: { value: 'initial' },
+      });
 
       expect(result.current.current).toBe('initial');
 
@@ -22,10 +21,9 @@ describe('autosaveHelpers', () => {
     });
 
     it('should work with objects', () => {
-      const { result, rerender } = renderHook(
-        ({ value }) => useLatestValue(value),
-        { initialProps: { value: { name: 'John', age: 30 } } }
-      );
+      const { result, rerender } = renderHook(({ value }) => useLatestValue(value), {
+        initialProps: { value: { name: 'John', age: 30 } },
+      });
 
       expect(result.current.current).toEqual({ name: 'John', age: 30 });
 
@@ -36,12 +34,15 @@ describe('autosaveHelpers', () => {
 
   describe('validatePayload', () => {
     beforeEach(() => {
+      // Set NODE_ENV to 'development' so validatePayload runs
+      vi.stubEnv('NODE_ENV', 'development');
       vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.spyOn(console, 'warn').mockImplementation(() => {});
     });
 
     afterEach(() => {
       vi.restoreAllMocks();
+      vi.unstubAllEnvs();
     });
 
     it('should not log errors when all fields are present', () => {
@@ -98,10 +99,9 @@ describe('autosaveHelpers', () => {
 
       validatePayload(payload, ['formId', 'name', 'email'], 'test');
 
-      expect(console.warn).toHaveBeenCalledWith(
-        expect.stringContaining('[test] Fields are null'),
-        ['email']
-      );
+      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('[test] Fields are null'), [
+        'email',
+      ]);
     });
   });
 
@@ -162,4 +162,3 @@ describe('autosaveHelpers', () => {
     });
   });
 });
-
