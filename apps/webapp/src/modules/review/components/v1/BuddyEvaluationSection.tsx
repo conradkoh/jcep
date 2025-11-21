@@ -1,7 +1,8 @@
 'use client';
 
+// Imports
 import { EyeOff } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -12,9 +13,28 @@ import { validatePayload } from '../../utils/autosaveHelpers';
 import { BUDDY_EVALUATION_QUESTIONS } from './formQuestions';
 import { SaveIndicator } from './SaveIndicator';
 
-interface BuddyEvaluationSectionProps {
+// Public interfaces and types
+/**
+ * Props for the BuddyEvaluationSection component.
+ * Handles the buddy's evaluation of their Junior Commander with autosave functionality.
+ *
+ * @example
+ * ```typescript
+ * <BuddyEvaluationSection
+ *   form={reviewForm}
+ *   canEdit={true}
+ *   onUpdate={async (data) => {
+ *     await updateBuddyEvaluation({ formId, ...data });
+ *   }}
+ * />
+ * ```
+ */
+export interface BuddyEvaluationSectionProps {
+  /** The review form containing buddy evaluation data */
   form: ReviewForm;
+  /** Whether the current user can edit this section */
   canEdit: boolean;
+  /** Callback function called when evaluation data is updated */
   onUpdate: (data: {
     tasksParticipated: QuestionResponse;
     strengths: QuestionResponse;
@@ -23,8 +43,25 @@ interface BuddyEvaluationSectionProps {
   }) => Promise<void>;
 }
 
-type FieldName = 'tasksParticipated' | 'strengths' | 'areasForImprovement' | 'wordsOfEncouragement';
+/**
+ * Field names available in the buddy evaluation section.
+ */
+export type FieldName =
+  | 'tasksParticipated'
+  | 'strengths'
+  | 'areasForImprovement'
+  | 'wordsOfEncouragement';
 
+// Internal types
+type _SaveStatus = 'saved' | 'modified' | 'none';
+
+// Exported component
+/**
+ * Buddy Evaluation section component with autosave functionality.
+ * Allows buddies to evaluate their Junior Commander across four key areas:
+ * tasks participated, strengths, areas for improvement, and words of encouragement.
+ * Changes are automatically saved after 1.5 seconds of inactivity.
+ */
 export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluationSectionProps) {
   const [isEditing, setIsEditing] = useState(!form.buddyEvaluation);
 
@@ -65,16 +102,19 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
     wordsOfEncouragementRef.current = wordsOfEncouragement;
   }, [wordsOfEncouragement]);
 
-  const labelTexts = {
-    tasksParticipated: BUDDY_EVALUATION_QUESTIONS.tasksParticipated,
-    strengths: BUDDY_EVALUATION_QUESTIONS.strengths,
-    areasForImprovement: BUDDY_EVALUATION_QUESTIONS.areasForImprovement,
-    wordsOfEncouragement: BUDDY_EVALUATION_QUESTIONS.wordsOfEncouragement,
-  } as const;
+  const _labelTexts = useMemo(
+    () => ({
+      tasksParticipated: BUDDY_EVALUATION_QUESTIONS.tasksParticipated,
+      strengths: BUDDY_EVALUATION_QUESTIONS.strengths,
+      areasForImprovement: BUDDY_EVALUATION_QUESTIONS.areasForImprovement,
+      wordsOfEncouragement: BUDDY_EVALUATION_QUESTIONS.wordsOfEncouragement,
+    }),
+    []
+  );
 
   // Autosave function for a specific field
   // Uses refs to avoid stale closure issues when multiple fields change rapidly
-  const createFieldSaveFn = useCallback(
+  const _createFieldSaveFn = useCallback(
     (field: FieldName) => async () => {
       const payload = {
         tasksParticipated: {
@@ -115,72 +155,106 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
   );
 
   // Create separate autosave instances for each field
-  const tasksParticipatedAutosave = useAutosave<void>(createFieldSaveFn('tasksParticipated'), 1500);
-  const strengthsAutosave = useAutosave<void>(createFieldSaveFn('strengths'), 1500);
-  const areasForImprovementAutosave = useAutosave<void>(createFieldSaveFn('areasForImprovement'), 1500);
-  const wordsOfEncouragementAutosave = useAutosave<void>(createFieldSaveFn('wordsOfEncouragement'), 1500);
+  const tasksParticipatedAutosave = useAutosave<void>(
+    _createFieldSaveFn('tasksParticipated'),
+    1500
+  );
+  const strengthsAutosave = useAutosave<void>(_createFieldSaveFn('strengths'), 1500);
+  const areasForImprovementAutosave = useAutosave<void>(
+    _createFieldSaveFn('areasForImprovement'),
+    1500
+  );
+  const wordsOfEncouragementAutosave = useAutosave<void>(
+    _createFieldSaveFn('wordsOfEncouragement'),
+    1500
+  );
 
-  const handleSave = async () => {
-    try {
-      await onUpdate({
-        tasksParticipated: {
-          questionText: BUDDY_EVALUATION_QUESTIONS.tasksParticipated,
-          answer: tasksParticipated,
-        },
-        strengths: {
-          questionText: BUDDY_EVALUATION_QUESTIONS.strengths,
-          answer: strengths,
-        },
-        areasForImprovement: {
-          questionText: BUDDY_EVALUATION_QUESTIONS.areasForImprovement,
-          answer: areasForImprovement,
-        },
-        wordsOfEncouragement: {
-          questionText: BUDDY_EVALUATION_QUESTIONS.wordsOfEncouragement,
-          answer: wordsOfEncouragement,
-        },
-      });
-      setIsEditing(false);
-    } catch (error) {
-      console.error('Failed to update buddy evaluation:', error);
-    }
-  };
-
-  const handleFieldChange = (field: FieldName, value: string) => {
-    // Mark field as being saved
-    setSavingFields((prev) => new Set(prev).add(field));
-
-    // Update state and trigger field-specific autosave
-    // Note: Pass undefined as the autosave callback reads from refs
-    switch (field) {
-      case 'tasksParticipated':
-        setTasksParticipated(value);
-        tasksParticipatedAutosave.debouncedSave(undefined);
-        break;
-      case 'strengths':
-        setStrengths(value);
-        strengthsAutosave.debouncedSave(undefined);
-        break;
-      case 'areasForImprovement':
-        setAreasForImprovement(value);
-        areasForImprovementAutosave.debouncedSave(undefined);
-        break;
-      case 'wordsOfEncouragement':
-        setWordsOfEncouragement(value);
-        wordsOfEncouragementAutosave.debouncedSave(undefined);
-        break;
-    }
-  };
-
-  const handleCancel = () => {
-    setTasksParticipated(form.buddyEvaluation?.tasksParticipated.answer || '');
-    setStrengths(form.buddyEvaluation?.strengths.answer || '');
-    setAreasForImprovement(form.buddyEvaluation?.areasForImprovement.answer || '');
-    setWordsOfEncouragement(form.buddyEvaluation?.wordsOfEncouragement.answer || '');
+  const _handleClose = useCallback(() => {
+    // Autosave handles saving automatically, so we just close the edit mode
     setIsEditing(false);
-  };
+  }, []);
+
+  const _handleFieldChange = useCallback(
+    (field: FieldName, value: string) => {
+      // Mark field as being saved
+      setSavingFields((prev) => new Set(prev).add(field));
+
+      // Update state and trigger field-specific autosave
+      // Note: Pass undefined as the autosave callback reads from refs
+      switch (field) {
+        case 'tasksParticipated':
+          setTasksParticipated(value);
+          tasksParticipatedAutosave.debouncedSave(undefined);
+          break;
+        case 'strengths':
+          setStrengths(value);
+          strengthsAutosave.debouncedSave(undefined);
+          break;
+        case 'areasForImprovement':
+          setAreasForImprovement(value);
+          areasForImprovementAutosave.debouncedSave(undefined);
+          break;
+        case 'wordsOfEncouragement':
+          setWordsOfEncouragement(value);
+          wordsOfEncouragementAutosave.debouncedSave(undefined);
+          break;
+      }
+    },
+    [
+      tasksParticipatedAutosave,
+      strengthsAutosave,
+      areasForImprovementAutosave,
+      wordsOfEncouragementAutosave,
+    ]
+  );
 
   const isComplete = form.buddyEvaluation !== null;
+
+  const _isSaving = useMemo(
+    () =>
+      tasksParticipatedAutosave.isSaving ||
+      strengthsAutosave.isSaving ||
+      areasForImprovementAutosave.isSaving ||
+      wordsOfEncouragementAutosave.isSaving,
+    [
+      tasksParticipatedAutosave.isSaving,
+      strengthsAutosave.isSaving,
+      areasForImprovementAutosave.isSaving,
+      wordsOfEncouragementAutosave.isSaving,
+    ]
+  );
+
+  /**
+   * Determines the save status for a specific field.
+   * @param field - The field name to check
+   * @returns The current save status: 'saved', 'modified', or 'none'
+   */
+  const _getSaveStatus = useCallback(
+    (field: FieldName): _SaveStatus => {
+      // Check if this specific field is being saved
+      const isFieldSaving =
+        (field === 'tasksParticipated' && tasksParticipatedAutosave.isSaving) ||
+        (field === 'strengths' && strengthsAutosave.isSaving) ||
+        (field === 'areasForImprovement' && areasForImprovementAutosave.isSaving) ||
+        (field === 'wordsOfEncouragement' && wordsOfEncouragementAutosave.isSaving);
+
+      // If field is in saving state (modified and debouncing/saving)
+      if (savingFields.has(field) || isFieldSaving) return 'modified';
+
+      // If field has been saved at least once (form exists)
+      if (form.buddyEvaluation && !savingFields.has(field)) return 'saved';
+
+      return 'none';
+    },
+    [
+      tasksParticipatedAutosave.isSaving,
+      strengthsAutosave.isSaving,
+      areasForImprovementAutosave.isSaving,
+      wordsOfEncouragementAutosave.isSaving,
+      savingFields,
+      form.buddyEvaluation,
+    ]
+  );
 
   // V2: Show hidden message if responses are not visible
   if (!form.buddyEvaluation && !canEdit) {
@@ -259,23 +333,6 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
     );
   }
 
-  const getSaveStatus = (field: FieldName): 'saved' | 'modified' | 'none' => {
-    // Check if this specific field is being saved
-    const isFieldSaving =
-      (field === 'tasksParticipated' && tasksParticipatedAutosave.isSaving) ||
-      (field === 'strengths' && strengthsAutosave.isSaving) ||
-      (field === 'areasForImprovement' && areasForImprovementAutosave.isSaving) ||
-      (field === 'wordsOfEncouragement' && wordsOfEncouragementAutosave.isSaving);
-
-    // If field is in saving state (modified and debouncing/saving)
-    if (savingFields.has(field) || isFieldSaving) return 'modified';
-
-    // If field has been saved at least once (form exists)
-    if (form.buddyEvaluation && !savingFields.has(field)) return 'saved';
-
-    return 'none';
-  };
-
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-foreground">Buddy Evaluation</h3>
@@ -284,14 +341,14 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
         <div>
           <div className="flex items-center justify-between">
             <Label htmlFor="tasksParticipated" className="text-sm font-medium text-foreground">
-              {labelTexts.tasksParticipated}
+              {_labelTexts.tasksParticipated}
             </Label>
-            <SaveIndicator status={getSaveStatus('tasksParticipated')} />
+            <SaveIndicator status={_getSaveStatus('tasksParticipated')} />
           </div>
           <Textarea
             id="tasksParticipated"
             value={tasksParticipated}
-            onChange={(e) => handleFieldChange('tasksParticipated', e.target.value)}
+            onChange={(e) => _handleFieldChange('tasksParticipated', e.target.value)}
             rows={4}
             className="mt-1"
             placeholder="Example: recreation, devotion, games, etc."
@@ -301,14 +358,14 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
         <div>
           <div className="flex items-center justify-between">
             <Label htmlFor="strengths" className="text-sm font-medium text-foreground">
-              {labelTexts.strengths}
+              {_labelTexts.strengths}
             </Label>
-            <SaveIndicator status={getSaveStatus('strengths')} />
+            <SaveIndicator status={_getSaveStatus('strengths')} />
           </div>
           <Textarea
             id="strengths"
             value={strengths}
-            onChange={(e) => handleFieldChange('strengths', e.target.value)}
+            onChange={(e) => _handleFieldChange('strengths', e.target.value)}
             rows={4}
             className="mt-1"
             placeholder="Provide examples where possible (e.g. willingness to learn, patience, spiritual maturity, etc.)"
@@ -318,14 +375,14 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
         <div>
           <div className="flex items-center justify-between">
             <Label htmlFor="areasForImprovement" className="text-sm font-medium text-foreground">
-              {labelTexts.areasForImprovement}
+              {_labelTexts.areasForImprovement}
             </Label>
-            <SaveIndicator status={getSaveStatus('areasForImprovement')} />
+            <SaveIndicator status={_getSaveStatus('areasForImprovement')} />
           </div>
           <Textarea
             id="areasForImprovement"
             value={areasForImprovement}
-            onChange={(e) => handleFieldChange('areasForImprovement', e.target.value)}
+            onChange={(e) => _handleFieldChange('areasForImprovement', e.target.value)}
             rows={4}
             className="mt-1"
             placeholder="Please provide examples (e.g. discipline, punctuality, stepping out of comfort zone, etc.)"
@@ -335,14 +392,14 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
         <div>
           <div className="flex items-center justify-between">
             <Label htmlFor="wordsOfEncouragement" className="text-sm font-medium text-foreground">
-              {labelTexts.wordsOfEncouragement}
+              {_labelTexts.wordsOfEncouragement}
             </Label>
-            <SaveIndicator status={getSaveStatus('wordsOfEncouragement')} />
+            <SaveIndicator status={_getSaveStatus('wordsOfEncouragement')} />
           </div>
           <Textarea
             id="wordsOfEncouragement"
             value={wordsOfEncouragement}
-            onChange={(e) => handleFieldChange('wordsOfEncouragement', e.target.value)}
+            onChange={(e) => _handleFieldChange('wordsOfEncouragement', e.target.value)}
             rows={4}
             className="mt-1"
             placeholder="Include advice or specific words of guidance or wisdom that will help their continued growth."
@@ -350,36 +407,9 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
         </div>
 
         <div className="flex gap-2">
-          <Button
-            onClick={handleSave}
-            disabled={
-              tasksParticipatedAutosave.isSaving ||
-              strengthsAutosave.isSaving ||
-              areasForImprovementAutosave.isSaving ||
-              wordsOfEncouragementAutosave.isSaving
-            }
-          >
-            {tasksParticipatedAutosave.isSaving ||
-            strengthsAutosave.isSaving ||
-            areasForImprovementAutosave.isSaving ||
-            wordsOfEncouragementAutosave.isSaving
-              ? 'Saving...'
-              : 'Save'}
+          <Button variant="outline" onClick={_handleClose} disabled={_isSaving}>
+            {_isSaving ? 'Saving...' : 'Close'}
           </Button>
-          {isComplete && (
-            <Button
-              variant="outline"
-              onClick={handleCancel}
-              disabled={
-                tasksParticipatedAutosave.isSaving ||
-                strengthsAutosave.isSaving ||
-                areasForImprovementAutosave.isSaving ||
-                wordsOfEncouragementAutosave.isSaving
-              }
-            >
-              Cancel
-            </Button>
-          )}
         </div>
       </div>
     </div>
