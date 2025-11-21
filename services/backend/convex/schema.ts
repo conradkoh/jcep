@@ -230,4 +230,113 @@ export default defineSchema({
     expiresAt: v.number(), // When this connect request expires (15 minutes from creation)
     redirectUri: v.string(), // The OAuth redirect URI used for this connect request
   }),
+
+  /**
+   * JCEP Review Forms for tracking Junior Commander rotation evaluations.
+   * Supports multi-stage collaborative form completion between Buddies and Junior Commanders.
+   * Each form captures particulars, buddy evaluation, JC reflection, and JC feedback sections.
+   */
+  reviewForms: defineTable({
+    // Schema version for data migration and UI routing
+    schemaVersion: v.number(),
+
+    // Particulars
+    rotationYear: v.number(), // For indexing by year (e.g., 2025)
+    buddyUserId: v.id('users'), // The Buddy assigned to this JC
+    buddyName: v.string(), // Buddy's display name
+    juniorCommanderUserId: v.union(v.id('users'), v.null()), // Null if JC not registered
+    juniorCommanderName: v.string(), // JC's display name
+    ageGroup: v.union(v.literal('RK'), v.literal('DR'), v.literal('AR'), v.literal('ER')), // Age group rotation
+    evaluationDate: v.number(), // Timestamp of evaluation
+
+    // Next rotation preference (filled by JC)
+    nextRotationPreference: v.union(
+      v.literal('RK'),
+      v.literal('DR'),
+      v.literal('AR'),
+      v.literal('ER'),
+      v.null()
+    ),
+
+    // Buddy Evaluation Section (with question text captured)
+    buddyEvaluation: v.union(
+      v.object({
+        tasksParticipated: v.object({
+          questionText: v.string(),
+          answer: v.string(),
+        }),
+        strengths: v.object({
+          questionText: v.string(),
+          answer: v.string(),
+        }),
+        areasForImprovement: v.object({
+          questionText: v.string(),
+          answer: v.string(),
+        }),
+        wordsOfEncouragement: v.object({
+          questionText: v.string(),
+          answer: v.string(),
+        }),
+        completedAt: v.union(v.number(), v.null()),
+        completedBy: v.union(v.id('users'), v.null()),
+      }),
+      v.null()
+    ),
+
+    // Junior Commander Reflection Section (with question text captured)
+    jcReflection: v.union(
+      v.object({
+        activitiesParticipated: v.object({
+          questionText: v.string(),
+          answer: v.string(),
+        }),
+        learningsFromJCEP: v.object({
+          questionText: v.string(),
+          answer: v.string(),
+        }),
+        whatToDoDifferently: v.object({
+          questionText: v.string(),
+          answer: v.string(),
+        }),
+        goalsForNextRotation: v.object({
+          questionText: v.string(),
+          answer: v.string(),
+        }),
+        completedAt: v.union(v.number(), v.null()),
+        completedBy: v.union(v.id('users'), v.null()),
+      }),
+      v.null()
+    ),
+
+    // Junior Commander Feedback Section (with question text captured)
+    jcFeedback: v.union(
+      v.object({
+        gratitudeToBuddy: v.object({
+          questionText: v.string(),
+          answer: v.string(),
+        }),
+        programFeedback: v.object({
+          questionText: v.string(),
+          answer: v.string(),
+        }),
+        completedAt: v.union(v.number(), v.null()),
+        completedBy: v.union(v.id('users'), v.null()),
+      }),
+      v.null()
+    ),
+
+    // Meta
+    status: v.union(v.literal('draft'), v.literal('in_progress'), v.literal('submitted')),
+    submittedAt: v.union(v.number(), v.null()),
+    submittedBy: v.union(v.id('users'), v.null()),
+    createdBy: v.id('users'),
+  })
+    .index('by_schema_version', ['schemaVersion'])
+    .index('by_rotation_year', ['rotationYear'])
+    .index('by_buddy', ['buddyUserId'])
+    .index('by_junior_commander', ['juniorCommanderUserId'])
+    .index('by_year_and_buddy', ['rotationYear', 'buddyUserId'])
+    .index('by_year_and_jc', ['rotationYear', 'juniorCommanderUserId'])
+    .index('by_year_and_status', ['rotationYear', 'status'])
+    .index('by_status', ['status']),
 });
