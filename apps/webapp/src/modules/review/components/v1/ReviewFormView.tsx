@@ -13,6 +13,7 @@ import {
   useUpdateJCReflection,
   useUpdateParticulars,
 } from '../../hooks/useReviewForm';
+import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
 import { TokenDisplay } from '../admin/TokenDisplay';
 import { VisibilityControls } from '../admin/VisibilityControls';
 import { BuddyEvaluationSection } from './BuddyEvaluationSection';
@@ -72,7 +73,7 @@ export function ReviewFormView({ formId }: ReviewFormViewProps) {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Review Form - {form.rotationYear}</h1>
           <p className="text-sm text-muted-foreground">
-            {form.buddyName} & {form.juniorCommanderName} ({form.ageGroup})
+            {form.buddyName} & {form.juniorCommanderName} ({getAgeGroupLabel(form.ageGroup)})
           </p>
         </div>
         {isComplete && !isSubmitted && <Button onClick={handleSubmit}>Submit Form</Button>}

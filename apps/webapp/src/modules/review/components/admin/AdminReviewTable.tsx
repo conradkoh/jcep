@@ -14,6 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import type { ReviewForm } from '../../types';
+import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
 
 interface AdminReviewTableProps {
   forms: ReviewForm[];
@@ -85,7 +86,7 @@ export function AdminReviewTable({ forms }: AdminReviewTableProps) {
             <TableRow key={form._id}>
               <TableCell className="font-medium">{form.juniorCommanderName}</TableCell>
               <TableCell>{form.buddyName}</TableCell>
-              <TableCell>{form.ageGroup}</TableCell>
+              <TableCell>{getAgeGroupLabel(form.ageGroup)}</TableCell>
               <TableCell>{formatDate(form.evaluationDate)}</TableCell>
               <TableCell>{getStatusBadge(form.status)}</TableCell>
               <TableCell>{getCompletionStatus(form)}</TableCell>

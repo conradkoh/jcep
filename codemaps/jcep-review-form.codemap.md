@@ -52,6 +52,7 @@ Based on the paper form structure, the optimal digital flow is:
 ### Stage 2: Buddy Evaluation Section (By Buddy) **[V2: Implemented]**
 
 - **V2.1 (Current)**: Buddy completes section, hidden from JC until admin reveals
+
   - Buddy accesses via token link (anonymous) or account (if linked)
   - Buddy sees their name, JC's name, and JC's response status
   - Responses saved but marked as hidden from JC by default
@@ -67,6 +68,7 @@ Based on the paper form structure, the optimal digital flow is:
 ### Stage 3: Junior Commander Reflection (By Junior Commander) **[V2: Implemented]**
 
 - **V2.1 (Current)**: JC completes section, hidden from Buddy until admin reveals
+
   - JC accesses via token link (anonymous) or account (if linked)
   - JC sees their name, Buddy's name, and Buddy's response status
   - Responses saved but marked as hidden from Buddy by default

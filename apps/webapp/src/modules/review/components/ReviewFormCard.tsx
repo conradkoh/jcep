@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import type { ReviewForm } from '../types';
+import { getAgeGroupLabel } from '../utils/ageGroupLabels';
 
 interface ReviewFormCardProps {
   form: ReviewForm;
@@ -62,7 +63,7 @@ export function ReviewFormCard({ form }: ReviewFormCardProps) {
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <span className="font-medium">{form.ageGroup}</span>
+          <span className="font-medium">{getAgeGroupLabel(form.ageGroup)}</span>
           <span>•</span>
           <span>{formatDate(form.evaluationDate)}</span>
         </div>

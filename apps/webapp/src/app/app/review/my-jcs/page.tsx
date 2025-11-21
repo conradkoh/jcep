@@ -24,6 +24,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 import { useReviewFormsByBuddy } from '@/modules/review/hooks/useReviewForm';
 import type { ReviewForm } from '@/modules/review/types';
+import { getAgeGroupLabel } from '@/modules/review/utils/ageGroupLabels';
 
 function BuddyDashboardContent() {
   const currentYear = new Date().getFullYear();
@@ -253,7 +254,7 @@ function BuddyDashboardContent() {
                 <div className="flex items-start justify-between">
                   <div>
                     <CardTitle className="text-lg">{form.juniorCommanderName}</CardTitle>
-                    <CardDescription>{form.ageGroup} Group</CardDescription>
+                    <CardDescription>{getAgeGroupLabel(form.ageGroup)}</CardDescription>
                   </div>
                   {getStatusBadge(form.status)}
                 </div>
