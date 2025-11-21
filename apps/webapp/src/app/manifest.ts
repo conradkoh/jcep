@@ -5,8 +5,8 @@ export default function manifest(): MetadataRoute.Manifest {
   const startUrl = featureFlags.disableLogin ? '/' : '/app';
 
   return {
-    name: 'Next Convex App',
-    short_name: 'Next Convex',
+    name: 'JCEP App',
+    short_name: 'JCEP',
     description: 'A Next.js app with Convex backend',
     icons: [
       {

@@ -26,15 +26,15 @@ export const viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Next Convex App',
-  description: 'A Next.js app with Convex backend',
+  title: 'JCEP App',
+  description: 'Junior Commander Evaluation Program',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Next Convex App',
+    title: 'JCEP App',
   },
-  applicationName: 'Next Convex App',
+  applicationName: 'JCEP App',
   formatDetection: {
     telephone: false,
   },

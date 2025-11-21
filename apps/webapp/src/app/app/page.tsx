@@ -16,15 +16,21 @@ export default function AppPage() {
     return isAuthenticated && authState.user.type === 'anonymous';
   }, [isAuthenticated, authState]);
 
+  const isAdmin = useMemo(() => {
+    if (!isAuthenticated) return false;
+    return authState.user.accessLevel === 'system_admin';
+  }, [isAuthenticated, authState]);
+
   const dashboardContent = useMemo(() => {
     if (!isAuthenticated) return null;
 
     return (
       <div className="space-y-4">
         <div className="p-4 bg-accent/40 rounded-md">
-          <h2 className="text-xl font-semibold mb-2">What's Next?</h2>
+          <h2 className="text-xl font-semibold mb-2">JCEP Review Forms</h2>
           <p className="text-foreground">
-            This is your main app dashboard. From here, you can explore the application features.
+            Access your Junior Commander Exposure Programme (JCEP) review forms for the current
+            rotation.
           </p>
 
           {isAnonymousUser && (
@@ -42,6 +48,21 @@ export default function AppPage() {
               </p>
             </div>
           )}
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link href="/app/review">
+              <Button size="sm" className="font-medium">
+                {isAdmin ? 'Manage all JCEP review forms' : 'View my JCEP review forms'}
+              </Button>
+            </Link>
+            {isAdmin && (
+              <Link href="/app/review/create">
+                <Button size="sm" variant="outline">
+                  Create new JCEP review form
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
@@ -59,7 +80,7 @@ export default function AppPage() {
         </div>
       </div>
     );
-  }, [isAuthenticated, isAnonymousUser]);
+  }, [isAuthenticated, isAnonymousUser, isAdmin]);
 
   return (
     <div className="container mx-auto px-4 py-8">
