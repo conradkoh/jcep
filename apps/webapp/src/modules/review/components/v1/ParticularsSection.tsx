@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import type { AgeGroup, ReviewForm } from '../../types';
+import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
 
 interface ParticularsSectionProps {
   form: ReviewForm;
@@ -27,9 +28,29 @@ interface ParticularsSectionProps {
     ageGroup?: AgeGroup;
     evaluationDate?: number;
   }) => Promise<void>;
+  rotationYear: number;
+  buddyName: string;
+  juniorCommanderName: string;
+  ageGroup: AgeGroup;
+  isComplete: boolean;
+  isSubmitted: boolean;
+  canSubmit: boolean;
+  onSubmit: () => void;
 }
 
-export function ParticularsSection({ form, canEdit, onUpdate }: ParticularsSectionProps) {
+export function ParticularsSection({
+  form,
+  canEdit,
+  onUpdate,
+  rotationYear,
+  buddyName: buddyNameProp,
+  juniorCommanderName: juniorCommanderNameProp,
+  ageGroup: ageGroupProp,
+  isComplete,
+  isSubmitted,
+  canSubmit,
+  onSubmit,
+}: ParticularsSectionProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [buddyName, setBuddyName] = useState(form.buddyName);
   const [jcName, setJcName] = useState(form.juniorCommanderName);
@@ -70,12 +91,27 @@ export function ParticularsSection({ form, canEdit, onUpdate }: ParticularsSecti
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-foreground">Particulars</h3>
-          {canEdit && (
-            <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
-              Edit
-            </Button>
-          )}
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Review Form - {rotationYear}</h1>
+            <p className="text-sm text-muted-foreground">
+              {buddyNameProp} & {juniorCommanderNameProp} ({getAgeGroupLabel(ageGroupProp)})
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {isComplete && !isSubmitted && canSubmit && (
+              <Button onClick={onSubmit}>Submit Form</Button>
+            )}
+            {isSubmitted && (
+              <div className="rounded-md bg-green-50 px-3 py-1 text-sm font-medium text-green-700 dark:bg-green-950/20 dark:text-green-400">
+                Submitted
+              </div>
+            )}
+            {canEdit && (
+              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                Edit
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="grid gap-4 rounded-lg border border-border bg-card p-4">

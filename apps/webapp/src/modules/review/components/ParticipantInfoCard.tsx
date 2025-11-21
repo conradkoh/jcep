@@ -38,7 +38,7 @@ export function ParticipantInfoCard({ form, accessLevel }: ParticipantInfoCardPr
   const counterpartStatus = isBuddy ? getJCProgress(form) : getBuddyProgress(form);
 
   return (
-    <div className="mb-6 rounded-lg border border-border bg-card p-4">
+    <div className="mb-6">
       <p className="text-lg font-semibold text-foreground">Welcome, {welcomeName}</p>
       <p className="text-xs uppercase tracking-wide text-muted-foreground">
         {isBuddy ? 'Buddy access link' : 'Junior Commander access link'}

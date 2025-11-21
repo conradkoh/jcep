@@ -4,10 +4,8 @@ import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 import { Check } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useReviewFormAccess } from '../../hooks/useReviewFormAccess';
-import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
 import { TokenDisplay } from '../admin/TokenDisplay';
 import { VisibilityControls } from '../admin/VisibilityControls';
 import { BuddyEvaluationSection } from './BuddyEvaluationSection';
@@ -126,22 +124,6 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
       >
         Skip to form sections
       </a>
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Review Form - {form.rotationYear}</h1>
-          <p className="text-sm text-muted-foreground">
-            {form.buddyName} & {form.juniorCommanderName} ({getAgeGroupLabel(form.ageGroup)})
-          </p>
-        </div>
-        {isComplete && !isSubmitted && canSubmit && (
-          <Button onClick={handleSubmit}>Submit Form</Button>
-        )}
-        {isSubmitted && (
-          <div className="rounded-md bg-green-50 px-3 py-1 text-sm font-medium text-green-700 dark:bg-green-950/20 dark:text-green-400">
-            Submitted
-          </div>
-        )}
-      </div>
 
       <ReviewFormProgress sectionCompletion={sectionCompletion} />
 
@@ -174,6 +156,14 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
               throw error;
             }
           }}
+          rotationYear={form.rotationYear}
+          buddyName={form.buddyName}
+          juniorCommanderName={form.juniorCommanderName}
+          ageGroup={form.ageGroup}
+          isComplete={isComplete}
+          isSubmitted={isSubmitted}
+          canSubmit={canSubmit}
+          onSubmit={handleSubmit}
         />
 
         <Stepper activeStep={activeStep} steps={steps} onSelectStep={handleStepSelect} />
