@@ -5,6 +5,7 @@ import { useSessionQuery } from 'convex-helpers/react/sessions';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -21,22 +22,36 @@ import { AdminReviewListingTable } from '@/modules/review/components/admin/Admin
 import { ReviewFormList } from '@/modules/review/components/ReviewFormList';
 import { useAllReviewFormsByYear } from '@/modules/review/hooks/useReviewForm';
 
-function AdminReviewListContent({ selectedYear }: { selectedYear: number }) {
+/**
+ * Props for admin review list content component.
+ */
+interface _AdminReviewListContentProps {
+  /** The selected year to filter review forms */
+  selectedYear: number;
+}
+
+/**
+ * Content component for admin review list page.
+ * Displays all review forms for administrators with filtering capabilities.
+ */
+function _AdminReviewListContent({ selectedYear }: _AdminReviewListContentProps) {
   const router = useRouter();
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
-  // Get all forms for admin
   const { forms: allForms, isLoading: isLoadingAllForms } = useAllReviewFormsByYear(
     selectedYear,
-    undefined, // quarter
-    undefined, // status
-    undefined // ageGroup
+    undefined,
+    undefined,
+    undefined
   );
 
-  const handleYearChange = (year: string) => {
-    router.push(`/app/review?year=${year}`);
-  };
+  const handleYearChange = useCallback(
+    (year: string) => {
+      router.push(`/app/review?year=${year}`);
+    },
+    [router]
+  );
 
   if (isLoadingAllForms) {
     return (
@@ -87,14 +102,29 @@ function AdminReviewListContent({ selectedYear }: { selectedYear: number }) {
   );
 }
 
-function UserReviewListContent({ selectedYear }: { selectedYear: number }) {
+/**
+ * Props for user review list content component.
+ */
+interface _UserReviewListContentProps {
+  /** The selected year to filter review forms */
+  selectedYear: number;
+}
+
+/**
+ * Content component for user review list page.
+ * Displays review forms for the current authenticated user.
+ */
+function _UserReviewListContent({ selectedYear }: _UserReviewListContentProps) {
   const router = useRouter();
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
-  const handleYearChange = (year: string) => {
-    router.push(`/app/review?year=${year}`);
-  };
+  const handleYearChange = useCallback(
+    (year: string) => {
+      router.push(`/app/review?year=${year}`);
+    },
+    [router]
+  );
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6">
@@ -136,7 +166,11 @@ function UserReviewListContent({ selectedYear }: { selectedYear: number }) {
   );
 }
 
-function ReviewListPageContent() {
+/**
+ * Content component for the review list page.
+ * Determines whether to show admin or user view based on authentication state.
+ */
+function _ReviewListPageContent() {
   const searchParams = useSearchParams();
   const currentYear = new Date().getFullYear();
   const selectedYear = Number.parseInt(searchParams.get('year') || String(currentYear));
@@ -156,18 +190,22 @@ function ReviewListPageContent() {
     );
   }
 
-  // Render different components based on admin status to avoid calling admin hooks for non-admins
   return isAdmin ? (
-    <AdminReviewListContent selectedYear={selectedYear} />
+    <_AdminReviewListContent selectedYear={selectedYear} />
   ) : (
-    <UserReviewListContent selectedYear={selectedYear} />
+    <_UserReviewListContent selectedYear={selectedYear} />
   );
 }
 
+/**
+ * Review list page component.
+ * Displays review forms for the current user, with admin view for system administrators.
+ * Requires authentication.
+ */
 export default function ReviewListPage() {
   return (
     <RequireLogin>
-      <ReviewListPageContent />
+      <_ReviewListPageContent />
     </RequireLogin>
   );
 }

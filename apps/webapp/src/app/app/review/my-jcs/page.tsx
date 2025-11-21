@@ -1,13 +1,8 @@
-/**
- * Buddy Dashboard - View all JCs assigned to the current user
- * V2: Aggregated view for buddies
- */
-
 'use client';
 
 import { CheckCircle2, Circle, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,7 +21,11 @@ import { useReviewFormsByBuddy } from '@/modules/review/hooks/useReviewForm';
 import type { ReviewForm } from '@/modules/review/types';
 import { getAgeGroupLabel } from '@/modules/review/utils/ageGroupLabels';
 
-function BuddyDashboardContent() {
+/**
+ * Content component for the buddy dashboard page.
+ * Displays all Junior Commanders assigned to the current user (buddy) with filtering and statistics.
+ */
+function _BuddyDashboardContent() {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -67,7 +66,10 @@ function BuddyDashboardContent() {
     };
   }, [forms]);
 
-  const getCompletionBadge = (form: ReviewForm) => {
+  /**
+   * Generates a completion badge for a review form based on section completion status.
+   */
+  const getCompletionBadge = useCallback((form: ReviewForm) => {
     const hasEvaluation = form.buddyEvaluation !== null;
     const hasReflection = form.jcReflection !== null;
     const hasFeedback = form.jcFeedback !== null;
@@ -94,9 +96,12 @@ function BuddyDashboardContent() {
         {completedSections}/3 Sections
       </Badge>
     );
-  };
+  }, []);
 
-  const getStatusBadge = (status: ReviewForm['status']) => {
+  /**
+   * Generates a status badge for a review form based on its submission status.
+   */
+  const getStatusBadge = useCallback((status: ReviewForm['status']) => {
     switch (status) {
       case 'draft':
         return (
@@ -117,7 +122,7 @@ function BuddyDashboardContent() {
           </Badge>
         );
     }
-  };
+  }, []);
 
   return (
     <div className="container mx-auto max-w-7xl p-6 space-y-6">
@@ -291,10 +296,15 @@ function BuddyDashboardContent() {
   );
 }
 
+/**
+ * Buddy dashboard page component.
+ * Displays all Junior Commanders assigned to the current user (buddy).
+ * Requires authentication.
+ */
 export default function BuddyDashboardPage() {
   return (
     <RequireLogin>
-      <BuddyDashboardContent />
+      <_BuddyDashboardContent />
     </RequireLogin>
   );
 }

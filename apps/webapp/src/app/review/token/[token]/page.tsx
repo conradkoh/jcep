@@ -1,8 +1,3 @@
-/**
- * Token-based access page for review forms.
- * Allows anonymous access via secret link.
- */
-
 'use client';
 
 import { AlertCircle } from 'lucide-react';
@@ -17,6 +12,11 @@ import { ReviewFormRouter } from '@/modules/review/components/ReviewFormRouter';
 import { useReviewFormByToken } from '@/modules/review/hooks/useReviewFormByToken';
 import { useTokenAuth } from '@/modules/review/hooks/useTokenAuth';
 
+/**
+ * Token-based access page for review forms.
+ * Allows anonymous access via secret link without requiring authentication.
+ * The token is extracted from the URL parameter and stored in localStorage for persistence.
+ */
 export default function TokenAccessPage() {
   const params = useParams();
   const router = useRouter();
@@ -29,14 +29,12 @@ export default function TokenAccessPage() {
     isLoading: isFormLoading,
   } = useReviewFormByToken(token || storedToken);
 
-  // Store token in localStorage when accessed via URL
   useEffect(() => {
     if (token && !isTokenLoading) {
       setToken(token);
     }
   }, [token, isTokenLoading, setToken]);
 
-  // Loading state
   if (isTokenLoading || isFormLoading) {
     return (
       <div className="container mx-auto py-8 px-4">
@@ -57,7 +55,6 @@ export default function TokenAccessPage() {
     );
   }
 
-  // Invalid or expired token
   if (!form) {
     return (
       <div className="container mx-auto py-8 px-4">
@@ -76,7 +73,6 @@ export default function TokenAccessPage() {
     );
   }
 
-  // Success - show form
   return (
     <div className="container mx-auto py-8 px-4">
       <a

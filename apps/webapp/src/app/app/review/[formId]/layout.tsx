@@ -1,8 +1,15 @@
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 
-export default function ReviewFormLayout({ children }: { children: React.ReactNode }) {
+/**
+ * Layout component for review form pages.
+ * Provides a consistent layout with a back button navigation header.
+ *
+ * @param children - The page content to render within the layout
+ */
+export default function ReviewFormLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <div className="border-b border-border bg-card">
