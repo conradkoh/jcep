@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { Navigation } from './Navigation';
 
@@ -9,7 +10,14 @@ vi.mock('@/modules/auth/AuthProvider', () => ({
 
 // Mock next/link
 vi.mock('next/link', () => ({
-  default: ({ href, children, ...props }: any) => (
+  default: ({
+    href,
+    children,
+    ...props
+  }: {
+    href: string;
+    children: ReactNode;
+  } & Record<string, unknown>) => (
     <a href={href} {...props}>
       {children}
     </a>
@@ -34,7 +42,7 @@ describe('Navigation', () => {
   it('renders title link to "/" when user is not authenticated', () => {
     vi.mocked(useAuthState).mockReturnValue({
       state: 'unauthenticated',
-    } as any);
+    } as ReturnType<typeof useAuthState>);
 
     render(<Navigation />);
 
@@ -51,7 +59,7 @@ describe('Navigation', () => {
         id: 'test-user-id',
         displayName: 'Test User',
       },
-    } as any);
+    } as ReturnType<typeof useAuthState>);
 
     render(<Navigation />);
 
@@ -63,7 +71,7 @@ describe('Navigation', () => {
   it('renders login button when user is not authenticated', () => {
     vi.mocked(useAuthState).mockReturnValue({
       state: 'unauthenticated',
-    } as any);
+    } as ReturnType<typeof useAuthState>);
 
     render(<Navigation />);
 
@@ -78,7 +86,7 @@ describe('Navigation', () => {
         id: 'test-user-id',
         displayName: 'Test User',
       },
-    } as any);
+    } as ReturnType<typeof useAuthState>);
 
     render(<Navigation />);
 

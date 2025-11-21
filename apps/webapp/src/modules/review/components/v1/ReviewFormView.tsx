@@ -77,6 +77,12 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
 
   return (
     <div className="space-y-6">
+      <a
+        href="#review-form-main"
+        className="sr-only inline-flex rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        Skip to form sections
+      </a>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Review Form - {form.rotationYear}</h1>
@@ -108,7 +114,7 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
         </>
       )}
 
-      <Tabs defaultValue="particulars" className="space-y-6">
+      <Tabs id="review-form-main" defaultValue="particulars" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="particulars">Particulars</TabsTrigger>
           <TabsTrigger value="buddy">Buddy Evaluation</TabsTrigger>

@@ -48,6 +48,14 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
     form.jcReflection?.goalsForNextRotation.answer || ''
   );
 
+  const labelTexts = {
+    nextRotationPreference: 'Next rotation preference',
+    activitiesParticipated: 'Memorable activities',
+    learningsFromJCEP: 'What you learned',
+    whatToDoDifferently: 'What you would do differently',
+    goalsForNextRotation: 'Goals & prayer needs',
+  } as const;
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -180,7 +188,7 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
       <div className="space-y-4 rounded-lg border border-border bg-card p-4">
         <div>
           <Label htmlFor="nextRotationPreference" className="text-sm font-medium text-foreground">
-            Next Rotation Preference
+            {labelTexts.nextRotationPreference}
           </Label>
           <Select
             value={nextRotationPreference}
@@ -200,7 +208,7 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
 
         <div>
           <Label htmlFor="activitiesParticipated" className="text-sm font-medium text-foreground">
-            {JC_REFLECTION_QUESTIONS.activitiesParticipated}
+            {labelTexts.activitiesParticipated}
           </Label>
           <Textarea
             id="activitiesParticipated"
@@ -208,13 +216,13 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
             onChange={(e) => setActivitiesParticipated(e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Share memorable activities and experiences..."
+            placeholder="Share a few highlights from this rotation..."
           />
         </div>
 
         <div>
           <Label htmlFor="learningsFromJCEP" className="text-sm font-medium text-foreground">
-            {JC_REFLECTION_QUESTIONS.learningsFromJCEP}
+            {labelTexts.learningsFromJCEP}
           </Label>
           <Textarea
             id="learningsFromJCEP"
@@ -222,13 +230,13 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
             onChange={(e) => setLearningsFromJCEP(e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Reflect on your learnings and growth..."
+            placeholder="What did God teach you through JCEP?"
           />
         </div>
 
         <div>
           <Label htmlFor="whatToDoDifferently" className="text-sm font-medium text-foreground">
-            {JC_REFLECTION_QUESTIONS.whatToDoDifferently}
+            {labelTexts.whatToDoDifferently}
           </Label>
           <Textarea
             id="whatToDoDifferently"
@@ -236,13 +244,13 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
             onChange={(e) => setWhatToDoDifferently(e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Share what you would do differently..."
+            placeholder="If you could do this rotation again, what would you change?"
           />
         </div>
 
         <div>
           <Label htmlFor="goalsForNextRotation" className="text-sm font-medium text-foreground">
-            {JC_REFLECTION_QUESTIONS.goalsForNextRotation}
+            {labelTexts.goalsForNextRotation}
           </Label>
           <Textarea
             id="goalsForNextRotation"
@@ -250,7 +258,7 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
             onChange={(e) => setGoalsForNextRotation(e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Set goals and share prayer requests..."
+            placeholder="Share a few goals and prayer needs for your next rotation..."
           />
         </div>
 

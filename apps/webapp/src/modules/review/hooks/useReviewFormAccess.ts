@@ -53,7 +53,7 @@ export interface ReviewFormAccessReturn {
     strengths: QuestionResponse;
     areasForImprovement: QuestionResponse;
     wordsOfEncouragement: QuestionResponse;
-  }) => Promise<undefined | null>;
+  }) => Promise<void>;
 
   updateJCReflection: (args: {
     formId: Id<'reviewForms'>;
@@ -62,13 +62,13 @@ export interface ReviewFormAccessReturn {
     learningsFromJCEP: QuestionResponse;
     whatToDoDifferently: QuestionResponse;
     goalsForNextRotation: QuestionResponse;
-  }) => Promise<undefined | null>;
+  }) => Promise<void>;
 
   updateJCFeedback: (args: {
     formId: Id<'reviewForms'>;
     gratitudeToBuddy: QuestionResponse;
     programFeedback: QuestionResponse;
-  }) => Promise<undefined | null>;
+  }) => Promise<void>;
 
   submitForm: ((formId: Id<'reviewForms'>) => Promise<void>) | null;
 }
@@ -149,9 +149,10 @@ export function useReviewFormAccess(
       wordsOfEncouragement: QuestionResponse;
     }) => {
       if (isTokenAccess) {
-        return updateBuddyEvaluationToken(args);
+        await updateBuddyEvaluationToken(args);
+        return;
       }
-      return updateBuddyEvaluationSession(args);
+      await updateBuddyEvaluationSession(args);
     },
     [isTokenAccess, updateBuddyEvaluationToken, updateBuddyEvaluationSession]
   );
@@ -168,14 +169,15 @@ export function useReviewFormAccess(
       if (isTokenAccess) {
         // Token access doesn't include nextRotationPreference
         const { nextRotationPreference: _unused, ...tokenArgs } = args;
-        return updateJCReflectionToken(tokenArgs);
+        await updateJCReflectionToken(tokenArgs);
+        return;
       }
       // Session access requires nextRotationPreference
       if (!args.nextRotationPreference) {
         throw new Error('nextRotationPreference is required for session-based updates');
       }
       // Type assertion safe here because we've checked nextRotationPreference exists
-      return updateJCReflectionSession(args as Parameters<typeof updateJCReflectionSession>[0]);
+      await updateJCReflectionSession(args as Parameters<typeof updateJCReflectionSession>[0]);
     },
     [isTokenAccess, updateJCReflectionToken, updateJCReflectionSession]
   );
@@ -187,9 +189,10 @@ export function useReviewFormAccess(
       programFeedback: QuestionResponse;
     }) => {
       if (isTokenAccess) {
-        return updateJCFeedbackToken(args);
+        await updateJCFeedbackToken(args);
+        return;
       }
-      return updateJCFeedbackSession(args);
+      await updateJCFeedbackSession(args);
     },
     [isTokenAccess, updateJCFeedbackToken, updateJCFeedbackSession]
   );

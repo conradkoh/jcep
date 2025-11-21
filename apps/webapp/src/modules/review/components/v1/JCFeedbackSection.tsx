@@ -29,6 +29,11 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
     form.jcFeedback?.programFeedback.answer || ''
   );
 
+  const labelTexts = {
+    gratitudeToBuddy: 'Message to your Buddy',
+    programFeedback: 'Feedback on JCEP',
+  } as const;
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -124,7 +129,7 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
       <div className="space-y-4 rounded-lg border border-border bg-card p-4">
         <div>
           <Label htmlFor="gratitudeToBuddy" className="text-sm font-medium text-foreground">
-            {JC_FEEDBACK_QUESTIONS.gratitudeToBuddy}
+            {labelTexts.gratitudeToBuddy}
           </Label>
           <Textarea
             id="gratitudeToBuddy"
@@ -132,13 +137,13 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
             onChange={(e) => setGratitudeToBuddy(e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Share your gratitude and encouragement..."
+            placeholder="Thank and encourage your Buddy..."
           />
         </div>
 
         <div>
           <Label htmlFor="programFeedback" className="text-sm font-medium text-foreground">
-            {JC_FEEDBACK_QUESTIONS.programFeedback}
+            {labelTexts.programFeedback}
           </Label>
           <Textarea
             id="programFeedback"
@@ -146,7 +151,7 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
             onChange={(e) => setProgramFeedback(e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Share feedback about the programme..."
+            placeholder="Share any thoughts about the JCEP programme..."
           />
         </div>
 

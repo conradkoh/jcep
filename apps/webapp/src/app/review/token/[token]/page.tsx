@@ -79,6 +79,12 @@ export default function TokenAccessPage() {
   // Success - show form
   return (
     <div className="container mx-auto py-8 px-4">
+      <a
+        href="#review-form-content"
+        className="sr-only inline-flex rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        Skip to form sections
+      </a>
       {/* Access level indicator */}
       <Alert className="mb-6">
         <CheckCircle2 className="h-4 w-4" />
@@ -100,26 +106,28 @@ export default function TokenAccessPage() {
             Privacy Notice
           </CardTitle>
           <CardDescription>
-            Your responses are private and will only be shared when the administrator makes them
-            available.
+            Your responses are private and will only be shared when the administrator chooses to
+            reveal them.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-            <li>Your responses are saved automatically as you type</li>
-            <li>You can return to this link anytime to edit your responses</li>
+            <li>Your responses save automatically as you type.</li>
+            <li>You can return to this link anytime to continue or edit your answers.</li>
             <li>
               {accessLevel === 'buddy'
-                ? "The Junior Commander's responses are hidden until the administrator reveals them"
-                : "The Buddy's evaluation is hidden until the administrator reveals it"}
+                ? "The Junior Commander's responses stay hidden until the administrator reveals them."
+                : "The Buddy's evaluation stays hidden until the administrator reveals it."}
             </li>
-            <li>Keep this link private - anyone with this link can access this form</li>
+            <li>Keep this link private—anyone with it can access this form.</li>
           </ul>
         </CardContent>
       </Card>
 
       {/* Form content */}
-      <ReviewFormRouter formId={form._id} accessToken={token} />
+      <div id="review-form-content">
+        <ReviewFormRouter formId={form._id} accessToken={token} />
+      </div>
     </div>
   );
 }

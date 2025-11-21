@@ -35,6 +35,13 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
     form.buddyEvaluation?.wordsOfEncouragement.answer || ''
   );
 
+  const labelTexts = {
+    tasksParticipated: 'Tasks they participated in',
+    strengths: "Junior Commander's strengths",
+    areasForImprovement: 'Areas for improvement',
+    wordsOfEncouragement: 'Words of encouragement',
+  } as const;
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -158,7 +165,7 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
       <div className="space-y-4 rounded-lg border border-border bg-card p-4">
         <div>
           <Label htmlFor="tasksParticipated" className="text-sm font-medium text-foreground">
-            {BUDDY_EVALUATION_QUESTIONS.tasksParticipated}
+            {labelTexts.tasksParticipated}
           </Label>
           <Textarea
             id="tasksParticipated"
@@ -166,13 +173,13 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
             onChange={(e) => setTasksParticipated(e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Describe the tasks and activities..."
+            placeholder="List key tasks and activities..."
           />
         </div>
 
         <div>
           <Label htmlFor="strengths" className="text-sm font-medium text-foreground">
-            {BUDDY_EVALUATION_QUESTIONS.strengths}
+            {labelTexts.strengths}
           </Label>
           <Textarea
             id="strengths"
@@ -180,13 +187,13 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
             onChange={(e) => setStrengths(e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Highlight their strengths and achievements..."
+            placeholder="Share where they did well..."
           />
         </div>
 
         <div>
           <Label htmlFor="areasForImprovement" className="text-sm font-medium text-foreground">
-            {BUDDY_EVALUATION_QUESTIONS.areasForImprovement}
+            {labelTexts.areasForImprovement}
           </Label>
           <Textarea
             id="areasForImprovement"
@@ -194,13 +201,13 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
             onChange={(e) => setAreasForImprovement(e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Provide constructive feedback with examples..."
+            placeholder="Suggest what could be better next time..."
           />
         </div>
 
         <div>
           <Label htmlFor="wordsOfEncouragement" className="text-sm font-medium text-foreground">
-            {BUDDY_EVALUATION_QUESTIONS.wordsOfEncouragement}
+            {labelTexts.wordsOfEncouragement}
           </Label>
           <Textarea
             id="wordsOfEncouragement"
@@ -208,7 +215,7 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
             onChange={(e) => setWordsOfEncouragement(e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Share words of encouragement..."
+            placeholder="Encourage and affirm them..."
           />
         </div>
 
