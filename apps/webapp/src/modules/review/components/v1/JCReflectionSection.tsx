@@ -138,16 +138,7 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
   const whatToDoDifferentlyAutosave = useAutosave(createFieldSaveFn('whatToDoDifferently'), 1500);
   const goalsForNextRotationAutosave = useAutosave(createFieldSaveFn('goalsForNextRotation'), 1500);
 
-  // Autosave for nextRotationPreference changes
   const nextRotationPreferenceAutosave = useAutosave(async (preference: AgeGroup) => {
-    console.log('[JCReflectionSection] Autosaving nextRotationPreference:', {
-      preference,
-      activitiesParticipated: activitiesParticipatedRef.current,
-      learningsFromJCEP: learningsFromJCEPRef.current,
-      whatToDoDifferently: whatToDoDifferentlyRef.current,
-      goalsForNextRotation: goalsForNextRotationRef.current,
-    });
-
     const payload = {
       nextRotationPreference: preference,
       activitiesParticipated: {
@@ -182,9 +173,6 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
     );
 
     await onUpdate(payload);
-
-    console.log('[JCReflectionSection] Autosave completed successfully');
-    // Clear saving state after successful save
     setNextRotationPreferenceSaving(false);
   }, 1500);
 

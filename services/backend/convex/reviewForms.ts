@@ -23,6 +23,40 @@ const ageGroupValidator = v.union(
   v.literal('ER')
 );
 
+/**
+ * Validates a token for a review form.
+ * Checks that the form exists, token matches, token is not expired, and form is not submitted.
+ *
+ * @param form - The review form document
+ * @param accessToken - The access token to validate
+ * @param expectedToken - The expected token value (buddyAccessToken or jcAccessToken)
+ * @returns The validated form
+ * @throws Error if validation fails
+ */
+function _validateTokenAccess(
+  form: Doc<'reviewForms'> | null,
+  accessToken: string,
+  expectedToken: string | null
+): Doc<'reviewForms'> {
+  if (!form) {
+    throw new Error('Form not found');
+  }
+
+  if (expectedToken !== accessToken) {
+    throw new Error('Invalid access token');
+  }
+
+  if (isTokenExpired(form.tokenExpiresAt)) {
+    throw new Error('Access token has expired');
+  }
+
+  if (form.status === 'submitted') {
+    throw new Error('Cannot edit submitted form');
+  }
+
+  return form;
+}
+
 // Review form status validator
 const reviewFormStatusValidator = v.union(
   v.literal('draft'),
@@ -109,8 +143,7 @@ export const getReviewFormByToken = query({
       .first();
 
     if (formByBuddyToken) {
-      // Check if token has expired
-      if (formByBuddyToken.tokenExpiresAt && Date.now() > formByBuddyToken.tokenExpiresAt) {
+      if (isTokenExpired(formByBuddyToken.tokenExpiresAt)) {
         throw new Error('Access token has expired');
       }
 
@@ -137,8 +170,7 @@ export const getReviewFormByToken = query({
       .first();
 
     if (formByJCToken) {
-      // Check if token has expired
-      if (formByJCToken.tokenExpiresAt && Date.now() > formByJCToken.tokenExpiresAt) {
+      if (isTokenExpired(formByJCToken.tokenExpiresAt)) {
         throw new Error('Access token has expired');
       }
 
@@ -872,29 +904,29 @@ export const toggleResponseVisibility = mutation({
 
 /**
  * Update Buddy Evaluation section via anonymous access token.
- * 
+ *
  * @description
  * This mutation allows Buddies to evaluate their Junior Commander using a
  * secure access token. It saves all evaluation fields atomically.
- * 
+ *
  * @security
  * - Token-based authentication (no user session required)
  * - Validates token matches form.buddyAccessToken
  * - Checks token expiration
  * - Prevents editing of submitted forms
- * 
+ *
  * @critical
  * ALL 4 fields are required. Missing fields will cause data loss. Frontend
  * MUST pass all current values using refs to avoid stale closures.
  * See apps/webapp/src/modules/review/components/v1/BuddyEvaluationSection.tsx
- * 
+ *
  * @param accessToken - The Buddy's access token for this form
  * @param formId - The review form ID
  * @param tasksParticipated - Response describing JC's participation
  * @param strengths - Response describing JC's strengths with examples
  * @param areasForImprovement - Response describing areas to improve with examples
  * @param wordsOfEncouragement - Response with advice and encouragement
- * 
+ *
  * @throws Error if token is invalid, expired, form not found, or form is submitted
  */
 export const updateBuddyEvaluationByToken = mutation({
@@ -907,25 +939,8 @@ export const updateBuddyEvaluationByToken = mutation({
     wordsOfEncouragement: questionResponseValidator,
   },
   handler: async (ctx, args) => {
-    // Verify token
     const form = await ctx.db.get(args.formId);
-    if (!form) {
-      throw new Error('Form not found');
-    }
-
-    if (form.buddyAccessToken !== args.accessToken) {
-      throw new Error('Invalid access token');
-    }
-
-    // Check if token is expired
-    if (isTokenExpired(form.tokenExpiresAt)) {
-      throw new Error('Access token has expired');
-    }
-
-    // Check if form is submitted
-    if (form.status === 'submitted') {
-      throw new Error('Cannot edit submitted form');
-    }
+    _validateTokenAccess(form, args.accessToken, form?.buddyAccessToken ?? null);
 
     await ctx.db.patch(args.formId, {
       buddyEvaluation: {
@@ -943,24 +958,24 @@ export const updateBuddyEvaluationByToken = mutation({
 
 /**
  * Update JC Reflection section via anonymous access token.
- * 
+ *
  * @description
  * This mutation allows Junior Commanders to update their reflection responses
  * using a secure access token. It saves all reflection fields including the
  * next rotation preference.
- * 
+ *
  * @security
  * - Token-based authentication (no user session required)
  * - Validates token matches form.jcAccessToken
  * - Checks token expiration
  * - Prevents editing of submitted forms
- * 
+ *
  * @critical
  * ALL fields are required, including nextRotationPreference. Missing fields
  * will cause data loss. Frontend MUST pass all current values, not just the
  * changed field. See apps/webapp/src/modules/review/components/v1/JCReflectionSection.tsx
  * for the correct implementation using refs to avoid stale closures.
- * 
+ *
  * @param accessToken - The JC's access token for this form
  * @param formId - The review form ID
  * @param nextRotationPreference - Age group preference for next rotation (RK/DR/AR/ER)
@@ -968,7 +983,7 @@ export const updateBuddyEvaluationByToken = mutation({
  * @param learningsFromJCEP - Response with question text and answer
  * @param whatToDoDifferently - Response with question text and answer
  * @param goalsForNextRotation - Response with question text and answer
- * 
+ *
  * @throws Error if token is invalid, expired, form not found, or form is submitted
  */
 export const updateJCReflectionByToken = mutation({
@@ -982,25 +997,8 @@ export const updateJCReflectionByToken = mutation({
     goalsForNextRotation: questionResponseValidator,
   },
   handler: async (ctx, args) => {
-    // Verify token
     const form = await ctx.db.get(args.formId);
-    if (!form) {
-      throw new Error('Form not found');
-    }
-
-    if (form.jcAccessToken !== args.accessToken) {
-      throw new Error('Invalid access token');
-    }
-
-    // Check if token is expired
-    if (isTokenExpired(form.tokenExpiresAt)) {
-      throw new Error('Access token has expired');
-    }
-
-    // Check if form is submitted
-    if (form.status === 'submitted') {
-      throw new Error('Cannot edit submitted form');
-    }
+    _validateTokenAccess(form, args.accessToken, form?.jcAccessToken ?? null);
 
     await ctx.db.patch(args.formId, {
       nextRotationPreference: args.nextRotationPreference,
@@ -1019,27 +1017,27 @@ export const updateJCReflectionByToken = mutation({
 
 /**
  * Update JC Feedback section via anonymous access token.
- * 
+ *
  * @description
  * This mutation allows Junior Commanders to provide feedback to their Buddy
  * and the program using a secure access token. It saves both feedback fields.
- * 
+ *
  * @security
  * - Token-based authentication (no user session required)
  * - Validates token matches form.jcAccessToken
  * - Checks token expiration
  * - Prevents editing of submitted forms
- * 
+ *
  * @critical
  * BOTH fields are required. Missing fields will cause data loss. Frontend
  * MUST pass all current values using refs to avoid stale closures.
  * See apps/webapp/src/modules/review/components/v1/JCFeedbackSection.tsx
- * 
+ *
  * @param accessToken - The JC's access token for this form
  * @param formId - The review form ID
  * @param gratitudeToBuddy - Response expressing gratitude to Buddy
  * @param programFeedback - Response providing feedback on the program
- * 
+ *
  * @throws Error if token is invalid, expired, form not found, or form is submitted
  */
 export const updateJCFeedbackByToken = mutation({
@@ -1050,25 +1048,8 @@ export const updateJCFeedbackByToken = mutation({
     programFeedback: questionResponseValidator,
   },
   handler: async (ctx, args) => {
-    // Verify token
     const form = await ctx.db.get(args.formId);
-    if (!form) {
-      throw new Error('Form not found');
-    }
-
-    if (form.jcAccessToken !== args.accessToken) {
-      throw new Error('Invalid access token');
-    }
-
-    // Check if token is expired
-    if (isTokenExpired(form.tokenExpiresAt)) {
-      throw new Error('Access token has expired');
-    }
-
-    // Check if form is submitted
-    if (form.status === 'submitted') {
-      throw new Error('Cannot edit submitted form');
-    }
+    _validateTokenAccess(form, args.accessToken, form?.jcAccessToken ?? null);
 
     await ctx.db.patch(args.formId, {
       jcFeedback: {
