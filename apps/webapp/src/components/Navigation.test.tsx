@@ -1,4 +1,6 @@
 import { render, screen } from '@testing-library/react';
+import type { Doc, Id } from '@workspace/backend/convex/_generated/dataModel';
+import type { AuthState } from '@workspace/backend/modules/auth/types/AuthState';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { Navigation } from './Navigation';
@@ -38,11 +40,26 @@ vi.mock('@workspace/backend/config/featureFlags', () => ({
 
 import { useAuthState } from '@/modules/auth/AuthProvider';
 
+const createUnauthenticatedState = (): AuthState => ({
+  sessionId: 'test-session',
+  state: 'unauthenticated',
+  reason: 'not_authenticated',
+});
+
+const createAuthenticatedState = (): AuthState => ({
+  sessionId: 'test-session',
+  state: 'authenticated',
+  user: {
+    _id: 'user_1' as Id<'users'>,
+    _creationTime: Date.now(),
+  } as Doc<'users'>,
+  accessLevel: 'user',
+  isSystemAdmin: false,
+});
+
 describe('Navigation', () => {
   it('renders title link to "/" when user is not authenticated', () => {
-    vi.mocked(useAuthState).mockReturnValue({
-      state: 'unauthenticated',
-    } as ReturnType<typeof useAuthState>);
+    vi.mocked(useAuthState).mockReturnValue(createUnauthenticatedState());
 
     render(<Navigation />);
 
@@ -52,14 +69,7 @@ describe('Navigation', () => {
   });
 
   it('renders title link to "/app" when user is authenticated', () => {
-    vi.mocked(useAuthState).mockReturnValue({
-      state: 'authenticated',
-      user: {
-        type: 'anonymous',
-        id: 'test-user-id',
-        displayName: 'Test User',
-      },
-    } as ReturnType<typeof useAuthState>);
+    vi.mocked(useAuthState).mockReturnValue(createAuthenticatedState());
 
     render(<Navigation />);
 
@@ -69,9 +79,7 @@ describe('Navigation', () => {
   });
 
   it('renders login button when user is not authenticated', () => {
-    vi.mocked(useAuthState).mockReturnValue({
-      state: 'unauthenticated',
-    } as ReturnType<typeof useAuthState>);
+    vi.mocked(useAuthState).mockReturnValue(createUnauthenticatedState());
 
     render(<Navigation />);
 
@@ -79,14 +87,7 @@ describe('Navigation', () => {
   });
 
   it('renders user menu when user is authenticated', () => {
-    vi.mocked(useAuthState).mockReturnValue({
-      state: 'authenticated',
-      user: {
-        type: 'anonymous',
-        id: 'test-user-id',
-        displayName: 'Test User',
-      },
-    } as ReturnType<typeof useAuthState>);
+    vi.mocked(useAuthState).mockReturnValue(createAuthenticatedState());
 
     render(<Navigation />);
 

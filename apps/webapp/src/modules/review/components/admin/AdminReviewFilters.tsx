@@ -42,7 +42,10 @@ export function AdminReviewFilters({
   const hasActiveFilters = status !== 'all' || ageGroup !== 'all' || searchQuery !== '';
 
   return (
-    <div className="space-y-4 rounded-lg border border-border bg-card p-4">
+    <section
+      aria-label="Filter review forms"
+      className="space-y-4 rounded-lg border border-border bg-card p-4"
+    >
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-foreground">Filters</h3>
         {hasActiveFilters && (
@@ -51,8 +54,9 @@ export function AdminReviewFilters({
             size="sm"
             onClick={onClearFilters}
             className="h-auto p-0 text-sm text-muted-foreground hover:text-foreground"
+            aria-label="Clear all filters"
           >
-            <X className="mr-1 h-3 w-3" />
+            <X className="mr-1 h-3 w-3" aria-hidden />
             Clear Filters
           </Button>
         )}
@@ -63,7 +67,7 @@ export function AdminReviewFilters({
           <Label htmlFor="year-filter" className="text-sm font-medium text-foreground">
             Year
           </Label>
-          <Select value={String(year)} onValueChange={(v) => onYearChange(Number.parseInt(v))}>
+          <Select value={String(year)} onValueChange={(v) => onYearChange(Number.parseInt(v, 10))}>
             <SelectTrigger id="year-filter" className="mt-1">
               <SelectValue placeholder="Select year" />
             </SelectTrigger>
@@ -86,9 +90,9 @@ export function AdminReviewFilters({
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="all">All statuses</SelectItem>
               <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="in_progress">In Progress</SelectItem>
+              <SelectItem value="in_progress">In progress</SelectItem>
               <SelectItem value="submitted">Submitted</SelectItem>
             </SelectContent>
           </Select>
@@ -96,36 +100,36 @@ export function AdminReviewFilters({
 
         <div>
           <Label htmlFor="age-group-filter" className="text-sm font-medium text-foreground">
-            Age Group
+            Age group
           </Label>
           <Select value={ageGroup} onValueChange={onAgeGroupChange}>
             <SelectTrigger id="age-group-filter" className="mt-1">
               <SelectValue placeholder="All age groups" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Age Groups</SelectItem>
-              <SelectItem value="RK">RK</SelectItem>
-              <SelectItem value="DR">DR</SelectItem>
-              <SelectItem value="AR">AR</SelectItem>
-              <SelectItem value="ER">ER</SelectItem>
+              <SelectItem value="all">All age groups</SelectItem>
+              <SelectItem value="RK">Ranger Kids</SelectItem>
+              <SelectItem value="DR">Discovery Rangers</SelectItem>
+              <SelectItem value="AR">Adventure Rangers</SelectItem>
+              <SelectItem value="ER">Expedition Rangers</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div>
           <Label htmlFor="search-filter" className="text-sm font-medium text-foreground">
-            Search
+            Search by name
           </Label>
           <Input
             id="search-filter"
-            type="text"
-            placeholder="Search by name..."
+            type="search"
+            placeholder="Buddy or JC name"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="mt-1"
           />
         </div>
       </div>
-    </div>
+    </section>
   );
 }

@@ -54,7 +54,7 @@ function ReviewListPageContent() {
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
             {isAdmin ? 'All Review Forms' : 'My Review Forms'}
@@ -65,8 +65,8 @@ function ReviewListPageContent() {
               : 'Manage your JCEP rotation review forms'}
           </p>
         </div>
-        <Button asChild>
-          <Link href="/app/review/create">
+        <Button asChild aria-label="Create a new review form">
+          <Link href="/app/review/create" className="flex items-center">
             <Plus className="mr-2 h-4 w-4" />
             Create New Form
           </Link>
@@ -75,12 +75,12 @@ function ReviewListPageContent() {
 
       <Separator />
 
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
         <Label htmlFor="year-filter" className="text-sm font-medium text-foreground">
-          Filter by Year:
+          Showing forms for
         </Label>
         <Select value={String(selectedYear)} onValueChange={handleYearChange}>
-          <SelectTrigger id="year-filter" className="w-[180px]">
+          <SelectTrigger id="year-filter" className="w-full sm:w-[220px]">
             <SelectValue placeholder="Select year" />
           </SelectTrigger>
           <SelectContent>

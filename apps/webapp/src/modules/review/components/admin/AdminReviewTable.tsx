@@ -91,7 +91,12 @@ export function AdminReviewTable({ forms }: AdminReviewTableProps) {
               <TableCell>{getStatusBadge(form.status)}</TableCell>
               <TableCell>{getCompletionStatus(form)}</TableCell>
               <TableCell>
-                <Button asChild variant="ghost" size="sm">
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  aria-label={`Open form for ${form.juniorCommanderName}`}
+                >
                   <Link href={`/app/review/${form._id}`}>
                     <ExternalLink className="h-4 w-4" />
                   </Link>

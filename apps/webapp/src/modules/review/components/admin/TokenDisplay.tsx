@@ -125,6 +125,7 @@ export function TokenDisplay({ form }: TokenDisplayProps) {
               size="icon"
               onClick={() => copyToClipboard(buddyLink, 'buddy')}
               title="Copy to clipboard"
+              aria-label="Copy buddy access link"
             >
               {copiedBuddy ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             </Button>
@@ -133,6 +134,7 @@ export function TokenDisplay({ form }: TokenDisplayProps) {
               size="icon"
               onClick={() => window.open(buddyLink, '_blank')}
               title="Open in new tab"
+              aria-label="Open buddy link in new tab"
             >
               <ExternalLink className="h-4 w-4" />
             </Button>
@@ -155,6 +157,7 @@ export function TokenDisplay({ form }: TokenDisplayProps) {
               size="icon"
               onClick={() => copyToClipboard(jcLink, 'jc')}
               title="Copy to clipboard"
+              aria-label="Copy Junior Commander access link"
             >
               {copiedJC ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             </Button>
@@ -163,6 +166,7 @@ export function TokenDisplay({ form }: TokenDisplayProps) {
               size="icon"
               onClick={() => window.open(jcLink, '_blank')}
               title="Open in new tab"
+              aria-label="Open Junior Commander link in new tab"
             >
               <ExternalLink className="h-4 w-4" />
             </Button>

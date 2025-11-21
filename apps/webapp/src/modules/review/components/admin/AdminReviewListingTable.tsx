@@ -163,6 +163,7 @@ export function AdminReviewListingTable({ forms }: AdminReviewListingTableProps)
                       size="sm"
                       onClick={() => copyToClipboard(form.buddyAccessToken, 'buddy', form._id)}
                       title="Copy Buddy Link"
+                      aria-label={`Copy buddy link for ${form.juniorCommanderName}`}
                     >
                       {copiedToken === `${form._id}-buddy` ? (
                         <Check className="h-4 w-4 text-green-600" />
@@ -176,6 +177,7 @@ export function AdminReviewListingTable({ forms }: AdminReviewListingTableProps)
                       size="sm"
                       onClick={() => copyToClipboard(form.jcAccessToken, 'jc', form._id)}
                       title="Copy JC Link"
+                      aria-label={`Copy Junior Commander link for ${form.juniorCommanderName}`}
                     >
                       {copiedToken === `${form._id}-jc` ? (
                         <Check className="h-4 w-4 text-green-600" />
@@ -184,7 +186,13 @@ export function AdminReviewListingTable({ forms }: AdminReviewListingTableProps)
                       )}
                       <span className="ml-1 text-xs">JC</span>
                     </Button>
-                    <Button asChild variant="ghost" size="sm" title="View Form">
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="sm"
+                      title="View Form"
+                      aria-label={`Open form for ${form.juniorCommanderName}`}
+                    >
                       <Link href={`/app/review/${form._id}`}>
                         <ExternalLink className="h-4 w-4" />
                       </Link>
