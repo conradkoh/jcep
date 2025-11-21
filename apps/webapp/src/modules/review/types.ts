@@ -104,6 +104,7 @@ export interface ReviewFormHookReturn {
   sectionCompletion: SectionCompletion;
   canEditBuddySection: boolean;
   canEditJCSection: boolean;
+  isAdmin: boolean;
 }
 
 export interface ReviewFormsByYearReturn {

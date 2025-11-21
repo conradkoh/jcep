@@ -69,6 +69,10 @@ export function useReviewForm(formId: Id<'reviewForms'> | null | undefined): Rev
     return isAdmin || isJC;
   }, [form, currentUserId, authState]);
 
+  const isAdmin = useMemo(() => {
+    return authState?.state === 'authenticated' && authState.user.accessLevel === 'system_admin';
+  }, [authState]);
+
   return {
     form,
     isLoading: form === undefined,
@@ -76,6 +80,7 @@ export function useReviewForm(formId: Id<'reviewForms'> | null | undefined): Rev
     sectionCompletion,
     canEditBuddySection,
     canEditJCSection,
+    isAdmin,
   };
 }
 
@@ -202,5 +207,20 @@ export function useRegenerateAccessTokens() {
 
   return async (formId: Id<'reviewForms'>): Promise<RegenerateTokensResponse> => {
     return await regenerateMutation({ formId });
+  };
+}
+
+/**
+ * Hook to toggle response visibility (admin only)
+ */
+export function useToggleResponseVisibility() {
+  const toggleMutation = useSessionMutation(api.reviewForms.toggleResponseVisibility);
+
+  return async (params: {
+    formId: Id<'reviewForms'>;
+    buddyResponsesVisibleToJC?: boolean;
+    jcResponsesVisibleToBuddy?: boolean;
+  }): Promise<void> => {
+    await toggleMutation(params);
   };
 }

@@ -1,6 +1,8 @@
 'use client';
 
+import { EyeOff } from 'lucide-react';
 import { useState } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -86,6 +88,19 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
   };
 
   const isComplete = form.jcReflection !== null;
+
+  // V2: Show hidden message if responses are not visible
+  if (!form.jcReflection && !canEdit) {
+    return (
+      <Alert>
+        <EyeOff className="h-4 w-4" />
+        <AlertTitle>Responses Hidden</AlertTitle>
+        <AlertDescription>
+          The Junior Commander's reflection is currently hidden by the administrator.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   if (!isEditing && isComplete) {
     return (

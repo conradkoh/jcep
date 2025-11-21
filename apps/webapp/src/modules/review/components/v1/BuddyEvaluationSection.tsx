@@ -1,6 +1,8 @@
 'use client';
 
+import { EyeOff } from 'lucide-react';
 import { useState } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -71,6 +73,19 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
   };
 
   const isComplete = form.buddyEvaluation !== null;
+
+  // V2: Show hidden message if responses are not visible
+  if (!form.buddyEvaluation && !canEdit) {
+    return (
+      <Alert>
+        <EyeOff className="h-4 w-4" />
+        <AlertTitle>Responses Hidden</AlertTitle>
+        <AlertDescription>
+          The Buddy's evaluation is currently hidden by the administrator.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   if (!isEditing && isComplete) {
     return (

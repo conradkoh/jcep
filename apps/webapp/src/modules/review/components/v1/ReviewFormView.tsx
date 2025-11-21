@@ -13,6 +13,7 @@ import {
   useUpdateJCReflection,
   useUpdateParticulars,
 } from '../../hooks/useReviewForm';
+import { VisibilityControls } from '../admin/VisibilityControls';
 import { BuddyEvaluationSection } from './BuddyEvaluationSection';
 import { JCFeedbackSection } from './JCFeedbackSection';
 import { JCReflectionSection } from './JCReflectionSection';
@@ -24,7 +25,7 @@ interface ReviewFormViewProps {
 }
 
 export function ReviewFormView({ formId }: ReviewFormViewProps) {
-  const { form, isLoading, sectionCompletion, canEditBuddySection, canEditJCSection } =
+  const { form, isLoading, sectionCompletion, canEditBuddySection, canEditJCSection, isAdmin } =
     useReviewForm(formId);
   const updateParticulars = useUpdateParticulars();
   const updateBuddyEvaluation = useUpdateBuddyEvaluation();
@@ -84,6 +85,14 @@ export function ReviewFormView({ formId }: ReviewFormViewProps) {
       <ReviewFormProgress sectionCompletion={sectionCompletion} />
 
       <Separator />
+
+      {/* Admin visibility controls */}
+      {isAdmin && (
+        <>
+          <VisibilityControls form={form} />
+          <Separator />
+        </>
+      )}
 
       <Tabs defaultValue="particulars" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">

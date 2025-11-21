@@ -66,6 +66,29 @@ export const getReviewForm = query({
       throw new Error('Not authorized to view this form');
     }
 
+    // V2: Filter responses based on visibility settings
+    // Admins always see everything
+    if (isAdmin) {
+      return form;
+    }
+
+    // Filter buddy responses if JC shouldn't see them
+    if (isJC && !form.buddyResponsesVisibleToJC) {
+      return {
+        ...form,
+        buddyEvaluation: null,
+      };
+    }
+
+    // Filter JC responses if buddy shouldn't see them
+    if (isBuddy && !form.jcResponsesVisibleToBuddy) {
+      return {
+        ...form,
+        jcReflection: null,
+        jcFeedback: null,
+      };
+    }
+
     return form;
   },
 });
@@ -91,9 +114,18 @@ export const getReviewFormByToken = query({
         throw new Error('Access token has expired');
       }
 
+      // V2: Filter JC responses if buddy shouldn't see them
+      const filteredForm = formByBuddyToken.jcResponsesVisibleToBuddy
+        ? formByBuddyToken
+        : {
+            ...formByBuddyToken,
+            jcReflection: null,
+            jcFeedback: null,
+          };
+
       // Return form with buddy access level
       return {
-        form: formByBuddyToken,
+        form: filteredForm,
         accessLevel: 'buddy' as const,
       };
     }
@@ -110,9 +142,17 @@ export const getReviewFormByToken = query({
         throw new Error('Access token has expired');
       }
 
+      // V2: Filter buddy responses if JC shouldn't see them
+      const filteredForm = formByJCToken.buddyResponsesVisibleToJC
+        ? formByJCToken
+        : {
+            ...formByJCToken,
+            buddyEvaluation: null,
+          };
+
       // Return form with JC access level
       return {
-        form: formByJCToken,
+        form: filteredForm,
         accessLevel: 'jc' as const,
       };
     }
@@ -683,5 +723,58 @@ export const regenerateAccessTokens = mutation({
       buddyAccessToken,
       jcAccessToken,
     };
+  },
+});
+
+/**
+ * Toggle response visibility (admin only)
+ * Controls whether buddy responses are visible to JC and vice versa
+ */
+export const toggleResponseVisibility = mutation({
+  args: {
+    ...SessionIdArg,
+    formId: v.id('reviewForms'),
+    buddyResponsesVisibleToJC: v.optional(v.boolean()),
+    jcResponsesVisibleToBuddy: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    // Only admins can toggle visibility
+    if (user.accessLevel !== 'system_admin') {
+      throw new Error('Only admins can toggle response visibility');
+    }
+
+    const form = await ctx.db.get(args.formId);
+    if (!form) {
+      throw new Error('Form not found');
+    }
+
+    // At least one visibility flag must be provided
+    if (
+      args.buddyResponsesVisibleToJC === undefined &&
+      args.jcResponsesVisibleToBuddy === undefined
+    ) {
+      throw new Error('At least one visibility flag must be provided');
+    }
+
+    // Update visibility settings
+    const updates: Partial<Doc<'reviewForms'>> = {
+      visibilityChangedAt: Date.now(),
+      visibilityChangedBy: user._id,
+    };
+
+    if (args.buddyResponsesVisibleToJC !== undefined) {
+      updates.buddyResponsesVisibleToJC = args.buddyResponsesVisibleToJC;
+    }
+
+    if (args.jcResponsesVisibleToBuddy !== undefined) {
+      updates.jcResponsesVisibleToBuddy = args.jcResponsesVisibleToBuddy;
+    }
+
+    await ctx.db.patch(args.formId, updates);
   },
 });
