@@ -1,7 +1,7 @@
 'use client';
 
 import { EyeOff } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -13,8 +13,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useAutosave } from '../../hooks/useAutosave';
 import type { AgeGroup, QuestionResponse, ReviewForm } from '../../types';
 import { JC_REFLECTION_QUESTIONS } from './formQuestions';
+import { SaveIndicator } from './SaveIndicator';
 
 interface JCReflectionSectionProps {
   form: ReviewForm;
@@ -28,9 +30,14 @@ interface JCReflectionSectionProps {
   }) => Promise<void>;
 }
 
+type FieldName =
+  | 'activitiesParticipated'
+  | 'learningsFromJCEP'
+  | 'whatToDoDifferently'
+  | 'goalsForNextRotation';
+
 export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSectionProps) {
   const [isEditing, setIsEditing] = useState(!form.jcReflection);
-  const [isSaving, setIsSaving] = useState(false);
 
   const [nextRotationPreference, setNextRotationPreference] = useState<AgeGroup>(
     form.nextRotationPreference || 'RK'
@@ -48,6 +55,9 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
     form.jcReflection?.goalsForNextRotation.answer || ''
   );
 
+  // Track which fields are currently being saved
+  const [savingFields, setSavingFields] = useState<Set<FieldName>>(new Set());
+
   const labelTexts = {
     nextRotationPreference: 'Next rotation preference',
     activitiesParticipated: 'Memorable activities',
@@ -56,8 +66,54 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
     goalsForNextRotation: 'Goals & prayer needs',
   } as const;
 
+  // Autosave function for a specific field
+  const createFieldSaveFn = useCallback(
+    (field: FieldName) =>
+      async (data: {
+        activitiesParticipated: string;
+        learningsFromJCEP: string;
+        whatToDoDifferently: string;
+        goalsForNextRotation: string;
+      }) => {
+        await onUpdate({
+          nextRotationPreference,
+          activitiesParticipated: {
+            questionText: JC_REFLECTION_QUESTIONS.activitiesParticipated,
+            answer: data.activitiesParticipated,
+          },
+          learningsFromJCEP: {
+            questionText: JC_REFLECTION_QUESTIONS.learningsFromJCEP,
+            answer: data.learningsFromJCEP,
+          },
+          whatToDoDifferently: {
+            questionText: JC_REFLECTION_QUESTIONS.whatToDoDifferently,
+            answer: data.whatToDoDifferently,
+          },
+          goalsForNextRotation: {
+            questionText: JC_REFLECTION_QUESTIONS.goalsForNextRotation,
+            answer: data.goalsForNextRotation,
+          },
+        });
+        // Clear this field from saving state after successful save
+        setSavingFields((prev) => {
+          const next = new Set(prev);
+          next.delete(field);
+          return next;
+        });
+      },
+    [onUpdate, nextRotationPreference]
+  );
+
+  // Create separate autosave instances for each field
+  const activitiesParticipatedAutosave = useAutosave(
+    createFieldSaveFn('activitiesParticipated'),
+    1500
+  );
+  const learningsFromJCEPAutosave = useAutosave(createFieldSaveFn('learningsFromJCEP'), 1500);
+  const whatToDoDifferentlyAutosave = useAutosave(createFieldSaveFn('whatToDoDifferently'), 1500);
+  const goalsForNextRotationAutosave = useAutosave(createFieldSaveFn('goalsForNextRotation'), 1500);
+
   const handleSave = async () => {
-    setIsSaving(true);
     try {
       await onUpdate({
         nextRotationPreference,
@@ -81,8 +137,38 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
       setIsEditing(false);
     } catch (error) {
       console.error('Failed to update JC reflection:', error);
-    } finally {
-      setIsSaving(false);
+    }
+  };
+
+  const handleFieldChange = (field: FieldName, value: string) => {
+    // Mark field as being saved
+    setSavingFields((prev) => new Set(prev).add(field));
+
+    // Update state and trigger field-specific autosave
+    const data = {
+      activitiesParticipated,
+      learningsFromJCEP,
+      whatToDoDifferently,
+      goalsForNextRotation,
+    };
+
+    switch (field) {
+      case 'activitiesParticipated':
+        setActivitiesParticipated(value);
+        activitiesParticipatedAutosave.debouncedSave({ ...data, activitiesParticipated: value });
+        break;
+      case 'learningsFromJCEP':
+        setLearningsFromJCEP(value);
+        learningsFromJCEPAutosave.debouncedSave({ ...data, learningsFromJCEP: value });
+        break;
+      case 'whatToDoDifferently':
+        setWhatToDoDifferently(value);
+        whatToDoDifferentlyAutosave.debouncedSave({ ...data, whatToDoDifferently: value });
+        break;
+      case 'goalsForNextRotation':
+        setGoalsForNextRotation(value);
+        goalsForNextRotationAutosave.debouncedSave({ ...data, goalsForNextRotation: value });
+        break;
     }
   };
 
@@ -93,6 +179,23 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
     setWhatToDoDifferently(form.jcReflection?.whatToDoDifferently.answer || '');
     setGoalsForNextRotation(form.jcReflection?.goalsForNextRotation.answer || '');
     setIsEditing(false);
+  };
+
+  const getSaveStatus = (field: FieldName): 'saved' | 'modified' | 'none' => {
+    // Check if this specific field is being saved
+    const isFieldSaving =
+      (field === 'activitiesParticipated' && activitiesParticipatedAutosave.isSaving) ||
+      (field === 'learningsFromJCEP' && learningsFromJCEPAutosave.isSaving) ||
+      (field === 'whatToDoDifferently' && whatToDoDifferentlyAutosave.isSaving) ||
+      (field === 'goalsForNextRotation' && goalsForNextRotationAutosave.isSaving);
+
+    // If field is in saving state (modified and debouncing/saving)
+    if (savingFields.has(field) || isFieldSaving) return 'modified';
+
+    // If field has been saved at least once (form exists)
+    if (form.jcReflection && !savingFields.has(field)) return 'saved';
+
+    return 'none';
   };
 
   const isComplete = form.jcReflection !== null;
@@ -207,13 +310,16 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
         </div>
 
         <div>
-          <Label htmlFor="activitiesParticipated" className="text-sm font-medium text-foreground">
-            {labelTexts.activitiesParticipated}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="activitiesParticipated" className="text-sm font-medium text-foreground">
+              {labelTexts.activitiesParticipated}
+            </Label>
+            <SaveIndicator status={getSaveStatus('activitiesParticipated')} />
+          </div>
           <Textarea
             id="activitiesParticipated"
             value={activitiesParticipated}
-            onChange={(e) => setActivitiesParticipated(e.target.value)}
+            onChange={(e) => handleFieldChange('activitiesParticipated', e.target.value)}
             rows={4}
             className="mt-1"
             placeholder="Share a few highlights from this rotation..."
@@ -221,13 +327,16 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
         </div>
 
         <div>
-          <Label htmlFor="learningsFromJCEP" className="text-sm font-medium text-foreground">
-            {labelTexts.learningsFromJCEP}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="learningsFromJCEP" className="text-sm font-medium text-foreground">
+              {labelTexts.learningsFromJCEP}
+            </Label>
+            <SaveIndicator status={getSaveStatus('learningsFromJCEP')} />
+          </div>
           <Textarea
             id="learningsFromJCEP"
             value={learningsFromJCEP}
-            onChange={(e) => setLearningsFromJCEP(e.target.value)}
+            onChange={(e) => handleFieldChange('learningsFromJCEP', e.target.value)}
             rows={4}
             className="mt-1"
             placeholder="What did God teach you through JCEP?"
@@ -235,13 +344,16 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
         </div>
 
         <div>
-          <Label htmlFor="whatToDoDifferently" className="text-sm font-medium text-foreground">
-            {labelTexts.whatToDoDifferently}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="whatToDoDifferently" className="text-sm font-medium text-foreground">
+              {labelTexts.whatToDoDifferently}
+            </Label>
+            <SaveIndicator status={getSaveStatus('whatToDoDifferently')} />
+          </div>
           <Textarea
             id="whatToDoDifferently"
             value={whatToDoDifferently}
-            onChange={(e) => setWhatToDoDifferently(e.target.value)}
+            onChange={(e) => handleFieldChange('whatToDoDifferently', e.target.value)}
             rows={4}
             className="mt-1"
             placeholder="If you could do this rotation again, what would you change?"
@@ -249,13 +361,16 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
         </div>
 
         <div>
-          <Label htmlFor="goalsForNextRotation" className="text-sm font-medium text-foreground">
-            {labelTexts.goalsForNextRotation}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="goalsForNextRotation" className="text-sm font-medium text-foreground">
+              {labelTexts.goalsForNextRotation}
+            </Label>
+            <SaveIndicator status={getSaveStatus('goalsForNextRotation')} />
+          </div>
           <Textarea
             id="goalsForNextRotation"
             value={goalsForNextRotation}
-            onChange={(e) => setGoalsForNextRotation(e.target.value)}
+            onChange={(e) => handleFieldChange('goalsForNextRotation', e.target.value)}
             rows={4}
             className="mt-1"
             placeholder="Share a few goals and prayer needs for your next rotation..."
@@ -263,11 +378,33 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
         </div>
 
         <div className="flex gap-2">
-          <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Saving...' : 'Save'}
+          <Button
+            onClick={handleSave}
+            disabled={
+              activitiesParticipatedAutosave.isSaving ||
+              learningsFromJCEPAutosave.isSaving ||
+              whatToDoDifferentlyAutosave.isSaving ||
+              goalsForNextRotationAutosave.isSaving
+            }
+          >
+            {activitiesParticipatedAutosave.isSaving ||
+            learningsFromJCEPAutosave.isSaving ||
+            whatToDoDifferentlyAutosave.isSaving ||
+            goalsForNextRotationAutosave.isSaving
+              ? 'Saving...'
+              : 'Save'}
           </Button>
           {isComplete && (
-            <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
+            <Button
+              variant="outline"
+              onClick={handleCancel}
+              disabled={
+                activitiesParticipatedAutosave.isSaving ||
+                learningsFromJCEPAutosave.isSaving ||
+                whatToDoDifferentlyAutosave.isSaving ||
+                goalsForNextRotationAutosave.isSaving
+              }
+            >
               Cancel
             </Button>
           )}

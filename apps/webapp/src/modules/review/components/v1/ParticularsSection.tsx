@@ -3,6 +3,17 @@
 import { CalendarIcon } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
@@ -102,7 +113,24 @@ export function ParticularsSection({
           </div>
           <div className="flex items-center gap-3">
             {isComplete && !isSubmitted && canSubmit && (
-              <Button onClick={onSubmit}>Submit Form</Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button>Submit Form</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Submit Review Form?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will submit your review form and change its status from "In Progress" to
+                      "Submitted". Once submitted, you will not be able to make further edits.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={onSubmit}>Submit</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
             {isSubmitted && (
               <div className="rounded-md bg-green-50 px-3 py-1 text-sm font-medium text-green-700 dark:bg-green-950/20 dark:text-green-400">

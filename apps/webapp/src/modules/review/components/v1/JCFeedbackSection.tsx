@@ -1,13 +1,15 @@
 'use client';
 
 import { EyeOff } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useAutosave } from '../../hooks/useAutosave';
 import type { QuestionResponse, ReviewForm } from '../../types';
 import { JC_FEEDBACK_QUESTIONS } from './formQuestions';
+import { SaveIndicator } from './SaveIndicator';
 
 interface JCFeedbackSectionProps {
   form: ReviewForm;
@@ -18,9 +20,10 @@ interface JCFeedbackSectionProps {
   }) => Promise<void>;
 }
 
+type FieldName = 'gratitudeToBuddy' | 'programFeedback';
+
 export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSectionProps) {
   const [isEditing, setIsEditing] = useState(!form.jcFeedback);
-  const [isSaving, setIsSaving] = useState(false);
 
   const [gratitudeToBuddy, setGratitudeToBuddy] = useState(
     form.jcFeedback?.gratitudeToBuddy.answer || ''
@@ -29,13 +32,42 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
     form.jcFeedback?.programFeedback.answer || ''
   );
 
+  // Track which fields are currently being saved
+  const [savingFields, setSavingFields] = useState<Set<FieldName>>(new Set());
+
   const labelTexts = {
     gratitudeToBuddy: 'Message to your Buddy',
     programFeedback: 'Feedback on JCEP',
   } as const;
 
+  // Autosave function for a specific field
+  const createFieldSaveFn = useCallback(
+    (field: FieldName) => async (data: { gratitudeToBuddy: string; programFeedback: string }) => {
+      await onUpdate({
+        gratitudeToBuddy: {
+          questionText: JC_FEEDBACK_QUESTIONS.gratitudeToBuddy,
+          answer: data.gratitudeToBuddy,
+        },
+        programFeedback: {
+          questionText: JC_FEEDBACK_QUESTIONS.programFeedback,
+          answer: data.programFeedback,
+        },
+      });
+      // Clear this field from saving state after successful save
+      setSavingFields((prev) => {
+        const next = new Set(prev);
+        next.delete(field);
+        return next;
+      });
+    },
+    [onUpdate]
+  );
+
+  // Create separate autosave instances for each field
+  const gratitudeToBuddyAutosave = useAutosave(createFieldSaveFn('gratitudeToBuddy'), 1500);
+  const programFeedbackAutosave = useAutosave(createFieldSaveFn('programFeedback'), 1500);
+
   const handleSave = async () => {
-    setIsSaving(true);
     try {
       await onUpdate({
         gratitudeToBuddy: {
@@ -50,8 +82,25 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
       setIsEditing(false);
     } catch (error) {
       console.error('Failed to update JC feedback:', error);
-    } finally {
-      setIsSaving(false);
+    }
+  };
+
+  const handleFieldChange = (field: FieldName, value: string) => {
+    // Mark field as being saved
+    setSavingFields((prev) => new Set(prev).add(field));
+
+    // Update state and trigger field-specific autosave
+    const data = { gratitudeToBuddy, programFeedback };
+
+    switch (field) {
+      case 'gratitudeToBuddy':
+        setGratitudeToBuddy(value);
+        gratitudeToBuddyAutosave.debouncedSave({ ...data, gratitudeToBuddy: value });
+        break;
+      case 'programFeedback':
+        setProgramFeedback(value);
+        programFeedbackAutosave.debouncedSave({ ...data, programFeedback: value });
+        break;
     }
   };
 
@@ -59,6 +108,21 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
     setGratitudeToBuddy(form.jcFeedback?.gratitudeToBuddy.answer || '');
     setProgramFeedback(form.jcFeedback?.programFeedback.answer || '');
     setIsEditing(false);
+  };
+
+  const getSaveStatus = (field: FieldName): 'saved' | 'modified' | 'none' => {
+    // Check if this specific field is being saved
+    const isFieldSaving =
+      (field === 'gratitudeToBuddy' && gratitudeToBuddyAutosave.isSaving) ||
+      (field === 'programFeedback' && programFeedbackAutosave.isSaving);
+
+    // If field is in saving state (modified and debouncing/saving)
+    if (savingFields.has(field) || isFieldSaving) return 'modified';
+
+    // If field has been saved at least once (form exists)
+    if (form.jcFeedback && !savingFields.has(field)) return 'saved';
+
+    return 'none';
   };
 
   const isComplete = form.jcFeedback !== null;
@@ -128,13 +192,16 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
 
       <div className="space-y-4 rounded-lg border border-border bg-card p-4">
         <div>
-          <Label htmlFor="gratitudeToBuddy" className="text-sm font-medium text-foreground">
-            {labelTexts.gratitudeToBuddy}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="gratitudeToBuddy" className="text-sm font-medium text-foreground">
+              {labelTexts.gratitudeToBuddy}
+            </Label>
+            <SaveIndicator status={getSaveStatus('gratitudeToBuddy')} />
+          </div>
           <Textarea
             id="gratitudeToBuddy"
             value={gratitudeToBuddy}
-            onChange={(e) => setGratitudeToBuddy(e.target.value)}
+            onChange={(e) => handleFieldChange('gratitudeToBuddy', e.target.value)}
             rows={4}
             className="mt-1"
             placeholder="Thank and encourage your Buddy..."
@@ -142,13 +209,16 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
         </div>
 
         <div>
-          <Label htmlFor="programFeedback" className="text-sm font-medium text-foreground">
-            {labelTexts.programFeedback}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="programFeedback" className="text-sm font-medium text-foreground">
+              {labelTexts.programFeedback}
+            </Label>
+            <SaveIndicator status={getSaveStatus('programFeedback')} />
+          </div>
           <Textarea
             id="programFeedback"
             value={programFeedback}
-            onChange={(e) => setProgramFeedback(e.target.value)}
+            onChange={(e) => handleFieldChange('programFeedback', e.target.value)}
             rows={4}
             className="mt-1"
             placeholder="Share any thoughts about the JCEP programme..."
@@ -156,11 +226,20 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
         </div>
 
         <div className="flex gap-2">
-          <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Saving...' : 'Save'}
+          <Button
+            onClick={handleSave}
+            disabled={gratitudeToBuddyAutosave.isSaving || programFeedbackAutosave.isSaving}
+          >
+            {gratitudeToBuddyAutosave.isSaving || programFeedbackAutosave.isSaving
+              ? 'Saving...'
+              : 'Save'}
           </Button>
           {isComplete && (
-            <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
+            <Button
+              variant="outline"
+              onClick={handleCancel}
+              disabled={gratitudeToBuddyAutosave.isSaving || programFeedbackAutosave.isSaving}
+            >
               Cancel
             </Button>
           )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Circle, EyeOff } from 'lucide-react';
+import { EyeOff } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAutosave } from '../../hooks/useAutosave';
 import type { QuestionResponse, ReviewForm } from '../../types';
 import { BUDDY_EVALUATION_QUESTIONS } from './formQuestions';
+import { SaveIndicator } from './SaveIndicator';
 
 interface BuddyEvaluationSectionProps {
   form: ReviewForm;
@@ -353,26 +354,6 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function SaveIndicator({ status }: { status: 'saved' | 'modified' | 'none' }) {
-  if (status === 'none') return null;
-
-  if (status === 'modified') {
-    return (
-      <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
-        <Circle className="h-3 w-3 fill-current" />
-        <span>Modified</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400">
-      <Check className="h-3 w-3" />
-      <span>Saved</span>
     </div>
   );
 }
