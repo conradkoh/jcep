@@ -1,4 +1,4 @@
-# Next Convex Starter App - Project Map
+# JCEP Starter App - Project Map
 
 ## Project Overview
 
