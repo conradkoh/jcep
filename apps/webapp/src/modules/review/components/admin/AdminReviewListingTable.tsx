@@ -32,6 +32,7 @@ import {
 import { useDeleteReviewForm } from '../../hooks/useReviewForm';
 import type { ReviewForm } from '../../types';
 import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
+import { formatRotationLabel } from '../../utils/rotationUtils';
 
 interface AdminReviewListingTableProps {
   forms: ReviewForm[];
@@ -187,7 +188,9 @@ export function AdminReviewListingTable({ forms, onFormDeleted }: AdminReviewLis
           <TableBody>
             {forms.map((form) => (
               <TableRow key={form._id}>
-                <TableCell className="font-medium">{form.rotationYear}</TableCell>
+                <TableCell className="font-medium">
+                  {formatRotationLabel(form.rotationYear, form.rotationQuarter)}
+                </TableCell>
                 <TableCell>{form.buddyName}</TableCell>
                 <TableCell>{form.juniorCommanderName}</TableCell>
                 <TableCell>{getAgeGroupLabel(form.ageGroup)}</TableCell>
@@ -260,7 +263,10 @@ export function AdminReviewListingTable({ forms, onFormDeleted }: AdminReviewLis
             <AlertDialogDescription>
               Are you sure you want to delete the review form for{' '}
               <strong>{formToDelete?.juniorCommanderName}</strong> and{' '}
-              <strong>{formToDelete?.buddyName}</strong> ({formToDelete?.rotationYear})?
+              <strong>{formToDelete?.buddyName}</strong> (
+              {formToDelete &&
+                formatRotationLabel(formToDelete.rotationYear, formToDelete.rotationQuarter)}
+              )?
               <br />
               <br />
               This action cannot be undone. All responses and data will be permanently removed.

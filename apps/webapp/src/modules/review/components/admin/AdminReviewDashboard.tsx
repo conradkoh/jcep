@@ -12,6 +12,7 @@ import { AdminReviewTable } from './AdminReviewTable';
 export function AdminReviewDashboard() {
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
+  const [quarterFilter, setQuarterFilter] = useState<number | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<ReviewFormStatus | 'all'>('all');
   const [ageGroupFilter, setAgeGroupFilter] = useState<AgeGroup | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,6 +20,7 @@ export function AdminReviewDashboard() {
   // Fetch forms with backend filters
   const { forms, isLoading } = useAllReviewFormsByYear(
     year,
+    quarterFilter === 'all' ? undefined : quarterFilter,
     statusFilter === 'all' ? undefined : statusFilter,
     ageGroupFilter === 'all' ? undefined : ageGroupFilter
   );
@@ -49,6 +51,7 @@ export function AdminReviewDashboard() {
   }, [filteredForms]);
 
   const handleClearFilters = () => {
+    setQuarterFilter('all');
     setStatusFilter('all');
     setAgeGroupFilter('all');
     setSearchQuery('');
@@ -95,10 +98,12 @@ export function AdminReviewDashboard() {
 
       <AdminReviewFilters
         year={year}
+        quarter={quarterFilter}
         status={statusFilter}
         ageGroup={ageGroupFilter}
         searchQuery={searchQuery}
         onYearChange={setYear}
+        onQuarterChange={setQuarterFilter}
         onStatusChange={setStatusFilter}
         onAgeGroupChange={setAgeGroupFilter}
         onSearchChange={setSearchQuery}

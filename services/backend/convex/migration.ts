@@ -209,8 +209,7 @@ export const setReviewFormQuarterDefault = internalMutation({
       return; // Form doesn't exist, skip
     }
 
-    // Only update if rotationQuarter is undefined
-    // @ts-expect-error - rotationQuarter may not exist on old forms
+    // Only update if rotationQuarter is undefined (shouldn't happen after migration)
     if (form.rotationQuarter === undefined) {
       await ctx.db.patch(args.formId, {
         rotationQuarter: 1, // Default to Q1 for all existing forms

@@ -10,6 +10,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress';
 import type { ReviewForm } from '../types';
 import { getAgeGroupLabel } from '../utils/ageGroupLabels';
+import { formatRotationLabel } from '../utils/rotationUtils';
 
 interface ReviewFormCardProps {
   form: ReviewForm;
@@ -76,7 +77,11 @@ export function ReviewFormCard({ form }: ReviewFormCardProps) {
       </CardHeader>
       <CardContent className="space-y-4 text-sm text-muted-foreground">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="font-medium text-foreground">{ageGroupLabel}</span>
+          <span className="font-medium text-foreground">
+            {formatRotationLabel(form.rotationYear, form.rotationQuarter)}
+          </span>
+          <span aria-hidden>•</span>
+          <span>{ageGroupLabel}</span>
           <span aria-hidden>•</span>
           <span>{formatDate(form.evaluationDate)}</span>
         </div>

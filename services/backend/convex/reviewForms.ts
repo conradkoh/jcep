@@ -182,14 +182,12 @@ export const getReviewFormsByYear = query({
     let jcForms: Doc<'reviewForms'>[];
 
     if (args.quarter !== undefined) {
+      const quarter = args.quarter; // Type narrowing
       // Get forms where user is buddy (with quarter filter)
       buddyForms = await ctx.db
         .query('reviewForms')
         .withIndex('by_year_quarter_and_buddy', (q) =>
-          q
-            .eq('rotationYear', args.year)
-            .eq('rotationQuarter', args.quarter)
-            .eq('buddyUserId', user._id)
+          q.eq('rotationYear', args.year).eq('rotationQuarter', quarter).eq('buddyUserId', user._id)
         )
         .collect();
 
@@ -199,7 +197,7 @@ export const getReviewFormsByYear = query({
         .withIndex('by_year_quarter_and_jc', (q) =>
           q
             .eq('rotationYear', args.year)
-            .eq('rotationQuarter', args.quarter)
+            .eq('rotationQuarter', quarter)
             .eq('juniorCommanderUserId', user._id)
         )
         .collect();
@@ -329,19 +327,21 @@ export const getAllReviewFormsByYear = query({
 
     if (args.quarter !== undefined && args.status !== undefined) {
       // Both quarter and status specified - use combined index
+      const quarter = args.quarter; // Type narrowing
       const status = args.status;
       forms = await ctx.db
         .query('reviewForms')
         .withIndex('by_year_quarter_and_status', (q) =>
-          q.eq('rotationYear', args.year).eq('rotationQuarter', args.quarter).eq('status', status)
+          q.eq('rotationYear', args.year).eq('rotationQuarter', quarter).eq('status', status)
         )
         .collect();
     } else if (args.quarter !== undefined) {
       // Only quarter specified
+      const quarter = args.quarter; // Type narrowing
       forms = await ctx.db
         .query('reviewForms')
         .withIndex('by_rotation_year_quarter', (q) =>
-          q.eq('rotationYear', args.year).eq('rotationQuarter', args.quarter)
+          q.eq('rotationYear', args.year).eq('rotationQuarter', quarter)
         )
         .collect();
     } else if (args.status !== undefined) {

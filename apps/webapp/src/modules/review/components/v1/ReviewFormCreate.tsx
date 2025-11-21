@@ -21,6 +21,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useCreateReviewForm } from '../../hooks/useReviewForm';
 import type { AgeGroup } from '../../types';
+import { getDefaultRotationQuarter, getRotationQuarterOptions } from '../../utils/rotationUtils';
 
 interface ReviewFormCreateProps {
   currentUserId: Id<'users'>;
@@ -32,6 +33,7 @@ export function ReviewFormCreate({ currentUserId }: ReviewFormCreateProps) {
 
   const currentYear = new Date().getFullYear();
   const [rotationYear, setRotationYear] = useState(currentYear);
+  const [rotationQuarter, setRotationQuarter] = useState(getDefaultRotationQuarter());
   const [buddyName, setBuddyName] = useState('');
   const [jcName, setJcName] = useState('');
   const [ageGroup, setAgeGroup] = useState<AgeGroup | ''>('');
@@ -60,6 +62,7 @@ export function ReviewFormCreate({ currentUserId }: ReviewFormCreateProps) {
     try {
       await createForm({
         rotationYear,
+        rotationQuarter,
         buddyUserId: currentUserId,
         buddyName: buddyName.trim(),
         juniorCommanderUserId: null, // For now, JC is not a registered user
@@ -104,6 +107,27 @@ export function ReviewFormCreate({ currentUserId }: ReviewFormCreateProps) {
             max={2100}
             className="mt-1"
           />
+        </div>
+
+        <div>
+          <Label htmlFor="rotationQuarter" className="text-sm font-medium text-foreground">
+            Rotation Quarter
+          </Label>
+          <Select
+            value={String(rotationQuarter)}
+            onValueChange={(value) => setRotationQuarter(Number.parseInt(value))}
+          >
+            <SelectTrigger id="rotationQuarter" className="mt-1">
+              <SelectValue placeholder="Select quarter" />
+            </SelectTrigger>
+            <SelectContent>
+              {getRotationQuarterOptions().map((option) => (
+                <SelectItem key={option.value} value={String(option.value)}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div>

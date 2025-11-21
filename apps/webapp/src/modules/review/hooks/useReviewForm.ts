@@ -104,11 +104,13 @@ export function useReviewFormsByYear(year: number): ReviewFormsByYearReturn {
  */
 export function useAllReviewFormsByYear(
   year: number,
+  quarter?: number,
   status?: 'draft' | 'in_progress' | 'submitted',
   ageGroup?: 'RK' | 'DR' | 'AR' | 'ER'
 ): AllReviewFormsReturn {
   const forms = useSessionQuery(api.reviewForms.getAllReviewFormsByYear, {
     year,
+    quarter,
     status,
     ageGroup,
   }) as ReviewForm[] | undefined;

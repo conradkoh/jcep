@@ -12,13 +12,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { AgeGroup, ReviewFormStatus } from '../../types';
+import { getRotationQuarterOptionsShort } from '../../utils/rotationUtils';
 
 interface AdminReviewFiltersProps {
   year: number;
+  quarter: number | 'all';
   status: ReviewFormStatus | 'all';
   ageGroup: AgeGroup | 'all';
   searchQuery: string;
   onYearChange: (year: number) => void;
+  onQuarterChange: (quarter: number | 'all') => void;
   onStatusChange: (status: ReviewFormStatus | 'all') => void;
   onAgeGroupChange: (ageGroup: AgeGroup | 'all') => void;
   onSearchChange: (query: string) => void;
@@ -27,10 +30,12 @@ interface AdminReviewFiltersProps {
 
 export function AdminReviewFilters({
   year,
+  quarter,
   status,
   ageGroup,
   searchQuery,
   onYearChange,
+  onQuarterChange,
   onStatusChange,
   onAgeGroupChange,
   onSearchChange,
@@ -39,7 +44,8 @@ export function AdminReviewFilters({
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
-  const hasActiveFilters = status !== 'all' || ageGroup !== 'all' || searchQuery !== '';
+  const hasActiveFilters =
+    quarter !== 'all' || status !== 'all' || ageGroup !== 'all' || searchQuery !== '';
 
   return (
     <section
@@ -62,7 +68,7 @@ export function AdminReviewFilters({
         )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <div>
           <Label htmlFor="year-filter" className="text-sm font-medium text-foreground">
             Year
@@ -75,6 +81,28 @@ export function AdminReviewFilters({
               {yearOptions.map((y) => (
                 <SelectItem key={y} value={String(y)}>
                   {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="quarter-filter" className="text-sm font-medium text-foreground">
+            Quarter
+          </Label>
+          <Select
+            value={String(quarter)}
+            onValueChange={(v) => onQuarterChange(v === 'all' ? 'all' : Number.parseInt(v, 10))}
+          >
+            <SelectTrigger id="quarter-filter" className="mt-1">
+              <SelectValue placeholder="All quarters" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All quarters</SelectItem>
+              {getRotationQuarterOptionsShort().map((option) => (
+                <SelectItem key={option.value} value={String(option.value)}>
+                  {option.label}
                 </SelectItem>
               ))}
             </SelectContent>

@@ -51,6 +51,7 @@ export interface ReviewForm {
 
   // Particulars
   rotationYear: number;
+  rotationQuarter: number; // 1-4 for up to 4 rotations per year
   buddyUserId: Id<'users'>;
   buddyName: string;
   juniorCommanderUserId: Id<'users'> | null; // Null if JC is not a registered user
@@ -123,6 +124,7 @@ export interface AllReviewFormsReturn {
 // Mutation parameter types
 export interface CreateReviewFormParams {
   rotationYear: number;
+  rotationQuarter: number; // 1-4
   buddyUserId: Id<'users'>;
   buddyName: string;
   juniorCommanderUserId: Id<'users'> | null;

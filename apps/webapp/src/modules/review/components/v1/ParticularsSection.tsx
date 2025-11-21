@@ -18,6 +18,7 @@ import {
 import { cn } from '@/lib/utils';
 import type { AgeGroup, ReviewForm } from '../../types';
 import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
+import { formatRotationLabel } from '../../utils/rotationUtils';
 
 interface ParticularsSectionProps {
   form: ReviewForm;
@@ -92,7 +93,9 @@ export function ParticularsSection({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Review Form - {rotationYear}</h1>
+            <h1 className="text-2xl font-bold text-foreground">
+              Review Form - {formatRotationLabel(rotationYear, form.rotationQuarter)}
+            </h1>
             <p className="text-sm text-muted-foreground">
               {buddyNameProp} & {juniorCommanderNameProp} ({getAgeGroupLabel(ageGroupProp)})
             </p>
