@@ -5,7 +5,7 @@
 
 'use client';
 
-import { Check, Copy, ExternalLink, Eye, EyeOff, Trash2 } from 'lucide-react';
+import { Check, Copy, ExternalLink, Eye, EyeOff, MoreVertical, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -22,6 +22,13 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
   Table,
   TableBody,
   TableCell,
@@ -29,7 +36,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useDeleteReviewForm, useToggleResponseVisibility } from '../../hooks/useReviewForm';
 import type { ReviewForm } from '../../types';
 import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
@@ -249,183 +255,173 @@ export function AdminReviewListingTable({ forms, onFormDeleted }: AdminReviewLis
   }
 
   return (
-    <TooltipProvider>
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Year</TableHead>
-                <TableHead>Buddy</TableHead>
-                <TableHead>JC</TableHead>
-                <TableHead>Age Group</TableHead>
-                <TableHead>Next Rotation Preference</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Buddy Progress</TableHead>
-                <TableHead>JC Progress</TableHead>
-                <TableHead className="text-center">Visibility</TableHead>
-                <TableHead className="text-center">Actions</TableHead>
+    <div className="rounded-lg border border-border bg-card overflow-hidden">
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Year</TableHead>
+              <TableHead>Buddy</TableHead>
+              <TableHead>JC</TableHead>
+              <TableHead>Age Group</TableHead>
+              <TableHead>Next Rotation Preference</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-center">Visibility</TableHead>
+              <TableHead className="text-center">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {forms.map((form) => (
+              <TableRow key={form._id}>
+                <TableCell className="font-medium">
+                  {formatRotationLabel(form.rotationYear, form.rotationQuarter)}
+                </TableCell>
+                <TableCell>{form.buddyName}</TableCell>
+                <TableCell>{form.juniorCommanderName}</TableCell>
+                <TableCell>{getAgeGroupLabel(form.ageGroup)}</TableCell>
+                <TableCell>
+                  {form.nextRotationPreference ? (
+                    getAgeGroupLabel(form.nextRotationPreference)
+                  ) : (
+                    <span className="text-muted-foreground">Pending</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <div className="space-y-1.5">
+                    <div>{getStatusBadge(form.status)}</div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs text-muted-foreground">JC:</span>
+                      {getJCProgress(form)}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs text-muted-foreground">Buddy:</span>
+                      {getBuddyProgress(form)}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleToggleBuddyVisibility(form)}
+                        disabled={togglingVisibility === `${form._id}-buddy`}
+                        className="h-7 px-2"
+                        aria-label={`Toggle Buddy visibility for ${form.juniorCommanderName}`}
+                      >
+                        {form.buddyResponsesVisibleToJC ? (
+                          <Eye className="h-3.5 w-3.5 text-green-600 dark:text-green-400 mr-1.5" />
+                        ) : (
+                          <EyeOff className="h-3.5 w-3.5 text-muted-foreground mr-1.5" />
+                        )}
+                        <span className="text-xs">Buddy → JC</span>
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleToggleJCVisibility(form)}
+                        disabled={togglingVisibility === `${form._id}-jc`}
+                        className="h-7 px-2"
+                        aria-label={`Toggle JC visibility for ${form.juniorCommanderName}`}
+                      >
+                        {form.jcResponsesVisibleToBuddy ? (
+                          <Eye className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 mr-1.5" />
+                        ) : (
+                          <EyeOff className="h-3.5 w-3.5 text-muted-foreground mr-1.5" />
+                        )}
+                        <span className="text-xs">JC → Buddy</span>
+                      </Button>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center justify-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreVertical className="h-4 w-4" />
+                          <span className="sr-only">Open menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => copyToClipboard(form.buddyAccessToken, 'buddy', form._id)}
+                          className="cursor-pointer"
+                        >
+                          {copiedToken === `${form._id}-buddy` ? (
+                            <Check className="mr-2 h-4 w-4 text-green-600" />
+                          ) : (
+                            <Copy className="mr-2 h-4 w-4" />
+                          )}
+                          Copy Buddy Link
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => copyToClipboard(form.jcAccessToken, 'jc', form._id)}
+                          className="cursor-pointer"
+                        >
+                          {copiedToken === `${form._id}-jc` ? (
+                            <Check className="mr-2 h-4 w-4 text-green-600" />
+                          ) : (
+                            <Copy className="mr-2 h-4 w-4" />
+                          )}
+                          Copy JC Link
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild className="cursor-pointer">
+                          <Link href={`/app/review/${form._id}`}>
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            View Form
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteClick(form)}
+                          className="cursor-pointer text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete Form
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {forms.map((form) => (
-                <TableRow key={form._id}>
-                  <TableCell className="font-medium">
-                    {formatRotationLabel(form.rotationYear, form.rotationQuarter)}
-                  </TableCell>
-                  <TableCell>{form.buddyName}</TableCell>
-                  <TableCell>{form.juniorCommanderName}</TableCell>
-                  <TableCell>{getAgeGroupLabel(form.ageGroup)}</TableCell>
-                  <TableCell>
-                    {form.nextRotationPreference ? (
-                      getAgeGroupLabel(form.nextRotationPreference)
-                    ) : (
-                      <span className="text-muted-foreground">Pending</span>
-                    )}
-                  </TableCell>
-                  <TableCell>{getStatusBadge(form.status)}</TableCell>
-                  <TableCell>{getBuddyProgress(form)}</TableCell>
-                  <TableCell>{getJCProgress(form)}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center justify-center gap-1">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleToggleBuddyVisibility(form)}
-                            disabled={togglingVisibility === `${form._id}-buddy`}
-                            className="h-8 w-8 p-0"
-                            aria-label={`Toggle Buddy visibility for ${form.juniorCommanderName}`}
-                          >
-                            {form.buddyResponsesVisibleToJC ? (
-                              <Eye className="h-4 w-4 text-green-600 dark:text-green-400" />
-                            ) : (
-                              <EyeOff className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-xs">
-                            Buddy → JC:{' '}
-                            <strong>{form.buddyResponsesVisibleToJC ? 'Visible' : 'Hidden'}</strong>
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleToggleJCVisibility(form)}
-                            disabled={togglingVisibility === `${form._id}-jc`}
-                            className="h-8 w-8 p-0"
-                            aria-label={`Toggle JC visibility for ${form.juniorCommanderName}`}
-                          >
-                            {form.jcResponsesVisibleToBuddy ? (
-                              <Eye className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                            ) : (
-                              <EyeOff className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-xs">
-                            JC → Buddy:{' '}
-                            <strong>{form.jcResponsesVisibleToBuddy ? 'Visible' : 'Hidden'}</strong>
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center justify-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => copyToClipboard(form.buddyAccessToken, 'buddy', form._id)}
-                        title="Copy Buddy Link"
-                        aria-label={`Copy buddy link for ${form.juniorCommanderName}`}
-                      >
-                        {copiedToken === `${form._id}-buddy` ? (
-                          <Check className="h-4 w-4 text-green-600" />
-                        ) : (
-                          <Copy className="h-4 w-4" />
-                        )}
-                        <span className="ml-1 text-xs">Buddy</span>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => copyToClipboard(form.jcAccessToken, 'jc', form._id)}
-                        title="Copy JC Link"
-                        aria-label={`Copy Junior Commander link for ${form.juniorCommanderName}`}
-                      >
-                        {copiedToken === `${form._id}-jc` ? (
-                          <Check className="h-4 w-4 text-green-600" />
-                        ) : (
-                          <Copy className="h-4 w-4" />
-                        )}
-                        <span className="ml-1 text-xs">JC</span>
-                      </Button>
-                      <Button
-                        asChild
-                        variant="ghost"
-                        size="sm"
-                        title="View Form"
-                        aria-label={`Open form for ${form.juniorCommanderName}`}
-                      >
-                        <Link href={`/app/review/${form._id}`}>
-                          <ExternalLink className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteClick(form)}
-                        title="Delete Form"
-                        aria-label={`Delete form for ${form.juniorCommanderName}`}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-
-        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Review Form?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete the review form for{' '}
-                <strong>{formToDelete?.juniorCommanderName}</strong> and{' '}
-                <strong>{formToDelete?.buddyName}</strong> (
-                {formToDelete &&
-                  formatRotationLabel(formToDelete.rotationYear, formToDelete.rotationQuarter)}
-                )?
-                <br />
-                <br />
-                This action cannot be undone. All responses and data will be permanently removed.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDeleteConfirm}
-                disabled={isDeleting}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                {isDeleting ? 'Deleting...' : 'Delete'}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+            ))}
+          </TableBody>
+        </Table>
       </div>
-    </TooltipProvider>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Review Form?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the review form for{' '}
+              <strong>{formToDelete?.juniorCommanderName}</strong> and{' '}
+              <strong>{formToDelete?.buddyName}</strong> (
+              {formToDelete &&
+                formatRotationLabel(formToDelete.rotationYear, formToDelete.rotationQuarter)}
+              )?
+              <br />
+              <br />
+              This action cannot be undone. All responses and data will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }
