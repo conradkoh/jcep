@@ -1,10 +1,11 @@
 'use client';
 
 import type { Id } from '@workspace/backend/convex/_generated/dataModel';
+import { Check } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useReviewFormAccess } from '../../hooks/useReviewFormAccess';
 import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
 import { TokenDisplay } from '../admin/TokenDisplay';
@@ -39,6 +40,53 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
     submitForm,
   } = useReviewFormAccess(formId, accessToken);
 
+  const isComplete =
+    sectionCompletion.buddyEvaluation &&
+    sectionCompletion.jcReflection &&
+    sectionCompletion.jcFeedback;
+
+  const steps = useMemo(
+    () => [
+      {
+        id: 'buddy' as StepId,
+        label: 'Buddy Evaluation',
+        completed: sectionCompletion.buddyEvaluation,
+      },
+      {
+        id: 'jc-reflection' as StepId,
+        label: 'JC Reflection',
+        completed: sectionCompletion.jcReflection,
+      },
+      {
+        id: 'jc-feedback' as StepId,
+        label: 'JC Feedback',
+        completed: sectionCompletion.jcFeedback,
+      },
+    ],
+    [sectionCompletion]
+  );
+
+  const preferredStep = useMemo<StepId>(() => {
+    if (canEditBuddyEvaluation) return 'buddy';
+    if (canEditJCReflection) return 'jc-reflection';
+    if (canEditJCFeedback) return 'jc-feedback';
+    return 'buddy';
+  }, [canEditBuddyEvaluation, canEditJCReflection, canEditJCFeedback]);
+
+  const [activeStep, setActiveStep] = useState<StepId>(preferredStep);
+  const userSelectedStep = useRef(false);
+
+  useEffect(() => {
+    if (!userSelectedStep.current) {
+      setActiveStep(preferredStep);
+    }
+  }, [preferredStep]);
+
+  const handleStepSelect = (id: StepId) => {
+    userSelectedStep.current = true;
+    setActiveStep(id);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -54,11 +102,6 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
       </div>
     );
   }
-
-  const isComplete =
-    sectionCompletion.buddyEvaluation &&
-    sectionCompletion.jcReflection &&
-    sectionCompletion.jcFeedback;
 
   const isSubmitted = form.status === 'submitted';
 
@@ -114,35 +157,28 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
         </>
       )}
 
-      <Tabs id="review-form-main" defaultValue="particulars" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="particulars">Particulars</TabsTrigger>
-          <TabsTrigger value="buddy">Buddy Evaluation</TabsTrigger>
-          <TabsTrigger value="jc-reflection">JC Reflection</TabsTrigger>
-          <TabsTrigger value="jc-feedback">JC Feedback</TabsTrigger>
-        </TabsList>
+      <div id="review-form-main" className="space-y-6">
+        <ParticularsSection
+          form={form}
+          canEdit={!isSubmitted && canEditParticulars}
+          onUpdate={async (updates) => {
+            if (!updateParticulars) {
+              toast.error('Particulars editing not available for token-based access');
+              throw new Error('Particulars editing not available');
+            }
+            try {
+              await updateParticulars({ formId, ...updates });
+              toast.success('Particulars updated successfully!');
+            } catch (error) {
+              toast.error('Failed to update particulars');
+              throw error;
+            }
+          }}
+        />
 
-        <TabsContent value="particulars" className="space-y-4">
-          <ParticularsSection
-            form={form}
-            canEdit={!isSubmitted && canEditParticulars}
-            onUpdate={async (updates) => {
-              if (!updateParticulars) {
-                toast.error('Particulars editing not available for token-based access');
-                throw new Error('Particulars editing not available');
-              }
-              try {
-                await updateParticulars({ formId, ...updates });
-                toast.success('Particulars updated successfully!');
-              } catch (error) {
-                toast.error('Failed to update particulars');
-                throw error;
-              }
-            }}
-          />
-        </TabsContent>
+        <Stepper activeStep={activeStep} steps={steps} onSelectStep={handleStepSelect} />
 
-        <TabsContent value="buddy" className="space-y-4">
+        {activeStep === 'buddy' && (
           <BuddyEvaluationSection
             form={form}
             canEdit={!isSubmitted && canEditBuddyEvaluation}
@@ -156,9 +192,9 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
               }
             }}
           />
-        </TabsContent>
+        )}
 
-        <TabsContent value="jc-reflection" className="space-y-4">
+        {activeStep === 'jc-reflection' && (
           <JCReflectionSection
             form={form}
             canEdit={!isSubmitted && canEditJCReflection}
@@ -172,9 +208,9 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
               }
             }}
           />
-        </TabsContent>
+        )}
 
-        <TabsContent value="jc-feedback" className="space-y-4">
+        {activeStep === 'jc-feedback' && (
           <JCFeedbackSection
             form={form}
             canEdit={!isSubmitted && canEditJCFeedback}
@@ -188,8 +224,59 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
               }
             }}
           />
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
+    </div>
+  );
+}
+
+type StepId = 'buddy' | 'jc-reflection' | 'jc-feedback';
+
+interface StepperProps {
+  activeStep: StepId;
+  steps: Array<{ id: StepId; label: string; completed: boolean }>;
+  onSelectStep: (id: StepId) => void;
+}
+
+function Stepper({ activeStep, steps, onSelectStep }: StepperProps) {
+  return (
+    <div className="rounded-lg border border-border bg-card p-4">
+      <p className="text-sm font-semibold text-foreground">Form Sections</p>
+      <ol className="mt-3 grid gap-3 md:grid-cols-3">
+        {steps.map((step, index) => {
+          const isActive = activeStep === step.id;
+          return (
+            <li key={step.id}>
+              <button
+                type="button"
+                onClick={() => onSelectStep(step.id)}
+                className={`flex w-full items-center gap-3 rounded-md border px-3 py-2 text-left transition ${
+                  isActive
+                    ? 'border-primary bg-primary/5 text-foreground'
+                    : 'border-border text-foreground'
+                }`}
+                aria-current={isActive ? 'step' : undefined}
+              >
+                <span
+                  className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs font-medium ${
+                    step.completed
+                      ? 'border-green-600 bg-green-600 text-white dark:border-green-400 dark:bg-green-400'
+                      : 'border-muted-foreground text-muted-foreground'
+                  }`}
+                >
+                  {step.completed ? <Check className="h-3.5 w-3.5" /> : index + 1}
+                </span>
+                <div>
+                  <p className="text-sm font-semibold">{step.label}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {step.completed ? 'Completed' : 'In progress'}
+                  </p>
+                </div>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }

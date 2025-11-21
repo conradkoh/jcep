@@ -5,12 +5,12 @@
 
 'use client';
 
-import { AlertCircle, CheckCircle2, Lock } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ParticipantInfoCard } from '@/modules/review/components/ParticipantInfoCard';
 import { ReviewFormRouter } from '@/modules/review/components/ReviewFormRouter';
@@ -85,46 +85,9 @@ export default function TokenAccessPage() {
       >
         Skip to form sections
       </a>
-      {/* Access level indicator */}
-      <Alert className="mb-6">
-        <CheckCircle2 className="h-4 w-4" />
-        <AlertTitle>Access Granted</AlertTitle>
-        <AlertDescription>
-          You are accessing this form as:{' '}
-          <strong>{accessLevel === 'buddy' ? 'Buddy' : 'Junior Commander'}</strong>
-        </AlertDescription>
-      </Alert>
 
-      {/* Participant information */}
       {accessLevel && <ParticipantInfoCard form={form} accessLevel={accessLevel} />}
 
-      {/* Privacy notice */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Lock className="h-5 w-5" />
-            Privacy Notice
-          </CardTitle>
-          <CardDescription>
-            Your responses are private and will only be shared when the administrator chooses to
-            reveal them.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-            <li>Your responses save automatically as you type.</li>
-            <li>You can return to this link anytime to continue or edit your answers.</li>
-            <li>
-              {accessLevel === 'buddy'
-                ? "The Junior Commander's responses stay hidden until the administrator reveals them."
-                : "The Buddy's evaluation stays hidden until the administrator reveals it."}
-            </li>
-            <li>Keep this link private—anyone with it can access this form.</li>
-          </ul>
-        </CardContent>
-      </Card>
-
-      {/* Form content */}
       <div id="review-form-content">
         <ReviewFormRouter formId={form._id} accessToken={token} />
       </div>
