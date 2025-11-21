@@ -8,6 +8,7 @@
 import { v } from 'convex/values';
 import { SessionIdArg } from 'convex-helpers/server/sessions';
 import { getAuthUser } from '../modules/auth/getAuthUser';
+import type { Doc } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
 
 // Schema version constant
@@ -45,7 +46,7 @@ export const getReviewForm = query({
     formId: v.id('reviewForms'),
   },
   handler: async (ctx, args) => {
-    const user = await getAuthUser(ctx, args.sessionId);
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
     if (!user) {
       throw new Error('Not authenticated');
     }
@@ -78,7 +79,7 @@ export const getReviewFormsByYear = query({
     year: v.number(),
   },
   handler: async (ctx, args) => {
-    const user = await getAuthUser(ctx, args.sessionId);
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
     if (!user) {
       throw new Error('Not authenticated');
     }
@@ -116,7 +117,7 @@ export const getReviewFormsByUser = query({
     userId: v.optional(v.id('users')),
   },
   handler: async (ctx, args) => {
-    const user = await getAuthUser(ctx, args.sessionId);
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
     if (!user) {
       throw new Error('Not authenticated');
     }
@@ -160,7 +161,7 @@ export const getAllReviewFormsByYear = query({
     ageGroup: v.optional(ageGroupValidator),
   },
   handler: async (ctx, args) => {
-    const user = await getAuthUser(ctx, args.sessionId);
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
     if (!user) {
       throw new Error('Not authenticated');
     }
@@ -171,17 +172,21 @@ export const getAllReviewFormsByYear = query({
     }
 
     // Query by year and optional status
-    let query = ctx.db.query('reviewForms');
-
-    if (args.status) {
-      query = query.withIndex('by_year_and_status', (q) =>
-        q.eq('rotationYear', args.year).eq('status', args.status)
-      );
+    let forms: Doc<'reviewForms'>[];
+    if (args.status !== undefined) {
+      const status = args.status;
+      forms = await ctx.db
+        .query('reviewForms')
+        .withIndex('by_year_and_status', (q) =>
+          q.eq('rotationYear', args.year).eq('status', status)
+        )
+        .collect();
     } else {
-      query = query.withIndex('by_rotation_year', (q) => q.eq('rotationYear', args.year));
+      forms = await ctx.db
+        .query('reviewForms')
+        .withIndex('by_rotation_year', (q) => q.eq('rotationYear', args.year))
+        .collect();
     }
-
-    let forms = await query.collect();
 
     // Filter by age group if specified
     if (args.ageGroup) {
@@ -207,7 +212,7 @@ export const createReviewForm = mutation({
     evaluationDate: v.number(),
   },
   handler: async (ctx, args) => {
-    const user = await getAuthUser(ctx, args.sessionId);
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
     if (!user) {
       throw new Error('Not authenticated');
     }
@@ -263,7 +268,7 @@ export const updateParticulars = mutation({
     evaluationDate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const user = await getAuthUser(ctx, args.sessionId);
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
     if (!user) {
       throw new Error('Not authenticated');
     }
@@ -311,7 +316,7 @@ export const updateBuddyEvaluation = mutation({
     wordsOfEncouragement: questionResponseValidator,
   },
   handler: async (ctx, args) => {
-    const user = await getAuthUser(ctx, args.sessionId);
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
     if (!user) {
       throw new Error('Not authenticated');
     }
@@ -363,7 +368,7 @@ export const updateJCReflection = mutation({
     goalsForNextRotation: questionResponseValidator,
   },
   handler: async (ctx, args) => {
-    const user = await getAuthUser(ctx, args.sessionId);
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
     if (!user) {
       throw new Error('Not authenticated');
     }
@@ -413,7 +418,7 @@ export const updateJCFeedback = mutation({
     programFeedback: questionResponseValidator,
   },
   handler: async (ctx, args) => {
-    const user = await getAuthUser(ctx, args.sessionId);
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
     if (!user) {
       throw new Error('Not authenticated');
     }
@@ -458,7 +463,7 @@ export const submitReviewForm = mutation({
     formId: v.id('reviewForms'),
   },
   handler: async (ctx, args) => {
-    const user = await getAuthUser(ctx, args.sessionId);
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
     if (!user) {
       throw new Error('Not authenticated');
     }
@@ -511,7 +516,7 @@ export const deleteReviewForm = mutation({
     formId: v.id('reviewForms'),
   },
   handler: async (ctx, args) => {
-    const user = await getAuthUser(ctx, args.sessionId);
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
     if (!user) {
       throw new Error('Not authenticated');
     }

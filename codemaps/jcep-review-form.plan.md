@@ -74,60 +74,60 @@ This feature will be implemented in 6 milestones, with each milestone being:
 
 ---
 
-## Milestone 2: Frontend Types & Shared Utilities ⏳ NOT STARTED
+## Milestone 2: Frontend Types & Shared Utilities ✅ COMPLETED
 
 **Goal**: Create TypeScript types, constants, hooks, and utilities
 
-**Status**: ⏳ Not Started
+**Status**: ✅ Completed
 
 ### Files to Create
-- [ ] `apps/webapp/src/modules/review/types.ts` - All frontend TypeScript types
-- [ ] `apps/webapp/src/modules/review/constants/schemaVersions.ts` - Version constants
-- [ ] `apps/webapp/src/modules/review/hooks/useReviewForm.ts` - Main data access hook
-- [ ] `apps/webapp/src/modules/review/utils/formValidation.ts` - Validation utilities
+- [x] `apps/webapp/src/modules/review/types.ts` - All frontend TypeScript types
+- [x] `apps/webapp/src/modules/review/constants/schemaVersions.ts` - Version constants
+- [x] `apps/webapp/src/modules/review/hooks/useReviewForm.ts` - Main data access hook
+- [x] `apps/webapp/src/modules/review/utils/formValidation.ts` - Validation utilities
 
 ### Tasks
-- [ ] Create types.ts with all interfaces
-  - [ ] AgeGroup type
-  - [ ] ReviewFormStatus type
-  - [ ] ReviewFormSchemaVersion type
-  - [ ] SectionCompletion interface
-  - [ ] QuestionResponse interface
-  - [ ] ReviewForm interface (main entity)
-  - [ ] Hook return types (ReviewFormHookReturn, ReviewFormsByYearReturn, etc.)
-  - [ ] Mutation parameter types (CreateReviewFormParams, UpdateBuddyEvaluationParams, etc.)
+- [x] Create types.ts with all interfaces
+  - [x] AgeGroup type
+  - [x] ReviewFormStatus type
+  - [x] ReviewFormSchemaVersion type
+  - [x] SectionCompletion interface
+  - [x] QuestionResponse interface
+  - [x] ReviewForm interface (main entity)
+  - [x] Hook return types (ReviewFormHookReturn, ReviewFormsByYearReturn, etc.)
+  - [x] Mutation parameter types (CreateReviewFormParams, UpdateBuddyEvaluationParams, etc.)
 
-- [ ] Create schemaVersions.ts
-  - [ ] CURRENT_REVIEW_FORM_SCHEMA_VERSION = 1
-  - [ ] SUPPORTED_SCHEMA_VERSIONS = [1]
+- [x] Create schemaVersions.ts
+  - [x] CURRENT_REVIEW_FORM_SCHEMA_VERSION = 1
+  - [x] SUPPORTED_SCHEMA_VERSIONS = [1]
 
-- [ ] Create useReviewForm.ts hook
-  - [ ] useReviewForm(formId) - Get single form with computed state
-  - [ ] useReviewFormsByYear(year) - Get user's forms by year
-  - [ ] useAllReviewFormsByYear(year) - Admin hook for all forms
-  - [ ] createReviewForm mutation wrapper
-  - [ ] updateParticulars mutation wrapper
-  - [ ] updateBuddyEvaluation mutation wrapper
-  - [ ] updateJCReflection mutation wrapper
-  - [ ] updateJCFeedback mutation wrapper
-  - [ ] submitReviewForm mutation wrapper
-  - [ ] Compute canEditBuddySection based on user role
-  - [ ] Compute canEditJCSection based on user role
-  - [ ] Compute sectionCompletion status
+- [x] Create useReviewForm.ts hook
+  - [x] useReviewForm(formId) - Get single form with computed state
+  - [x] useReviewFormsByYear(year) - Get user's forms by year
+  - [x] useAllReviewFormsByYear(year) - Admin hook for all forms
+  - [x] createReviewForm mutation wrapper
+  - [x] updateParticulars mutation wrapper
+  - [x] updateBuddyEvaluation mutation wrapper
+  - [x] updateJCReflection mutation wrapper
+  - [x] updateJCFeedback mutation wrapper
+  - [x] submitReviewForm mutation wrapper
+  - [x] Compute canEditBuddySection based on user role
+  - [x] Compute canEditJCSection based on user role
+  - [x] Compute sectionCompletion status
 
-- [ ] Create formValidation.ts
-  - [ ] validateParticulars function
-  - [ ] validateBuddyEvaluation function
-  - [ ] validateJCReflection function
-  - [ ] validateJCFeedback function
+- [x] Create formValidation.ts
+  - [x] validateParticulars function
+  - [x] validateBuddyEvaluation function
+  - [x] validateJCReflection function
+  - [x] validateJCFeedback function
 
 ### Validation
-- [ ] Run typecheck: `cd apps/webapp && npx tsc --noEmit`
-- [ ] Run linter: `cd apps/webapp && npx biome check .`
-- [ ] Run tests: `cd apps/webapp && npx vitest run`
+- [x] Run typecheck: `cd apps/webapp && npx tsc --noEmit`
+- [x] Run linter: `cd apps/webapp && npx biome check .`
+- [x] Run tests: `cd apps/webapp && npx vitest run`
 
 ### Commit
-- [ ] Commit: "feat: add review forms frontend types and hooks"
+- [x] Commit: "feat: add review forms frontend types and hooks"
 
 ---
 
