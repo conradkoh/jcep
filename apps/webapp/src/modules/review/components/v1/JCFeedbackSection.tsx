@@ -36,8 +36,8 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
   const [savingFields, setSavingFields] = useState<Set<FieldName>>(new Set());
 
   const labelTexts = {
-    gratitudeToBuddy: 'Message to your Buddy',
-    programFeedback: 'Feedback on JCEP',
+    gratitudeToBuddy: JC_FEEDBACK_QUESTIONS.gratitudeToBuddy,
+    programFeedback: JC_FEEDBACK_QUESTIONS.programFeedback,
   } as const;
 
   // Autosave function for a specific field
@@ -204,7 +204,7 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
             onChange={(e) => handleFieldChange('gratitudeToBuddy', e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Thank and encourage your Buddy..."
+            placeholder="Share any words of encouragement or gratitude for your buddy. :)"
           />
         </div>
 
@@ -221,7 +221,7 @@ export function JCFeedbackSection({ form, canEdit, onUpdate }: JCFeedbackSection
             onChange={(e) => handleFieldChange('programFeedback', e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Share any thoughts about the JCEP programme..."
+            placeholder="Write anything positive and any areas for improvement for the programme."
           />
         </div>
 

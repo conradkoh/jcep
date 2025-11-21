@@ -59,11 +59,11 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
   const [savingFields, setSavingFields] = useState<Set<FieldName>>(new Set());
 
   const labelTexts = {
-    nextRotationPreference: 'Next rotation preference',
-    activitiesParticipated: 'Memorable activities',
-    learningsFromJCEP: 'What you learned',
-    whatToDoDifferently: 'What you would do differently',
-    goalsForNextRotation: 'Goals & prayer needs',
+    nextRotationPreference: 'Where would you like to go for your next rotation?',
+    activitiesParticipated: JC_REFLECTION_QUESTIONS.activitiesParticipated,
+    learningsFromJCEP: JC_REFLECTION_QUESTIONS.learningsFromJCEP,
+    whatToDoDifferently: JC_REFLECTION_QUESTIONS.whatToDoDifferently,
+    goalsForNextRotation: JC_REFLECTION_QUESTIONS.goalsForNextRotation,
   } as const;
 
   // Autosave function for a specific field
@@ -322,7 +322,7 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
             onChange={(e) => handleFieldChange('activitiesParticipated', e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Share a few highlights from this rotation..."
+            placeholder="Explain why these activities were memorable or impactful to you."
           />
         </div>
 
@@ -339,7 +339,7 @@ export function JCReflectionSection({ form, canEdit, onUpdate }: JCReflectionSec
             onChange={(e) => handleFieldChange('learningsFromJCEP', e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="What did God teach you through JCEP?"
+            placeholder="Include details from devotions or prayer life and how these impacted your ministry."
           />
         </div>
 

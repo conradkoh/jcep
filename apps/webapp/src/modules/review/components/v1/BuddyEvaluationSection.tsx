@@ -42,10 +42,10 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
   const [savingFields, setSavingFields] = useState<Set<FieldName>>(new Set());
 
   const labelTexts = {
-    tasksParticipated: 'Tasks they participated in',
-    strengths: "Junior Commander's strengths",
-    areasForImprovement: 'Areas for improvement',
-    wordsOfEncouragement: 'Words of encouragement',
+    tasksParticipated: BUDDY_EVALUATION_QUESTIONS.tasksParticipated,
+    strengths: BUDDY_EVALUATION_QUESTIONS.strengths,
+    areasForImprovement: BUDDY_EVALUATION_QUESTIONS.areasForImprovement,
+    wordsOfEncouragement: BUDDY_EVALUATION_QUESTIONS.wordsOfEncouragement,
   } as const;
 
   // Autosave function for a specific field
@@ -266,7 +266,7 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
             onChange={(e) => handleFieldChange('tasksParticipated', e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="List key tasks and activities..."
+            placeholder="Example: recreation, devotion, games, etc."
           />
         </div>
 
@@ -283,7 +283,7 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
             onChange={(e) => handleFieldChange('strengths', e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Share where they did well..."
+            placeholder="Provide examples where possible (e.g. willingness to learn, patience, spiritual maturity, etc.)"
           />
         </div>
 
@@ -300,7 +300,7 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
             onChange={(e) => handleFieldChange('areasForImprovement', e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Suggest what could be better next time..."
+            placeholder="Please provide examples (e.g. discipline, punctuality, stepping out of comfort zone, etc.)"
           />
         </div>
 
@@ -317,7 +317,7 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
             onChange={(e) => handleFieldChange('wordsOfEncouragement', e.target.value)}
             rows={4}
             className="mt-1"
-            placeholder="Encourage and affirm them..."
+            placeholder="Include advice or specific words of guidance or wisdom that will help their continued growth."
           />
         </div>
 
