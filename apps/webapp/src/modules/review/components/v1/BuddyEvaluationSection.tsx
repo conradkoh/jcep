@@ -1,7 +1,7 @@
 'use client';
 
-import { EyeOff } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { Check, Circle, EyeOff } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -21,6 +21,8 @@ interface BuddyEvaluationSectionProps {
   }) => Promise<void>;
 }
 
+type FieldName = 'tasksParticipated' | 'strengths' | 'areasForImprovement' | 'wordsOfEncouragement';
+
 export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluationSectionProps) {
   const [isEditing, setIsEditing] = useState(!form.buddyEvaluation);
 
@@ -34,6 +36,9 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
   const [wordsOfEncouragement, setWordsOfEncouragement] = useState(
     form.buddyEvaluation?.wordsOfEncouragement.answer || ''
   );
+
+  // Track which fields have been modified
+  const [modifiedFields, setModifiedFields] = useState<Set<FieldName>>(new Set());
 
   const labelTexts = {
     tasksParticipated: 'Tasks they participated in',
@@ -74,12 +79,64 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
 
   const { debouncedSave, isSaving } = useAutosave(saveFn, 1500);
 
+  // Clear modified fields when save completes
+  useEffect(() => {
+    if (!isSaving && modifiedFields.size > 0) {
+      setModifiedFields(new Set());
+    }
+  }, [isSaving, modifiedFields.size]);
+
   const handleSave = async () => {
     try {
       await saveFn({ tasksParticipated, strengths, areasForImprovement, wordsOfEncouragement });
       setIsEditing(false);
     } catch (error) {
       console.error('Failed to update buddy evaluation:', error);
+    }
+  };
+
+  const handleFieldChange = (field: FieldName, value: string) => {
+    // Mark field as modified
+    setModifiedFields((prev) => new Set(prev).add(field));
+
+    // Update state based on field
+    switch (field) {
+      case 'tasksParticipated':
+        setTasksParticipated(value);
+        debouncedSave({
+          tasksParticipated: value,
+          strengths,
+          areasForImprovement,
+          wordsOfEncouragement,
+        });
+        break;
+      case 'strengths':
+        setStrengths(value);
+        debouncedSave({
+          tasksParticipated,
+          strengths: value,
+          areasForImprovement,
+          wordsOfEncouragement,
+        });
+        break;
+      case 'areasForImprovement':
+        setAreasForImprovement(value);
+        debouncedSave({
+          tasksParticipated,
+          strengths,
+          areasForImprovement: value,
+          wordsOfEncouragement,
+        });
+        break;
+      case 'wordsOfEncouragement':
+        setWordsOfEncouragement(value);
+        debouncedSave({
+          tasksParticipated,
+          strengths,
+          areasForImprovement,
+          wordsOfEncouragement: value,
+        });
+        break;
     }
   };
 
@@ -170,28 +227,28 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
     );
   }
 
+  const getSaveStatus = (field: FieldName): 'saved' | 'modified' | 'none' => {
+    if (isSaving && modifiedFields.has(field)) return 'modified';
+    if (!isSaving && !modifiedFields.has(field) && form.buddyEvaluation) return 'saved';
+    return 'none';
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-foreground">Buddy Evaluation</h3>
 
       <div className="space-y-4 rounded-lg border border-border bg-card p-4">
         <div>
-          <Label htmlFor="tasksParticipated" className="text-sm font-medium text-foreground">
-            {labelTexts.tasksParticipated}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="tasksParticipated" className="text-sm font-medium text-foreground">
+              {labelTexts.tasksParticipated}
+            </Label>
+            <SaveIndicator status={getSaveStatus('tasksParticipated')} />
+          </div>
           <Textarea
             id="tasksParticipated"
             value={tasksParticipated}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              setTasksParticipated(newValue);
-              debouncedSave({
-                tasksParticipated: newValue,
-                strengths,
-                areasForImprovement,
-                wordsOfEncouragement,
-              });
-            }}
+            onChange={(e) => handleFieldChange('tasksParticipated', e.target.value)}
             rows={4}
             className="mt-1"
             placeholder="List key tasks and activities..."
@@ -199,22 +256,16 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
         </div>
 
         <div>
-          <Label htmlFor="strengths" className="text-sm font-medium text-foreground">
-            {labelTexts.strengths}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="strengths" className="text-sm font-medium text-foreground">
+              {labelTexts.strengths}
+            </Label>
+            <SaveIndicator status={getSaveStatus('strengths')} />
+          </div>
           <Textarea
             id="strengths"
             value={strengths}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              setStrengths(newValue);
-              debouncedSave({
-                tasksParticipated,
-                strengths: newValue,
-                areasForImprovement,
-                wordsOfEncouragement,
-              });
-            }}
+            onChange={(e) => handleFieldChange('strengths', e.target.value)}
             rows={4}
             className="mt-1"
             placeholder="Share where they did well..."
@@ -222,22 +273,16 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
         </div>
 
         <div>
-          <Label htmlFor="areasForImprovement" className="text-sm font-medium text-foreground">
-            {labelTexts.areasForImprovement}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="areasForImprovement" className="text-sm font-medium text-foreground">
+              {labelTexts.areasForImprovement}
+            </Label>
+            <SaveIndicator status={getSaveStatus('areasForImprovement')} />
+          </div>
           <Textarea
             id="areasForImprovement"
             value={areasForImprovement}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              setAreasForImprovement(newValue);
-              debouncedSave({
-                tasksParticipated,
-                strengths,
-                areasForImprovement: newValue,
-                wordsOfEncouragement,
-              });
-            }}
+            onChange={(e) => handleFieldChange('areasForImprovement', e.target.value)}
             rows={4}
             className="mt-1"
             placeholder="Suggest what could be better next time..."
@@ -245,22 +290,16 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
         </div>
 
         <div>
-          <Label htmlFor="wordsOfEncouragement" className="text-sm font-medium text-foreground">
-            {labelTexts.wordsOfEncouragement}
-          </Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="wordsOfEncouragement" className="text-sm font-medium text-foreground">
+              {labelTexts.wordsOfEncouragement}
+            </Label>
+            <SaveIndicator status={getSaveStatus('wordsOfEncouragement')} />
+          </div>
           <Textarea
             id="wordsOfEncouragement"
             value={wordsOfEncouragement}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              setWordsOfEncouragement(newValue);
-              debouncedSave({
-                tasksParticipated,
-                strengths,
-                areasForImprovement,
-                wordsOfEncouragement: newValue,
-              });
-            }}
+            onChange={(e) => handleFieldChange('wordsOfEncouragement', e.target.value)}
             rows={4}
             className="mt-1"
             placeholder="Encourage and affirm them..."
@@ -278,6 +317,26 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function SaveIndicator({ status }: { status: 'saved' | 'modified' | 'none' }) {
+  if (status === 'none') return null;
+
+  if (status === 'modified') {
+    return (
+      <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+        <Circle className="h-3 w-3 fill-current" />
+        <span>Modified</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400">
+      <Check className="h-3 w-3" />
+      <span>Saved</span>
     </div>
   );
 }
