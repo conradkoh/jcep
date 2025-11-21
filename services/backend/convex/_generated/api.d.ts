@@ -23,8 +23,11 @@ import type * as crypto from "../crypto.js";
 import type * as discussions from "../discussions.js";
 import type * as migration from "../migration.js";
 import type * as presentations from "../presentations.js";
+import type * as reviewForms from "../reviewForms.js";
 import type * as serviceDesk from "../serviceDesk.js";
 import type * as system_auth_google from "../system/auth/google.js";
+import type * as utils_sectionCompletionHelpers from "../utils/sectionCompletionHelpers.js";
+import type * as utils_tokenUtils from "../utils/tokenUtils.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -45,8 +48,11 @@ declare const fullApi: ApiFromModules<{
   discussions: typeof discussions;
   migration: typeof migration;
   presentations: typeof presentations;
+  reviewForms: typeof reviewForms;
   serviceDesk: typeof serviceDesk;
   "system/auth/google": typeof system_auth_google;
+  "utils/sectionCompletionHelpers": typeof utils_sectionCompletionHelpers;
+  "utils/tokenUtils": typeof utils_tokenUtils;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

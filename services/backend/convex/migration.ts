@@ -192,3 +192,83 @@ export const getUsersBatch = internalQuery({
     return await ctx.db.query('users').paginate(args.paginationOpts);
   },
 });
+
+// ========================================
+// REVIEW FORM ROTATION QUARTER MIGRATION
+// ========================================
+
+/**
+ * Internal mutation to add rotationQuarter field to a review form if missing.
+ * Sets the default value to 1 for all existing forms.
+ */
+export const setReviewFormQuarterDefault = internalMutation({
+  args: { formId: v.id('reviewForms') },
+  handler: async (ctx, args) => {
+    const form = await ctx.db.get(args.formId);
+    if (!form) {
+      return; // Form doesn't exist, skip
+    }
+
+    // Only update if rotationQuarter is undefined (shouldn't happen after migration)
+    if (form.rotationQuarter === undefined) {
+      await ctx.db.patch(args.formId, {
+        rotationQuarter: 1, // Default to Q1 for all existing forms
+      });
+    }
+  },
+});
+
+/**
+ * Internal action to migrate all review forms to include rotationQuarter field.
+ * Sets undefined rotationQuarter fields to 1 (Q1) as the default.
+ * Processes forms in batches to handle large datasets safely.
+ */
+export const migrateReviewFormsToQuarters = internalAction({
+  args: { cursor: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    const paginationOpts: PaginationOpts = {
+      numItems: BATCH_SIZE,
+      cursor: args.cursor ?? null,
+    };
+
+    // Fetch a batch of review forms
+    const results = await ctx.runQuery(internal.migration.getReviewFormsBatch, {
+      paginationOpts,
+    });
+
+    // Schedule mutations to update all forms in the batch in parallel
+    await Promise.all(
+      results.page.map((form) =>
+        ctx.runMutation(internal.migration.setReviewFormQuarterDefault, {
+          formId: form._id,
+        })
+      )
+    );
+
+    console.log(`Processed batch: ${results.page.length} review forms, migrating rotationQuarter`);
+
+    // If there are more forms, schedule the next batch
+    if (!results.isDone) {
+      await ctx.runAction(internal.migration.migrateReviewFormsToQuarters, {
+        cursor: results.continueCursor,
+      });
+    } else {
+      console.log('Review form rotation quarter migration completed');
+    }
+  },
+});
+
+/**
+ * Helper query to fetch review forms in batches for pagination during migration.
+ */
+export const getReviewFormsBatch = internalQuery({
+  args: {
+    paginationOpts: v.object({
+      numItems: v.number(),
+      cursor: v.union(v.string(), v.null()),
+    }),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.query('reviewForms').paginate(args.paginationOpts);
+  },
+});
