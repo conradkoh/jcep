@@ -2,7 +2,6 @@
 
 import { AlertCircle } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -10,32 +9,20 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ParticipantInfoCard } from '@/modules/review/components/ParticipantInfoCard';
 import { ReviewFormRouter } from '@/modules/review/components/ReviewFormRouter';
 import { useReviewFormByToken } from '@/modules/review/hooks/useReviewFormByToken';
-import { useTokenAuth } from '@/modules/review/hooks/useTokenAuth';
 
 /**
  * Token-based access page for review forms.
  * Allows anonymous access via secret link without requiring authentication.
- * The token is extracted from the URL parameter and stored in localStorage for persistence.
+ * The token is extracted from the URL parameter.
  */
 export default function TokenAccessPage() {
   const params = useParams();
   const router = useRouter();
   const token = typeof params.token === 'string' ? params.token : null;
 
-  const { token: storedToken, setToken, isLoading: isTokenLoading } = useTokenAuth();
-  const {
-    form,
-    accessLevel,
-    isLoading: isFormLoading,
-  } = useReviewFormByToken(token || storedToken);
+  const { form, accessLevel, isLoading: isFormLoading } = useReviewFormByToken(token);
 
-  useEffect(() => {
-    if (token && !isTokenLoading) {
-      setToken(token);
-    }
-  }, [token, isTokenLoading, setToken]);
-
-  if (isTokenLoading || isFormLoading) {
+  if (isFormLoading) {
     return (
       <div className="container mx-auto py-8 px-4">
         <Card>
