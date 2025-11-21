@@ -32,15 +32,26 @@ Digital implementation of the Junior Commander Exposure Programme (JCEP) rotatio
 
 ## User Flow Analysis
 
+**Note**: V2 enhancements planned - see `jcep-review-form-v2-enhancements.plan.md` for token-based access and visibility controls.
+
 Based on the paper form structure, the optimal digital flow is:
 
-### Stage 1: Form Initialization (By Admin/Buddy)
+### Stage 1: Form Initialization (By Admin) **[V2: Enhanced]**
 
-- Admin or Buddy creates a new review form
-- Fills in particulars: Buddy name, Age Group (RK/DR/AR/ER), Junior Commander name, Evaluation date
-- Sets the rotation year for proper indexing
+- **V1 (Current)**: Admin or Buddy creates form with both names assigned
+- **V2 (Planned)**: Admin pre-creates form, system generates secret access tokens
+  - Buddy receives unique link: `/review/token/{buddyToken}`
+  - JC receives unique link: `/review/token/{jcToken}`
+  - Tokens allow anonymous access before account linking
+  - Admin controls when responses become visible to each party
 
-### Stage 2: Buddy Evaluation Section (By Buddy)
+### Stage 2: Buddy Evaluation Section (By Buddy) **[V2: Visibility Control]**
+
+- **V1 (Current)**: Buddy completes section, JC can see immediately
+- **V2 (Planned)**: Buddy completes section, hidden from JC until admin reveals
+  - Buddy accesses via token link (anonymous) or account (if linked)
+  - Responses saved but marked as hidden from JC
+  - Admin toggles `buddyResponsesVisibleToJC` flag when ready
 
 - Buddy completes their evaluation section:
   1. Lists tasks the Junior Commander participated in
@@ -48,7 +59,13 @@ Based on the paper form structure, the optimal digital flow is:
   3. Identifies areas for improvement with examples
   4. Provides words of encouragement and guidance
 
-### Stage 3: Junior Commander Reflection (By Junior Commander)
+### Stage 3: Junior Commander Reflection (By Junior Commander) **[V2: Visibility Control]**
+
+- **V1 (Current)**: JC completes section, Buddy can see immediately
+- **V2 (Planned)**: JC completes section, hidden from Buddy until admin reveals
+  - JC accesses via token link (anonymous) or account (if linked)
+  - Responses saved but marked as hidden from Buddy
+  - Admin toggles `jcResponsesVisibleToBuddy` flag when ready
 
 - Junior Commander completes their section:
   1. Documents next rotation preference (RK/DR/AR/ER)
@@ -63,11 +80,20 @@ Based on the paper form structure, the optimal digital flow is:
   1. Words of encouragement/gratitude to their Buddy
   2. Feedback for the JCEP programme (positive feedback and areas for improvement)
 
-### Stage 5: Review & Submit
+### Stage 5: Review & Submit **[V2: Admin-Controlled Reveal]**
 
-- Both parties can review the completed form
-- Final submission locks the form
-- Form is archived under the specific rotation year
+- **V1 (Current)**: Both parties can review immediately, either can submit
+- **V2 (Planned)**: Admin controls visibility, then parties can review
+  - Admin reveals responses when appropriate
+  - Both parties review (now seeing each other's responses)
+  - Either party can submit to finalize
+  - Form is archived under the specific rotation year
+
+**V2 Additional Feature**: Buddy Dashboard
+- Buddy can view `/app/review/my-jcs` to see all assigned JCs
+- Aggregated view of all forms where they are the buddy
+- Quick access to edit any form
+- Status tracking across all assignments
 
 ## Data Model Considerations
 
