@@ -1,11 +1,12 @@
 'use client';
 
 import { EyeOff } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useAutosave } from '../../hooks/useAutosave';
 import type { QuestionResponse, ReviewForm } from '../../types';
 import { BUDDY_EVALUATION_QUESTIONS } from './formQuestions';
 
@@ -22,7 +23,6 @@ interface BuddyEvaluationSectionProps {
 
 export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluationSectionProps) {
   const [isEditing, setIsEditing] = useState(!form.buddyEvaluation);
-  const [isSaving, setIsSaving] = useState(false);
 
   const [tasksParticipated, setTasksParticipated] = useState(
     form.buddyEvaluation?.tasksParticipated.answer || ''
@@ -42,32 +42,44 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
     wordsOfEncouragement: 'Words of encouragement',
   } as const;
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
+  // Autosave function
+  const saveFn = useCallback(
+    async (data: {
+      tasksParticipated: string;
+      strengths: string;
+      areasForImprovement: string;
+      wordsOfEncouragement: string;
+    }) => {
       await onUpdate({
         tasksParticipated: {
           questionText: BUDDY_EVALUATION_QUESTIONS.tasksParticipated,
-          answer: tasksParticipated,
+          answer: data.tasksParticipated,
         },
         strengths: {
           questionText: BUDDY_EVALUATION_QUESTIONS.strengths,
-          answer: strengths,
+          answer: data.strengths,
         },
         areasForImprovement: {
           questionText: BUDDY_EVALUATION_QUESTIONS.areasForImprovement,
-          answer: areasForImprovement,
+          answer: data.areasForImprovement,
         },
         wordsOfEncouragement: {
           questionText: BUDDY_EVALUATION_QUESTIONS.wordsOfEncouragement,
-          answer: wordsOfEncouragement,
+          answer: data.wordsOfEncouragement,
         },
       });
+    },
+    [onUpdate]
+  );
+
+  const { debouncedSave, isSaving } = useAutosave(saveFn, 1500);
+
+  const handleSave = async () => {
+    try {
+      await saveFn({ tasksParticipated, strengths, areasForImprovement, wordsOfEncouragement });
       setIsEditing(false);
     } catch (error) {
       console.error('Failed to update buddy evaluation:', error);
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -170,7 +182,16 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
           <Textarea
             id="tasksParticipated"
             value={tasksParticipated}
-            onChange={(e) => setTasksParticipated(e.target.value)}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              setTasksParticipated(newValue);
+              debouncedSave({
+                tasksParticipated: newValue,
+                strengths,
+                areasForImprovement,
+                wordsOfEncouragement,
+              });
+            }}
             rows={4}
             className="mt-1"
             placeholder="List key tasks and activities..."
@@ -184,7 +205,16 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
           <Textarea
             id="strengths"
             value={strengths}
-            onChange={(e) => setStrengths(e.target.value)}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              setStrengths(newValue);
+              debouncedSave({
+                tasksParticipated,
+                strengths: newValue,
+                areasForImprovement,
+                wordsOfEncouragement,
+              });
+            }}
             rows={4}
             className="mt-1"
             placeholder="Share where they did well..."
@@ -198,7 +228,16 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
           <Textarea
             id="areasForImprovement"
             value={areasForImprovement}
-            onChange={(e) => setAreasForImprovement(e.target.value)}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              setAreasForImprovement(newValue);
+              debouncedSave({
+                tasksParticipated,
+                strengths,
+                areasForImprovement: newValue,
+                wordsOfEncouragement,
+              });
+            }}
             rows={4}
             className="mt-1"
             placeholder="Suggest what could be better next time..."
@@ -212,7 +251,16 @@ export function BuddyEvaluationSection({ form, canEdit, onUpdate }: BuddyEvaluat
           <Textarea
             id="wordsOfEncouragement"
             value={wordsOfEncouragement}
-            onChange={(e) => setWordsOfEncouragement(e.target.value)}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              setWordsOfEncouragement(newValue);
+              debouncedSave({
+                tasksParticipated,
+                strengths,
+                areasForImprovement,
+                wordsOfEncouragement: newValue,
+              });
+            }}
             rows={4}
             className="mt-1"
             placeholder="Encourage and affirm them..."

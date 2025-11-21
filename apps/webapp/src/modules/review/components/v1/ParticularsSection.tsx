@@ -90,7 +90,7 @@ export function ParticularsSection({
 
   if (!isEditing) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">
@@ -117,32 +117,32 @@ export function ParticularsSection({
           </div>
         </div>
 
-        <div className="grid gap-4 rounded-lg border border-border bg-card p-4">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-lg border border-border bg-card p-3 text-sm md:grid-cols-5">
           <div>
-            <Label className="text-sm font-medium text-muted-foreground">Rotation Year</Label>
-            <p className="text-foreground">{form.rotationYear}</p>
+            <p className="text-xs text-muted-foreground">Rotation</p>
+            <p className="font-medium text-foreground">
+              {formatRotationLabel(form.rotationYear, form.rotationQuarter)}
+            </p>
           </div>
 
           <div>
-            <Label className="text-sm font-medium text-muted-foreground">Buddy Name</Label>
-            <p className="text-foreground">{form.buddyName}</p>
+            <p className="text-xs text-muted-foreground">Buddy</p>
+            <p className="font-medium text-foreground">{form.buddyName}</p>
           </div>
 
           <div>
-            <Label className="text-sm font-medium text-muted-foreground">
-              Junior Commander Name
-            </Label>
-            <p className="text-foreground">{form.juniorCommanderName}</p>
+            <p className="text-xs text-muted-foreground">Junior Commander</p>
+            <p className="font-medium text-foreground">{form.juniorCommanderName}</p>
           </div>
 
           <div>
-            <Label className="text-sm font-medium text-muted-foreground">Age Group</Label>
-            <p className="text-foreground">{form.ageGroup}</p>
+            <p className="text-xs text-muted-foreground">Age Group</p>
+            <p className="font-medium text-foreground">{getAgeGroupLabel(form.ageGroup)}</p>
           </div>
 
           <div>
-            <Label className="text-sm font-medium text-muted-foreground">Evaluation Date</Label>
-            <p className="text-foreground">{formatDate(form.evaluationDate)}</p>
+            <p className="text-xs text-muted-foreground">Evaluation Date</p>
+            <p className="font-medium text-foreground">{formatDate(form.evaluationDate)}</p>
           </div>
         </div>
       </div>

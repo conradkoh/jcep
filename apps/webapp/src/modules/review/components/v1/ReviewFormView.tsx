@@ -1,18 +1,18 @@
 'use client';
 
 import type { Id } from '@workspace/backend/convex/_generated/dataModel';
-import { Check } from 'lucide-react';
+import { Check, Lock } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { toast } from 'sonner';
 import { Separator } from '@/components/ui/separator';
 import { useReviewFormAccess } from '../../hooks/useReviewFormAccess';
+import type { AccessLevel } from '../../utils/sectionAccessControl';
+import { getSectionAccessRules } from '../../utils/sectionAccessControl';
 import { TokenDisplay } from '../admin/TokenDisplay';
 import { VisibilityControls } from '../admin/VisibilityControls';
 import { BuddyEvaluationSection } from './BuddyEvaluationSection';
 import { JCFeedbackSection } from './JCFeedbackSection';
 import { JCReflectionSection } from './JCReflectionSection';
 import { ParticularsSection } from './ParticularsSection';
-import { ReviewFormProgress } from './ReviewFormProgress';
 
 interface ReviewFormViewProps {
   formId: Id<'reviewForms'>;
@@ -38,6 +38,20 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
     submitForm,
   } = useReviewFormAccess(formId, accessToken);
 
+  // Determine access level for section locking
+  const accessLevel = useMemo<AccessLevel>(() => {
+    if (isAdmin) return 'admin';
+    if (canEditBuddyEvaluation && !canEditJCReflection) return 'buddy';
+    if (canEditJCReflection) return 'jc';
+    return 'none';
+  }, [isAdmin, canEditBuddyEvaluation, canEditJCReflection]);
+
+  // Get section access rules
+  const sectionAccess = useMemo(() => {
+    if (!form) return null;
+    return getSectionAccessRules(accessLevel, form);
+  }, [accessLevel, form]);
+
   const isComplete =
     sectionCompletion.buddyEvaluation &&
     sectionCompletion.jcReflection &&
@@ -49,19 +63,22 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
         id: 'buddy' as StepId,
         label: 'Buddy Evaluation',
         completed: sectionCompletion.buddyEvaluation,
+        locked: !sectionAccess?.canAccessBuddyEvaluation,
       },
       {
         id: 'jc-reflection' as StepId,
         label: 'JC Reflection',
         completed: sectionCompletion.jcReflection,
+        locked: !sectionAccess?.canAccessJCReflection,
       },
       {
         id: 'jc-feedback' as StepId,
         label: 'JC Feedback',
         completed: sectionCompletion.jcFeedback,
+        locked: !sectionAccess?.canAccessJCFeedback,
       },
     ],
-    [sectionCompletion]
+    [sectionCompletion, sectionAccess]
   );
 
   const preferredStep = useMemo<StepId>(() => {
@@ -80,7 +97,8 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
     }
   }, [preferredStep]);
 
-  const handleStepSelect = (id: StepId) => {
+  const handleStepSelect = (id: StepId, locked: boolean) => {
+    if (locked) return; // Don't switch to locked sections
     userSelectedStep.current = true;
     setActiveStep(id);
   };
@@ -105,14 +123,12 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
 
   const handleSubmit = async () => {
     if (!submitForm) {
-      toast.error('Submit not available for token-based access');
       return;
     }
     try {
       await submitForm(formId);
-      toast.success('Form submitted successfully!');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to submit form');
+      console.error('Failed to submit form:', error);
     }
   };
 
@@ -124,10 +140,6 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
       >
         Skip to form sections
       </a>
-
-      <ReviewFormProgress sectionCompletion={sectionCompletion} />
-
-      <Separator />
 
       {/* Admin controls */}
       {isAdmin && (
@@ -145,16 +157,9 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
           canEdit={!isSubmitted && canEditParticulars}
           onUpdate={async (updates) => {
             if (!updateParticulars) {
-              toast.error('Particulars editing not available for token-based access');
               throw new Error('Particulars editing not available');
             }
-            try {
-              await updateParticulars({ formId, ...updates });
-              toast.success('Particulars updated successfully!');
-            } catch (error) {
-              toast.error('Failed to update particulars');
-              throw error;
-            }
+            await updateParticulars({ formId, ...updates });
           }}
           rotationYear={form.rotationYear}
           buddyName={form.buddyName}
@@ -168,52 +173,48 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
 
         <Stepper activeStep={activeStep} steps={steps} onSelectStep={handleStepSelect} />
 
-        {activeStep === 'buddy' && (
+        {activeStep === 'buddy' && sectionAccess?.canAccessBuddyEvaluation && (
           <BuddyEvaluationSection
             form={form}
             canEdit={!isSubmitted && canEditBuddyEvaluation}
             onUpdate={async (data) => {
-              try {
-                await updateBuddyEvaluation({ formId, ...data });
-                toast.success('Buddy evaluation saved successfully!');
-              } catch (error) {
-                toast.error('Failed to save buddy evaluation');
-                throw error;
-              }
+              await updateBuddyEvaluation({ formId, ...data });
             }}
           />
         )}
 
-        {activeStep === 'jc-reflection' && (
+        {activeStep === 'jc-reflection' && sectionAccess?.canAccessJCReflection && (
           <JCReflectionSection
             form={form}
             canEdit={!isSubmitted && canEditJCReflection}
             onUpdate={async (data) => {
-              try {
-                await updateJCReflection({ formId, ...data });
-                toast.success('Reflection saved successfully!');
-              } catch (error) {
-                toast.error('Failed to save reflection');
-                throw error;
-              }
+              await updateJCReflection({ formId, ...data });
             }}
           />
         )}
 
-        {activeStep === 'jc-feedback' && (
+        {activeStep === 'jc-feedback' && sectionAccess?.canAccessJCFeedback && (
           <JCFeedbackSection
             form={form}
             canEdit={!isSubmitted && canEditJCFeedback}
             onUpdate={async (data) => {
-              try {
-                await updateJCFeedback({ formId, ...data });
-                toast.success('Feedback saved successfully!');
-              } catch (error) {
-                toast.error('Failed to save feedback');
-                throw error;
-              }
+              await updateJCFeedback({ formId, ...data });
             }}
           />
+        )}
+
+        {/* Show locked message if trying to view locked section */}
+        {((activeStep === 'buddy' && !sectionAccess?.canAccessBuddyEvaluation) ||
+          (activeStep === 'jc-reflection' && !sectionAccess?.canAccessJCReflection) ||
+          (activeStep === 'jc-feedback' && !sectionAccess?.canAccessJCFeedback)) && (
+          <div className="rounded-lg border border-border bg-muted/30 p-8 text-center">
+            <Lock className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-4 text-lg font-semibold text-foreground">Section Locked</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              You don't have access to this section. Only authorized participants can view and edit
+              their assigned sections.
+            </p>
+          </div>
         )}
       </div>
     </div>
@@ -224,8 +225,8 @@ type StepId = 'buddy' | 'jc-reflection' | 'jc-feedback';
 
 interface StepperProps {
   activeStep: StepId;
-  steps: Array<{ id: StepId; label: string; completed: boolean }>;
-  onSelectStep: (id: StepId) => void;
+  steps: Array<{ id: StepId; label: string; completed: boolean; locked: boolean }>;
+  onSelectStep: (id: StepId, locked: boolean) => void;
 }
 
 function Stepper({ activeStep, steps, onSelectStep }: StepperProps) {
@@ -239,27 +240,39 @@ function Stepper({ activeStep, steps, onSelectStep }: StepperProps) {
             <li key={step.id}>
               <button
                 type="button"
-                onClick={() => onSelectStep(step.id)}
+                onClick={() => onSelectStep(step.id, step.locked)}
+                disabled={step.locked}
                 className={`flex w-full items-center gap-3 rounded-md border px-3 py-2 text-left transition ${
-                  isActive
-                    ? 'border-primary bg-primary/5 text-foreground'
-                    : 'border-border text-foreground'
+                  step.locked
+                    ? 'cursor-not-allowed border-border bg-muted/30 opacity-60'
+                    : isActive
+                      ? 'border-primary bg-primary/5 text-foreground'
+                      : 'border-border text-foreground hover:bg-accent/50'
                 }`}
                 aria-current={isActive ? 'step' : undefined}
+                aria-disabled={step.locked}
               >
                 <span
-                  className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs font-medium ${
-                    step.completed
-                      ? 'border-green-600 bg-green-600 text-white dark:border-green-400 dark:bg-green-400'
-                      : 'border-muted-foreground text-muted-foreground'
+                  className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border text-xs font-medium ${
+                    step.locked
+                      ? 'border-muted-foreground bg-muted text-muted-foreground'
+                      : step.completed
+                        ? 'border-green-600 bg-green-600 text-white dark:border-green-400 dark:bg-green-400'
+                        : 'border-muted-foreground text-muted-foreground'
                   }`}
                 >
-                  {step.completed ? <Check className="h-3.5 w-3.5" /> : index + 1}
+                  {step.locked ? (
+                    <Lock className="h-3.5 w-3.5" />
+                  ) : step.completed ? (
+                    <Check className="h-3.5 w-3.5" />
+                  ) : (
+                    index + 1
+                  )}
                 </span>
-                <div>
-                  <p className="text-sm font-semibold">{step.label}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">{step.label}</p>
                   <p className="text-xs text-muted-foreground">
-                    {step.completed ? 'Completed' : 'In progress'}
+                    {step.locked ? 'Locked' : step.completed ? 'Completed' : 'In progress'}
                   </p>
                 </div>
               </button>
