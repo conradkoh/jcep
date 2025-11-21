@@ -24,22 +24,25 @@ import type { AgeGroup } from '../../types';
 
 interface ReviewFormCreateProps {
   currentUserId: Id<'users'>;
-  currentUserName: string;
 }
 
-export function ReviewFormCreate({ currentUserId, currentUserName }: ReviewFormCreateProps) {
+export function ReviewFormCreate({ currentUserId }: ReviewFormCreateProps) {
   const router = useRouter();
   const createForm = useCreateReviewForm();
 
   const currentYear = new Date().getFullYear();
   const [rotationYear, setRotationYear] = useState(currentYear);
-  const [buddyName, setBuddyName] = useState(currentUserName);
+  const [buddyName, setBuddyName] = useState('');
   const [jcName, setJcName] = useState('');
   const [ageGroup, setAgeGroup] = useState<AgeGroup | ''>('');
   const [evaluationDate, setEvaluationDate] = useState<Date | undefined>(new Date());
   const [isCreating, setIsCreating] = useState(false);
 
   const handleCreate = async () => {
+    if (!buddyName.trim()) {
+      toast.error('Please enter Buddy name');
+      return;
+    }
     if (!jcName.trim()) {
       toast.error('Please enter Junior Commander name');
       return;
@@ -55,7 +58,7 @@ export function ReviewFormCreate({ currentUserId, currentUserName }: ReviewFormC
 
     setIsCreating(true);
     try {
-      const response = await createForm({
+      await createForm({
         rotationYear,
         buddyUserId: currentUserId,
         buddyName: buddyName.trim(),
@@ -65,9 +68,9 @@ export function ReviewFormCreate({ currentUserId, currentUserName }: ReviewFormC
         evaluationDate: evaluationDate.getTime(),
       });
 
-      toast.success('Review form created successfully!');
-      // Navigate to form with tokens in query params so they can be displayed
-      router.push(`/app/review/${response.formId}?showTokens=true`);
+      toast.success(`Review form created for ${jcName.trim()}!`);
+      // Redirect to listing page where admin can copy tokens
+      router.push('/app/review');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to create form');
       setIsCreating(false);
@@ -105,12 +108,13 @@ export function ReviewFormCreate({ currentUserId, currentUserName }: ReviewFormC
 
         <div>
           <Label htmlFor="buddyName" className="text-sm font-medium text-foreground">
-            Buddy Name (Your Name)
+            Buddy Name
           </Label>
           <Input
             id="buddyName"
             value={buddyName}
             onChange={(e) => setBuddyName(e.target.value)}
+            placeholder="Enter Buddy's name"
             className="mt-1"
           />
         </div>

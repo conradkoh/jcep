@@ -17,7 +17,7 @@ function ReviewCreatePageContent() {
 
   return (
     <div className="container mx-auto max-w-7xl p-6">
-      <ReviewFormCreate currentUserId={authState.user._id} currentUserName={authState.user.name} />
+      <ReviewFormCreate currentUserId={authState.user._id} />
     </div>
   );
 }
