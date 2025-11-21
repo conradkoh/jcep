@@ -9,6 +9,8 @@ import { useMemo } from 'react';
 import type {
   AllReviewFormsReturn,
   CreateReviewFormParams,
+  CreateReviewFormResponse,
+  RegenerateTokensResponse,
   ReviewForm,
   ReviewFormHookReturn,
   ReviewFormsByYearReturn,
@@ -116,11 +118,12 @@ export function useAllReviewFormsByYear(
 
 /**
  * Hook to create a new review form
+ * Returns form ID and access tokens
  */
 export function useCreateReviewForm() {
   const createMutation = useSessionMutation(api.reviewForms.createReviewForm);
 
-  return async (params: CreateReviewFormParams): Promise<Id<'reviewForms'>> => {
+  return async (params: CreateReviewFormParams): Promise<CreateReviewFormResponse> => {
     return await createMutation(params);
   };
 }
@@ -188,5 +191,16 @@ export function useDeleteReviewForm() {
 
   return async (formId: Id<'reviewForms'>): Promise<void> => {
     await deleteMutation({ formId });
+  };
+}
+
+/**
+ * Hook to regenerate access tokens (admin only)
+ */
+export function useRegenerateAccessTokens() {
+  const regenerateMutation = useSessionMutation(api.reviewForms.regenerateAccessTokens);
+
+  return async (formId: Id<'reviewForms'>): Promise<RegenerateTokensResponse> => {
+    return await regenerateMutation({ formId });
   };
 }

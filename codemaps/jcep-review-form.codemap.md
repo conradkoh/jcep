@@ -49,6 +49,7 @@ Based on the paper form structure, the optimal digital flow is:
 
 - **V1 (Current)**: Buddy completes section, JC can see immediately
 - **V2 (Planned)**: Buddy completes section, hidden from JC until admin reveals
+
   - Buddy accesses via token link (anonymous) or account (if linked)
   - Responses saved but marked as hidden from JC
   - Admin toggles `buddyResponsesVisibleToJC` flag when ready
@@ -63,6 +64,7 @@ Based on the paper form structure, the optimal digital flow is:
 
 - **V1 (Current)**: JC completes section, Buddy can see immediately
 - **V2 (Planned)**: JC completes section, hidden from Buddy until admin reveals
+
   - JC accesses via token link (anonymous) or account (if linked)
   - Responses saved but marked as hidden from Buddy
   - Admin toggles `jcResponsesVisibleToBuddy` flag when ready
@@ -90,6 +92,7 @@ Based on the paper form structure, the optimal digital flow is:
   - Form is archived under the specific rotation year
 
 **V2 Additional Feature**: Buddy Dashboard
+
 - Buddy can view `/app/review/my-jcs` to see all assigned JCs
 - Aggregated view of all forms where they are the buddy
 - Quick access to edit any form

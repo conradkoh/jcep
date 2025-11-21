@@ -240,6 +240,17 @@ export default defineSchema({
     // Schema version for data migration and UI routing
     schemaVersion: v.number(),
 
+    // V2: Secret access tokens for anonymous access
+    buddyAccessToken: v.string(), // Cryptographically secure token for buddy access
+    jcAccessToken: v.string(), // Cryptographically secure token for JC access
+    tokenExpiresAt: v.union(v.number(), v.null()), // Optional token expiry timestamp
+
+    // V2: Response visibility control
+    buddyResponsesVisibleToJC: v.boolean(), // Whether JC can see buddy's responses
+    jcResponsesVisibleToBuddy: v.boolean(), // Whether buddy can see JC's responses
+    visibilityChangedAt: v.union(v.number(), v.null()), // When visibility was last changed
+    visibilityChangedBy: v.union(v.id('users'), v.null()), // Who changed visibility
+
     // Particulars
     rotationYear: v.number(), // For indexing by year (e.g., 2025)
     buddyUserId: v.id('users'), // The Buddy assigned to this JC
@@ -338,5 +349,7 @@ export default defineSchema({
     .index('by_year_and_buddy', ['rotationYear', 'buddyUserId'])
     .index('by_year_and_jc', ['rotationYear', 'juniorCommanderUserId'])
     .index('by_year_and_status', ['rotationYear', 'status'])
-    .index('by_status', ['status']),
+    .index('by_status', ['status'])
+    .index('by_buddy_access_token', ['buddyAccessToken'])
+    .index('by_jc_access_token', ['jcAccessToken']),
 });

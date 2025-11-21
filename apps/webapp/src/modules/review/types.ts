@@ -27,6 +27,9 @@ export interface QuestionResponse {
   answer: string;
 }
 
+// Access level for token-based access
+export type TokenAccessLevel = 'buddy' | 'jc';
+
 // Review form entity (Version 1)
 export interface ReviewForm {
   _id: Id<'reviewForms'>;
@@ -34,6 +37,17 @@ export interface ReviewForm {
 
   // Schema version for data migration and UI routing
   schemaVersion: ReviewFormSchemaVersion;
+
+  // V2: Secret access tokens for anonymous access
+  buddyAccessToken: string;
+  jcAccessToken: string;
+  tokenExpiresAt: number | null;
+
+  // V2: Response visibility control
+  buddyResponsesVisibleToJC: boolean;
+  jcResponsesVisibleToBuddy: boolean;
+  visibilityChangedAt: number | null;
+  visibilityChangedBy: Id<'users'> | null;
 
   // Particulars
   rotationYear: number;
@@ -145,4 +159,21 @@ export interface UpdateJCFeedbackParams {
   formId: Id<'reviewForms'>;
   gratitudeToBuddy: QuestionResponse;
   programFeedback: QuestionResponse;
+}
+
+// V2: Token-based access types
+export interface TokenAccessResponse {
+  form: ReviewForm;
+  accessLevel: TokenAccessLevel;
+}
+
+export interface CreateReviewFormResponse {
+  formId: Id<'reviewForms'>;
+  buddyAccessToken: string;
+  jcAccessToken: string;
+}
+
+export interface RegenerateTokensResponse {
+  buddyAccessToken: string;
+  jcAccessToken: string;
 }

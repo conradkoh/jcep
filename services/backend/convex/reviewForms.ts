@@ -10,6 +10,7 @@ import { SessionIdArg } from 'convex-helpers/server/sessions';
 import { getAuthUser } from '../modules/auth/getAuthUser';
 import type { Doc } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
+import { generateSecureToken } from './utils/tokenUtils';
 
 // Schema version constant
 export const CURRENT_SCHEMA_VERSION = 1;
@@ -66,6 +67,58 @@ export const getReviewForm = query({
     }
 
     return form;
+  },
+});
+
+/**
+ * Get a review form by access token (for anonymous access)
+ * Returns the form with appropriate filtering based on token type
+ */
+export const getReviewFormByToken = query({
+  args: {
+    accessToken: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Try to find form by buddy token
+    const formByBuddyToken = await ctx.db
+      .query('reviewForms')
+      .withIndex('by_buddy_access_token', (q) => q.eq('buddyAccessToken', args.accessToken))
+      .first();
+
+    if (formByBuddyToken) {
+      // Check if token has expired
+      if (formByBuddyToken.tokenExpiresAt && Date.now() > formByBuddyToken.tokenExpiresAt) {
+        throw new Error('Access token has expired');
+      }
+
+      // Return form with buddy access level
+      return {
+        form: formByBuddyToken,
+        accessLevel: 'buddy' as const,
+      };
+    }
+
+    // Try to find form by JC token
+    const formByJCToken = await ctx.db
+      .query('reviewForms')
+      .withIndex('by_jc_access_token', (q) => q.eq('jcAccessToken', args.accessToken))
+      .first();
+
+    if (formByJCToken) {
+      // Check if token has expired
+      if (formByJCToken.tokenExpiresAt && Date.now() > formByJCToken.tokenExpiresAt) {
+        throw new Error('Access token has expired');
+      }
+
+      // Return form with JC access level
+      return {
+        form: formByJCToken,
+        accessLevel: 'jc' as const,
+      };
+    }
+
+    // Token not found
+    return null;
   },
 });
 
@@ -231,8 +284,38 @@ export const createReviewForm = mutation({
       }
     }
 
+    // Generate secure access tokens
+    const buddyAccessToken = generateSecureToken();
+    const jcAccessToken = generateSecureToken();
+
+    // Ensure tokens are unique (check for collisions)
+    const existingBuddyToken = await ctx.db
+      .query('reviewForms')
+      .withIndex('by_buddy_access_token', (q) => q.eq('buddyAccessToken', buddyAccessToken))
+      .first();
+    const existingJCToken = await ctx.db
+      .query('reviewForms')
+      .withIndex('by_jc_access_token', (q) => q.eq('jcAccessToken', jcAccessToken))
+      .first();
+
+    if (existingBuddyToken || existingJCToken) {
+      throw new Error('Token collision detected. Please try again.');
+    }
+
     const formId = await ctx.db.insert('reviewForms', {
       schemaVersion: CURRENT_SCHEMA_VERSION,
+
+      // V2: Access tokens
+      buddyAccessToken,
+      jcAccessToken,
+      tokenExpiresAt: null, // No expiry by default
+
+      // V2: Visibility control (default: hidden until admin reveals)
+      buddyResponsesVisibleToJC: false,
+      jcResponsesVisibleToBuddy: false,
+      visibilityChangedAt: null,
+      visibilityChangedBy: null,
+
       rotationYear: args.rotationYear,
       buddyUserId: args.buddyUserId,
       buddyName: args.buddyName,
@@ -250,7 +333,16 @@ export const createReviewForm = mutation({
       createdBy: user._id,
     });
 
-    return formId;
+    // Return form ID and tokens for admin to distribute
+    const form = await ctx.db.get(formId);
+    if (!form) {
+      throw new Error('Failed to retrieve created form');
+    }
+    return {
+      formId,
+      buddyAccessToken: form.buddyAccessToken,
+      jcAccessToken: form.jcAccessToken,
+    };
   },
 });
 
@@ -535,5 +627,61 @@ export const deleteReviewForm = mutation({
     }
 
     await ctx.db.delete(args.formId);
+  },
+});
+
+/**
+ * Regenerate access tokens for a review form (admin only)
+ * Invalidates old tokens and generates new ones
+ */
+export const regenerateAccessTokens = mutation({
+  args: {
+    ...SessionIdArg,
+    formId: v.id('reviewForms'),
+  },
+  handler: async (ctx, args) => {
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    // Only admins can regenerate tokens
+    if (user.accessLevel !== 'system_admin') {
+      throw new Error('Only admins can regenerate access tokens');
+    }
+
+    const form = await ctx.db.get(args.formId);
+    if (!form) {
+      throw new Error('Form not found');
+    }
+
+    // Generate new tokens
+    const buddyAccessToken = generateSecureToken();
+    const jcAccessToken = generateSecureToken();
+
+    // Ensure tokens are unique
+    const existingBuddyToken = await ctx.db
+      .query('reviewForms')
+      .withIndex('by_buddy_access_token', (q) => q.eq('buddyAccessToken', buddyAccessToken))
+      .first();
+    const existingJCToken = await ctx.db
+      .query('reviewForms')
+      .withIndex('by_jc_access_token', (q) => q.eq('jcAccessToken', jcAccessToken))
+      .first();
+
+    if (existingBuddyToken || existingJCToken) {
+      throw new Error('Token collision detected. Please try again.');
+    }
+
+    // Update form with new tokens
+    await ctx.db.patch(args.formId, {
+      buddyAccessToken,
+      jcAccessToken,
+    });
+
+    return {
+      buddyAccessToken,
+      jcAccessToken,
+    };
   },
 });
