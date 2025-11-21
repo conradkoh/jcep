@@ -243,6 +243,37 @@ export const getReviewFormsByUser = query({
 });
 
 /**
+ * Get all review forms where the user is a buddy
+ * V2: For buddy aggregated view
+ */
+export const getReviewFormsByBuddy = query({
+  args: {
+    ...SessionIdArg,
+    year: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    // Get forms where user is buddy
+    const query = ctx.db
+      .query('reviewForms')
+      .withIndex('by_buddy', (q) => q.eq('buddyUserId', user._id));
+
+    const forms = await query.collect();
+
+    // Filter by year if provided
+    const filteredForms = args.year
+      ? forms.filter((form) => form.rotationYear === args.year)
+      : forms;
+
+    return filteredForms.sort((a, b) => b._creationTime - a._creationTime);
+  },
+});
+
+/**
  * Get all review forms by year (admin only)
  * Supports optional filtering by status and age group
  */

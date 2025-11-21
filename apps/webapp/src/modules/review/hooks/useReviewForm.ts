@@ -224,3 +224,18 @@ export function useToggleResponseVisibility() {
     await toggleMutation(params);
   };
 }
+
+/**
+ * Hook to get all forms where the current user is a buddy (V2)
+ */
+export function useReviewFormsByBuddy(year?: number) {
+  const forms = useSessionQuery(api.reviewForms.getReviewFormsByBuddy, year ? { year } : {}) as
+    | ReviewForm[]
+    | undefined;
+
+  return {
+    forms,
+    isLoading: forms === undefined,
+    totalCount: forms?.length || 0,
+  };
+}
