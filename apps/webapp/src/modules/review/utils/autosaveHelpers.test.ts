@@ -60,7 +60,6 @@ describe('autosaveHelpers', () => {
       const payload = {
         formId: '123',
         name: 'John',
-        // @ts-expect-error - Intentionally missing 'email' field for test
       } as { formId: string; name: string; email?: string };
 
       validatePayload(payload, ['formId', 'name', 'email'], 'test');

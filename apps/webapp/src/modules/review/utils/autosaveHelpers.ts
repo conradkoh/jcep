@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
  * Hook to keep a ref in sync with a state value.
@@ -33,56 +33,6 @@ export function useLatestValue<T>(value: T): React.RefObject<T> {
   }, [value]);
 
   return ref;
-}
-
-/**
- * Hook to create a state object with built-in refs.
- * Automatically keeps refs in sync with state values.
- *
- * @param initialState - The initial state object
- * @returns A tuple of [state, setState, stateRefs]
- *
- * @example
- * ```tsx
- * const [state, setState, stateRefs] = useStateWithRefs({
- *   name: '',
- *   email: '',
- *   age: 0,
- * });
- *
- * const autosave = useAutosave(async () => {
- *   await save({
- *     name: stateRefs.name.current,
- *     email: stateRefs.email.current,
- *     age: stateRefs.age.current,
- *   });
- * }, 1500);
- *
- * // Update state normally
- * setState({ ...state, name: 'John' });
- * ```
- */
-export function useStateWithRefs<T extends Record<string, unknown>>(
-  initialState: T
-): [T, React.Dispatch<React.SetStateAction<T>>, { [K in keyof T]: React.RefObject<T[K]> }] {
-  const [state, setState] = useState(initialState);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Refs should only be initialized once, not recreated when initialState changes
-  const refs = useMemo(() => {
-    const result: Record<string, React.RefObject<unknown>> = {};
-    for (const key in initialState) {
-      result[key] = { current: initialState[key] };
-    }
-    return result as { [K in keyof T]: React.RefObject<T[K]> };
-  }, []);
-
-  useEffect(() => {
-    for (const key in state) {
-      refs[key].current = state[key];
-    }
-  }, [state, refs]);
-
-  return [state, setState, refs];
 }
 
 /**
