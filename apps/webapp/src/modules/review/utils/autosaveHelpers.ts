@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 /**
  * Hook to keep a ref in sync with a state value.
@@ -67,6 +67,7 @@ export function useStateWithRefs<T extends Record<string, unknown>>(
 ): [T, React.Dispatch<React.SetStateAction<T>>, { [K in keyof T]: React.RefObject<T[K]> }] {
   const [state, setState] = useState(initialState);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Refs should only be initialized once, not recreated when initialState changes
   const refs = useMemo(() => {
     const result: Record<string, React.RefObject<unknown>> = {};
     for (const key in initialState) {
@@ -85,9 +86,9 @@ export function useStateWithRefs<T extends Record<string, unknown>>(
 }
 
 /**
- * Type-safe payload validator for development.
+ * Type-safe payload validator.
  * Logs warnings if expected fields are missing from the payload.
- * Only runs in development mode to avoid production overhead.
+ * Useful for catching bugs during development and debugging issues in production.
  *
  * @param payload - The payload object to validate
  * @param requiredFields - Array of field names that must be present
@@ -102,7 +103,7 @@ export function useStateWithRefs<T extends Record<string, unknown>>(
  *     activitiesParticipated: activitiesParticipatedRef.current,
  *   };
  *
- *   // Validate in development
+ *   // Validate payload structure
  *   validatePayload(payload, [
  *     'formId',
  *     'nextRotationPreference',
@@ -118,8 +119,6 @@ export function validatePayload<T extends Record<string, unknown>>(
   requiredFields: (keyof T)[],
   context: string
 ): void {
-  if (process.env.NODE_ENV !== 'development') return;
-
   const missingFields: string[] = [];
   const undefinedFields: string[] = [];
   const nullFields: string[] = [];
@@ -148,10 +147,7 @@ export function validatePayload<T extends Record<string, unknown>>(
   }
 
   if (nullFields.length > 0) {
-    console.warn(
-      `[${context}] Fields are null in payload (may be intentional):`,
-      nullFields
-    );
+    console.warn(`[${context}] Fields are null in payload (may be intentional):`, nullFields);
   }
 }
 
@@ -183,7 +179,7 @@ export function validatePayload<T extends Record<string, unknown>>(
  */
 export function createPayloadBuilder<
   TRefs extends Record<string, React.RefObject<unknown>>,
-  TStatic extends Record<string, unknown>
+  TStatic extends Record<string, unknown>,
 >(refs: TRefs, staticFields: TStatic = {} as TStatic) {
   return <TKeys extends (keyof TRefs)[]>(
     fieldNames: TKeys

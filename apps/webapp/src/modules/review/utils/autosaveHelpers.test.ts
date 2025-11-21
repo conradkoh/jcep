@@ -34,15 +34,12 @@ describe('autosaveHelpers', () => {
 
   describe('validatePayload', () => {
     beforeEach(() => {
-      // Set NODE_ENV to 'development' so validatePayload runs
-      vi.stubEnv('NODE_ENV', 'development');
       vi.spyOn(console, 'error').mockImplementation(() => {});
       vi.spyOn(console, 'warn').mockImplementation(() => {});
     });
 
     afterEach(() => {
       vi.restoreAllMocks();
-      vi.unstubAllEnvs();
     });
 
     it('should not log errors when all fields are present', () => {
@@ -59,11 +56,12 @@ describe('autosaveHelpers', () => {
     });
 
     it('should log error for missing fields', () => {
-      // biome-ignore lint/suspicious/noExplicitAny: Test requires intentionally incomplete payload
+      // Test requires intentionally incomplete payload to verify validation
       const payload = {
         formId: '123',
         name: 'John',
-      } as any;
+        // @ts-expect-error - Intentionally missing 'email' field for test
+      } as { formId: string; name: string; email?: string };
 
       validatePayload(payload, ['formId', 'name', 'email'], 'test');
 
