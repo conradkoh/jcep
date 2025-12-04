@@ -14,15 +14,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "convex": "^1.27.3",
-    "convex-helpers": "^0.1.104",
+    "convex": "^1.29.3",
+    "convex-helpers": "^0.1.105",
     "zod": "^4.0.5"
   },
   "devDependencies": {
     "@edge-runtime/vm": "^5.0.0",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
-    "convex-test": "^0.0.37",
+    "convex-test": "^0.0.39",
     "eslint": "^9",
     "typescript": "^5.9.3",
     "vite": "^6.3.5",
