@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import type { Doc, Id } from '@workspace/backend/convex/_generated/dataModel';
 import type { AuthState } from '@workspace/backend/modules/auth/types/AuthState';
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { useAuthState } from '@/modules/auth/AuthProvider';
 import { Navigation } from './Navigation';
@@ -15,10 +15,7 @@ vi.mock('next/link', () => ({
     href,
     children,
     ...props
-  }: {
-    href: string;
-    children: ReactNode;
-  } & Record<string, unknown>) => (
+  }: { href: string; children: ReactNode } & ComponentProps<'a'>) => (
     <a href={href} {...props}>
       {children}
     </a>
