@@ -3,9 +3,12 @@ import type { Doc, Id } from '@workspace/backend/convex/_generated/dataModel';
 import type { AuthState } from '@workspace/backend/modules/auth/types/AuthState';
 import type { ComponentProps, ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { useAuthState } from '@/modules/auth/AuthProvider';
+
 import { Navigation } from './Navigation';
 
+import { useAuthState } from '@/modules/auth/AuthProvider';
+
+// Mock the auth module
 vi.mock('@/modules/auth/AuthProvider', () => ({
   useAuthState: vi.fn(),
 }));
