@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'JCEP',
     short_name: 'JCEP',
-    description: 'A Next.js app with Convex backend',
+    description: 'Jesus Centre Emmanuel Parish Management',
     icons: [
       {
         src: '/appicon-16x16.png',
