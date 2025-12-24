@@ -7,7 +7,7 @@
 
 import { v } from 'convex/values';
 import { SessionIdArg } from 'convex-helpers/server/sessions';
-import { getAuthUser } from '../modules/auth/getAuthUser';
+
 import type { Doc } from './_generated/dataModel';
 import { mutation, query } from './_generated/server';
 import {
@@ -16,6 +16,7 @@ import {
   isJCReflectionComplete,
 } from './utils/sectionCompletionHelpers';
 import { generateSecureToken, isTokenExpired } from './utils/tokenUtils';
+import { getAuthUser } from '../modules/auth/getAuthUser';
 
 // Schema version constant
 export const CURRENT_SCHEMA_VERSION = 1;
@@ -130,7 +131,7 @@ export const getReviewForm = query({
       throw new Error('Not authenticated');
     }
 
-    const form = await ctx.db.get(args.formId);
+    const form = await ctx.db.get('reviewForms', args.formId);
     if (!form) {
       return null;
     }
@@ -468,14 +469,14 @@ export const createReviewForm = mutation({
     }
 
     // Verify buddy user exists
-    const buddyUser = await ctx.db.get(args.buddyUserId);
+    const buddyUser = await ctx.db.get('users', args.buddyUserId);
     if (!buddyUser) {
       throw new Error('Buddy user not found');
     }
 
     // Verify JC user exists if provided
     if (args.juniorCommanderUserId) {
-      const jcUser = await ctx.db.get(args.juniorCommanderUserId);
+      const jcUser = await ctx.db.get('users', args.juniorCommanderUserId);
       if (!jcUser) {
         throw new Error('Junior Commander user not found');
       }
@@ -537,7 +538,7 @@ export const createReviewForm = mutation({
     });
 
     // Return form ID and tokens for admin to distribute
-    const form = await ctx.db.get(formId);
+    const form = await ctx.db.get('reviewForms', formId);
     if (!form) {
       throw new Error('Failed to retrieve created form');
     }
@@ -570,7 +571,7 @@ export const updateParticulars = mutation({
       throw new Error('Not authenticated');
     }
 
-    const form = await ctx.db.get(args.formId);
+    const form = await ctx.db.get('reviewForms', args.formId);
     if (!form) {
       throw new Error('Form not found');
     }
@@ -597,7 +598,7 @@ export const updateParticulars = mutation({
     if (args.ageGroup !== undefined) updates.ageGroup = args.ageGroup;
     if (args.evaluationDate !== undefined) updates.evaluationDate = args.evaluationDate;
 
-    await ctx.db.patch(args.formId, updates);
+    await ctx.db.patch('reviewForms', args.formId, updates);
   },
 });
 
@@ -620,7 +621,7 @@ export const updateBuddyEvaluation = mutation({
       throw new Error('Not authenticated');
     }
 
-    const form = await ctx.db.get(args.formId);
+    const form = await ctx.db.get('reviewForms', args.formId);
     if (!form) {
       throw new Error('Form not found');
     }
@@ -638,7 +639,7 @@ export const updateBuddyEvaluation = mutation({
       throw new Error('Not authorized to update buddy evaluation');
     }
 
-    await ctx.db.patch(args.formId, {
+    await ctx.db.patch('reviewForms', args.formId, {
       buddyEvaluation: {
         tasksParticipated: args.tasksParticipated,
         strengths: args.strengths,
@@ -650,10 +651,10 @@ export const updateBuddyEvaluation = mutation({
     });
 
     // Recalculate status based on completion
-    const updatedForm = await ctx.db.get(args.formId);
+    const updatedForm = await ctx.db.get('reviewForms', args.formId);
     if (updatedForm) {
       const newStatus = calculateFormStatus(updatedForm);
-      await ctx.db.patch(args.formId, { status: newStatus });
+      await ctx.db.patch('reviewForms', args.formId, { status: newStatus });
     }
   },
 });
@@ -678,7 +679,7 @@ export const updateJCReflection = mutation({
       throw new Error('Not authenticated');
     }
 
-    const form = await ctx.db.get(args.formId);
+    const form = await ctx.db.get('reviewForms', args.formId);
     if (!form) {
       throw new Error('Form not found');
     }
@@ -696,7 +697,7 @@ export const updateJCReflection = mutation({
       throw new Error('Not authorized to update JC reflection');
     }
 
-    await ctx.db.patch(args.formId, {
+    await ctx.db.patch('reviewForms', args.formId, {
       nextRotationPreference: args.nextRotationPreference,
       jcReflection: {
         activitiesParticipated: args.activitiesParticipated,
@@ -709,10 +710,10 @@ export const updateJCReflection = mutation({
     });
 
     // Recalculate status based on completion
-    const updatedForm = await ctx.db.get(args.formId);
+    const updatedForm = await ctx.db.get('reviewForms', args.formId);
     if (updatedForm) {
       const newStatus = calculateFormStatus(updatedForm);
-      await ctx.db.patch(args.formId, { status: newStatus });
+      await ctx.db.patch('reviewForms', args.formId, { status: newStatus });
     }
   },
 });
@@ -734,7 +735,7 @@ export const updateJCFeedback = mutation({
       throw new Error('Not authenticated');
     }
 
-    const form = await ctx.db.get(args.formId);
+    const form = await ctx.db.get('reviewForms', args.formId);
     if (!form) {
       throw new Error('Form not found');
     }
@@ -752,7 +753,7 @@ export const updateJCFeedback = mutation({
       throw new Error('Not authorized to update JC feedback');
     }
 
-    await ctx.db.patch(args.formId, {
+    await ctx.db.patch('reviewForms', args.formId, {
       jcFeedback: {
         gratitudeToBuddy: args.gratitudeToBuddy,
         programFeedback: args.programFeedback,
@@ -762,10 +763,10 @@ export const updateJCFeedback = mutation({
     });
 
     // Recalculate status based on completion
-    const updatedForm = await ctx.db.get(args.formId);
+    const updatedForm = await ctx.db.get('reviewForms', args.formId);
     if (updatedForm) {
       const newStatus = calculateFormStatus(updatedForm);
-      await ctx.db.patch(args.formId, { status: newStatus });
+      await ctx.db.patch('reviewForms', args.formId, { status: newStatus });
     }
   },
 });
@@ -785,7 +786,7 @@ export const submitReviewForm = mutation({
       throw new Error('Not authenticated');
     }
 
-    const form = await ctx.db.get(args.formId);
+    const form = await ctx.db.get('reviewForms', args.formId);
     if (!form) {
       throw new Error('Form not found');
     }
@@ -815,7 +816,7 @@ export const submitReviewForm = mutation({
       throw new Error('Junior Commander feedback section is incomplete');
     }
 
-    await ctx.db.patch(args.formId, {
+    await ctx.db.patch('reviewForms', args.formId, {
       status: 'submitted',
       submittedAt: Date.now(),
       submittedBy: user._id,
@@ -838,7 +839,7 @@ export const deleteReviewForm = mutation({
       throw new Error('Not authenticated');
     }
 
-    const form = await ctx.db.get(args.formId);
+    const form = await ctx.db.get('reviewForms', args.formId);
     if (!form) {
       throw new Error('Form not found');
     }
@@ -851,7 +852,7 @@ export const deleteReviewForm = mutation({
       throw new Error('Not authorized to delete this form');
     }
 
-    await ctx.db.delete(args.formId);
+    await ctx.db.delete('reviewForms', args.formId);
   },
 });
 
@@ -875,7 +876,7 @@ export const regenerateAccessTokens = mutation({
       throw new Error('Only admins can regenerate access tokens');
     }
 
-    const form = await ctx.db.get(args.formId);
+    const form = await ctx.db.get('reviewForms', args.formId);
     if (!form) {
       throw new Error('Form not found');
     }
@@ -899,7 +900,7 @@ export const regenerateAccessTokens = mutation({
     }
 
     // Update form with new tokens
-    await ctx.db.patch(args.formId, {
+    await ctx.db.patch('reviewForms', args.formId, {
       buddyAccessToken,
       jcAccessToken,
     });
@@ -933,7 +934,7 @@ export const toggleResponseVisibility = mutation({
       throw new Error('Only admins can toggle response visibility');
     }
 
-    const form = await ctx.db.get(args.formId);
+    const form = await ctx.db.get('reviewForms', args.formId);
     if (!form) {
       throw new Error('Form not found');
     }
@@ -960,7 +961,7 @@ export const toggleResponseVisibility = mutation({
       updates.jcResponsesVisibleToBuddy = args.jcResponsesVisibleToBuddy;
     }
 
-    await ctx.db.patch(args.formId, updates);
+    await ctx.db.patch('reviewForms', args.formId, updates);
   },
 });
 
@@ -975,13 +976,13 @@ export const toggleResponseVisibility = mutation({
  * This mutation allows Buddies to evaluate their Junior Commander using a
  * secure access token. It saves all evaluation fields atomically.
  *
- * @security
+ * Security:
  * - Token-based authentication (no user session required)
  * - Validates token matches form.buddyAccessToken
  * - Checks token expiration
  * - Prevents editing of submitted forms
  *
- * @critical
+ * Critical:
  * ALL 4 fields are required. Missing fields will cause data loss. Frontend
  * MUST pass all current values using refs to avoid stale closures.
  * See apps/webapp/src/modules/review/components/v1/BuddyEvaluationSection.tsx
@@ -1005,10 +1006,10 @@ export const updateBuddyEvaluationByToken = mutation({
     wordsOfEncouragement: questionResponseValidator,
   },
   handler: async (ctx, args) => {
-    const form = await ctx.db.get(args.formId);
+    const form = await ctx.db.get('reviewForms', args.formId);
     _validateTokenAccess(form, args.accessToken, form?.buddyAccessToken ?? null);
 
-    await ctx.db.patch(args.formId, {
+    await ctx.db.patch('reviewForms', args.formId, {
       buddyEvaluation: {
         tasksParticipated: args.tasksParticipated,
         strengths: args.strengths,
@@ -1020,10 +1021,10 @@ export const updateBuddyEvaluationByToken = mutation({
     });
 
     // Recalculate status based on completion
-    const updatedForm = await ctx.db.get(args.formId);
+    const updatedForm = await ctx.db.get('reviewForms', args.formId);
     if (updatedForm) {
       const newStatus = calculateFormStatus(updatedForm);
-      await ctx.db.patch(args.formId, { status: newStatus });
+      await ctx.db.patch('reviewForms', args.formId, { status: newStatus });
     }
   },
 });
@@ -1036,13 +1037,13 @@ export const updateBuddyEvaluationByToken = mutation({
  * using a secure access token. It saves all reflection fields including the
  * next rotation preference.
  *
- * @security
+ * Security:
  * - Token-based authentication (no user session required)
  * - Validates token matches form.jcAccessToken
  * - Checks token expiration
  * - Prevents editing of submitted forms
  *
- * @critical
+ * Critical:
  * ALL fields are required, including nextRotationPreference. Missing fields
  * will cause data loss. Frontend MUST pass all current values, not just the
  * changed field. See apps/webapp/src/modules/review/components/v1/JCReflectionSection.tsx
@@ -1069,10 +1070,10 @@ export const updateJCReflectionByToken = mutation({
     goalsForNextRotation: questionResponseValidator,
   },
   handler: async (ctx, args) => {
-    const form = await ctx.db.get(args.formId);
+    const form = await ctx.db.get('reviewForms', args.formId);
     _validateTokenAccess(form, args.accessToken, form?.jcAccessToken ?? null);
 
-    await ctx.db.patch(args.formId, {
+    await ctx.db.patch('reviewForms', args.formId, {
       nextRotationPreference: args.nextRotationPreference,
       jcReflection: {
         activitiesParticipated: args.activitiesParticipated,
@@ -1085,10 +1086,10 @@ export const updateJCReflectionByToken = mutation({
     });
 
     // Recalculate status based on completion
-    const updatedForm = await ctx.db.get(args.formId);
+    const updatedForm = await ctx.db.get('reviewForms', args.formId);
     if (updatedForm) {
       const newStatus = calculateFormStatus(updatedForm);
-      await ctx.db.patch(args.formId, { status: newStatus });
+      await ctx.db.patch('reviewForms', args.formId, { status: newStatus });
     }
   },
 });
@@ -1100,13 +1101,13 @@ export const updateJCReflectionByToken = mutation({
  * This mutation allows Junior Commanders to provide feedback to their Buddy
  * and the program using a secure access token. It saves both feedback fields.
  *
- * @security
+ * Security:
  * - Token-based authentication (no user session required)
  * - Validates token matches form.jcAccessToken
  * - Checks token expiration
  * - Prevents editing of submitted forms
  *
- * @critical
+ * Critical:
  * BOTH fields are required. Missing fields will cause data loss. Frontend
  * MUST pass all current values using refs to avoid stale closures.
  * See apps/webapp/src/modules/review/components/v1/JCFeedbackSection.tsx
@@ -1126,10 +1127,10 @@ export const updateJCFeedbackByToken = mutation({
     programFeedback: questionResponseValidator,
   },
   handler: async (ctx, args) => {
-    const form = await ctx.db.get(args.formId);
+    const form = await ctx.db.get('reviewForms', args.formId);
     _validateTokenAccess(form, args.accessToken, form?.jcAccessToken ?? null);
 
-    await ctx.db.patch(args.formId, {
+    await ctx.db.patch('reviewForms', args.formId, {
       jcFeedback: {
         gratitudeToBuddy: args.gratitudeToBuddy,
         programFeedback: args.programFeedback,
@@ -1139,10 +1140,10 @@ export const updateJCFeedbackByToken = mutation({
     });
 
     // Recalculate status based on completion
-    const updatedForm = await ctx.db.get(args.formId);
+    const updatedForm = await ctx.db.get('reviewForms', args.formId);
     if (updatedForm) {
       const newStatus = calculateFormStatus(updatedForm);
-      await ctx.db.patch(args.formId, { status: newStatus });
+      await ctx.db.patch('reviewForms', args.formId, { status: newStatus });
     }
   },
 });
@@ -1164,7 +1165,7 @@ export const updateParticularsByToken = mutation({
     evaluationDate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const form = await ctx.db.get(args.formId);
+    const form = await ctx.db.get('reviewForms', args.formId);
     if (!form) {
       throw new Error('Form not found');
     }
@@ -1196,6 +1197,6 @@ export const updateParticularsByToken = mutation({
     if (args.ageGroup !== undefined) updates.ageGroup = args.ageGroup;
     if (args.evaluationDate !== undefined) updates.evaluationDate = args.evaluationDate;
 
-    await ctx.db.patch(args.formId, updates);
+    await ctx.db.patch('reviewForms', args.formId, updates);
   },
 });
