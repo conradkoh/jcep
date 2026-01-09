@@ -12,15 +12,10 @@ export const submitApplication = mutation({
   args: {
     fullName: v.string(),
     contactNumber: v.string(),
-    ageGroupChoice1: v.union(
-      v.literal('RK'),
-      v.literal('DR'),
-      v.literal('ARG / ARB'),
-      v.literal('ER')
-    ),
+    ageGroupChoice1: v.union(v.literal('RK'), v.literal('DR'), v.literal('AR'), v.literal('ER')),
     reasonForChoice1: v.string(),
     ageGroupChoice2: v.optional(
-      v.union(v.literal('RK'), v.literal('DR'), v.literal('ARG / ARB'), v.literal('ER'))
+      v.union(v.literal('RK'), v.literal('DR'), v.literal('AR'), v.literal('ER'))
     ),
     reasonForChoice2: v.optional(v.string()),
     acknowledgedMottoAndPledge: v.boolean(),
@@ -67,10 +62,12 @@ export const submitApplication = mutation({
 /**
  * Query to list all JCEP applications, grouped by submission year.
  * Requires authentication and system_admin access.
+ * Supports filtering by archived status.
  */
 export const listApplications = query({
   args: {
     ...SessionIdArg,
+    includeArchived: v.optional(v.boolean()), // true = show archived only, false/undefined = show active only
   },
   handler: async (ctx, args) => {
     // Check authentication
@@ -85,11 +82,20 @@ export const listApplications = query({
     }
 
     // Fetch all applications, sorted by submitted date (descending)
-    const applications = await ctx.db
+    let applications = await ctx.db
       .query('jcepApplications')
       .withIndex('by_submitted_at')
       .order('desc')
       .collect();
+
+    // Filter by archived status
+    if (args.includeArchived === true) {
+      // Show only archived applications
+      applications = applications.filter((app) => app.archivedAt != null);
+    } else {
+      // Show only active (non-archived) applications
+      applications = applications.filter((app) => app.archivedAt == null);
+    }
 
     // Group by year
     const groupedByYear: Record<
@@ -101,11 +107,13 @@ export const listApplications = query({
         submissionYear: number;
         fullName: string;
         contactNumber: string;
-        ageGroupChoice1: 'RK' | 'DR' | 'ARG / ARB' | 'ER';
+        ageGroupChoice1: 'RK' | 'DR' | 'AR' | 'ER';
         reasonForChoice1: string;
-        ageGroupChoice2: 'RK' | 'DR' | 'ARG / ARB' | 'ER' | null;
+        ageGroupChoice2: 'RK' | 'DR' | 'AR' | 'ER' | null;
         reasonForChoice2: string | null;
         acknowledgedMottoAndPledge: boolean;
+        archivedAt?: number | null;
+        archivedBy?: string | null;
       }[]
     > = {};
 
@@ -126,6 +134,70 @@ export const listApplications = query({
       years,
       totalCount: applications.length,
     };
+  },
+});
+
+/**
+ * Archive a JCEP application (admin only).
+ * Moves an application to the archived tab.
+ */
+export const archiveApplication = mutation({
+  args: {
+    ...SessionIdArg,
+    applicationId: v.id('jcepApplications'),
+  },
+  handler: async (ctx, args) => {
+    const user = await getAuthUser(ctx, args);
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    // Only admins can archive applications
+    if (user.accessLevel !== 'system_admin') {
+      throw new Error('Only admins can archive applications');
+    }
+
+    const application = await ctx.db.get('jcepApplications', args.applicationId);
+    if (!application) {
+      throw new Error('Application not found');
+    }
+
+    await ctx.db.patch('jcepApplications', args.applicationId, {
+      archivedAt: Date.now(),
+      archivedBy: user._id,
+    });
+  },
+});
+
+/**
+ * Unarchive a JCEP application (admin only).
+ * Restores an archived application back to the active list.
+ */
+export const unarchiveApplication = mutation({
+  args: {
+    ...SessionIdArg,
+    applicationId: v.id('jcepApplications'),
+  },
+  handler: async (ctx, args) => {
+    const user = await getAuthUser(ctx, args);
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    // Only admins can unarchive applications
+    if (user.accessLevel !== 'system_admin') {
+      throw new Error('Only admins can unarchive applications');
+    }
+
+    const application = await ctx.db.get('jcepApplications', args.applicationId);
+    if (!application) {
+      throw new Error('Application not found');
+    }
+
+    await ctx.db.patch('jcepApplications', args.applicationId, {
+      archivedAt: null,
+      archivedBy: null,
+    });
   },
 });
 

@@ -105,7 +105,7 @@ Note: Your mentors and / or the JCEP team may reach out to you to discuss to see
 *Options:*
 - RK
 - DR
-- ARG / ARB
+- AR
 - ER
 
 ---
@@ -129,7 +129,7 @@ Note: Your mentors and / or the JCEP team may reach out to you to discuss to see
 *Options:*
 - RK
 - DR
-- ARG / ARB
+- AR
 - ER
 
 ---
@@ -156,10 +156,10 @@ Note: Your mentors and / or the JCEP team may reach out to you to discuss to see
 - **Required Fields:** 4 (Full Name, Contact Number, Age Group Choice 1, Reason for Choice 1)
 - **Optional Fields:** 2 (Age Group Choice 2, Reason for Choice 2)
 
-## Age Group Abbreviations (Assumed)
+## Age Group Abbreviations
 - **RK:** Rangers Kids
 - **DR:** Discovery Rangers
-- **ARG / ARB:** Adventure Rangers Girls / Adventure Rangers Boys
+- **AR:** Adventure Rangers
 - **ER:** Expedition Rangers
 
 ## Field Specifications Summary

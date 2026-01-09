@@ -347,6 +347,10 @@ export default defineSchema({
     submittedAt: v.union(v.number(), v.null()),
     submittedBy: v.union(v.id('users'), v.null()),
     createdBy: v.id('users'),
+
+    // Archive metadata (admin feature)
+    archivedAt: v.optional(v.union(v.number(), v.null())),
+    archivedBy: v.optional(v.union(v.id('users'), v.null())),
   })
     .index('by_schema_version', ['schemaVersion'])
     .index('by_rotation_year', ['rotationYear'])
@@ -377,17 +381,12 @@ export default defineSchema({
     contactNumber: v.string(),
 
     // Section 3: Serving Preferences
-    ageGroupChoice1: v.union(
-      v.literal('RK'),
-      v.literal('DR'),
-      v.literal('ARG / ARB'),
-      v.literal('ER')
-    ),
+    ageGroupChoice1: v.union(v.literal('RK'), v.literal('DR'), v.literal('AR'), v.literal('ER')),
     reasonForChoice1: v.string(),
     ageGroupChoice2: v.union(
       v.literal('RK'),
       v.literal('DR'),
-      v.literal('ARG / ARB'),
+      v.literal('AR'),
       v.literal('ER'),
       v.null()
     ),
@@ -395,6 +394,10 @@ export default defineSchema({
 
     // Acknowledgements (implicit by submission)
     acknowledgedMottoAndPledge: v.boolean(), // Always true on submit
+
+    // Archive metadata (admin feature)
+    archivedAt: v.optional(v.union(v.number(), v.null())),
+    archivedBy: v.optional(v.union(v.id('users'), v.null())),
   })
     .index('by_submission_year', ['submissionYear'])
     .index('by_submitted_at', ['submittedAt'])

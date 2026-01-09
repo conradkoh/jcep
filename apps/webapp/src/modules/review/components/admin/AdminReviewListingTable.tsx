@@ -2,13 +2,15 @@
  * Admin Review Listing Table
  * Displays all review forms in a table with status, visibility controls, and action menu.
  * Provides admin functionality for managing review forms including copying access links,
- * toggling response visibility, viewing forms, and deleting forms.
+ * toggling response visibility, viewing forms, archiving/unarchiving, and deleting forms.
  */
 
 'use client';
 
 import {
   AlertTriangle,
+  Archive,
+  ArchiveRestore,
   Check,
   Copy,
   ExternalLink,
@@ -21,6 +23,22 @@ import Link from 'next/link';
 import type React from 'react';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
+
+import {
+  useArchiveReviewForm,
+  useDeleteReviewForm,
+  useToggleResponseVisibility,
+  useUnarchiveReviewForm,
+} from '../../hooks/useReviewForm';
+import type { ReviewForm } from '../../types';
+import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
+import { formatRotationLabel } from '../../utils/rotationUtils';
+import {
+  isBuddyEvaluationComplete,
+  isJCFeedbackComplete,
+  isJCReflectionComplete,
+} from '../../utils/sectionCompletionHelpers';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,15 +67,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useDeleteReviewForm, useToggleResponseVisibility } from '../../hooks/useReviewForm';
-import type { ReviewForm } from '../../types';
-import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
-import { formatRotationLabel } from '../../utils/rotationUtils';
-import {
-  isBuddyEvaluationComplete,
-  isJCFeedbackComplete,
-  isJCReflectionComplete,
-} from '../../utils/sectionCompletionHelpers';
 
 /**
  * Props for the AdminReviewListingTable component.
@@ -67,6 +76,10 @@ export interface AdminReviewListingTableProps {
   forms: ReviewForm[];
   /** Optional callback fired when a form is deleted */
   onFormDeleted?: () => void;
+  /** Whether to show the archive action in the dropdown menu */
+  showArchiveAction?: boolean;
+  /** Whether to show the unarchive action in the dropdown menu */
+  showUnarchiveAction?: boolean;
 }
 
 /**
@@ -91,17 +104,26 @@ interface _CombinedVisibilityState {
  * <AdminReviewListingTable
  *   forms={reviewForms}
  *   onFormDeleted={() => refetchForms()}
+ *   showArchiveAction
  * />
  * ```
  */
-export function AdminReviewListingTable({ forms, onFormDeleted }: AdminReviewListingTableProps) {
+export function AdminReviewListingTable({
+  forms,
+  onFormDeleted,
+  showArchiveAction,
+  showUnarchiveAction,
+}: AdminReviewListingTableProps) {
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [formToDelete, setFormToDelete] = useState<ReviewForm | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [togglingVisibility, setTogglingVisibility] = useState<string | null>(null);
+  const [archivingFormId, setArchivingFormId] = useState<string | null>(null);
   const deleteReviewForm = useDeleteReviewForm();
   const toggleVisibility = useToggleResponseVisibility();
+  const archiveReviewForm = useArchiveReviewForm();
+  const unarchiveReviewForm = useUnarchiveReviewForm();
 
   /**
    * Copies an access token link to the clipboard.
@@ -179,6 +201,44 @@ export function AdminReviewListingTable({ forms, onFormDeleted }: AdminReviewLis
       }
     },
     [toggleVisibility]
+  );
+
+  /**
+   * Archives a review form.
+   * @param form - The review form to archive
+   */
+  const handleArchive = useCallback(
+    async (form: ReviewForm) => {
+      setArchivingFormId(form._id);
+      try {
+        await archiveReviewForm(form._id);
+        toast.success('Form archived successfully');
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to archive form');
+      } finally {
+        setArchivingFormId(null);
+      }
+    },
+    [archiveReviewForm]
+  );
+
+  /**
+   * Unarchives a review form.
+   * @param form - The review form to unarchive
+   */
+  const handleUnarchive = useCallback(
+    async (form: ReviewForm) => {
+      setArchivingFormId(form._id);
+      try {
+        await unarchiveReviewForm(form._id);
+        toast.success('Form restored to active');
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to restore form');
+      } finally {
+        setArchivingFormId(null);
+      }
+    },
+    [unarchiveReviewForm]
   );
 
   if (forms.length === 0) {
@@ -343,6 +403,32 @@ export function AdminReviewListingTable({ forms, onFormDeleted }: AdminReviewLis
                             View Form
                           </Link>
                         </DropdownMenuItem>
+                        {showArchiveAction && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => handleArchive(form)}
+                              disabled={archivingFormId === form._id}
+                              className="cursor-pointer"
+                            >
+                              <Archive className="mr-2 h-4 w-4" />
+                              {archivingFormId === form._id ? 'Archiving...' : 'Archive Form'}
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        {showUnarchiveAction && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => handleUnarchive(form)}
+                              disabled={archivingFormId === form._id}
+                              className="cursor-pointer"
+                            >
+                              <ArchiveRestore className="mr-2 h-4 w-4" />
+                              {archivingFormId === form._id ? 'Restoring...' : 'Restore Form'}
+                            </DropdownMenuItem>
+                          </>
+                        )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => handleDeleteClick(form)}

@@ -378,7 +378,7 @@ export const getReviewFormsByBuddy = query({
 
 /**
  * Get all review forms by year (admin only)
- * Supports optional filtering by status and age group
+ * Supports optional filtering by status, age group, and archived status
  */
 export const getAllReviewFormsByYear = query({
   args: {
@@ -387,6 +387,7 @@ export const getAllReviewFormsByYear = query({
     quarter: v.optional(v.number()), // Optional quarter filter (1-4)
     status: v.optional(reviewFormStatusValidator),
     ageGroup: v.optional(ageGroupValidator),
+    includeArchived: v.optional(v.boolean()), // true = show archived only, false/undefined = show active only
   },
   handler: async (ctx, args) => {
     const user = await getAuthUser(ctx, { sessionId: args.sessionId });
@@ -441,6 +442,15 @@ export const getAllReviewFormsByYear = query({
     // Filter by age group if specified
     if (args.ageGroup) {
       forms = forms.filter((form) => form.ageGroup === args.ageGroup);
+    }
+
+    // Filter by archived status
+    if (args.includeArchived === true) {
+      // Show only archived forms
+      forms = forms.filter((form) => form.archivedAt != null);
+    } else {
+      // Show only active (non-archived) forms
+      forms = forms.filter((form) => form.archivedAt == null);
     }
 
     return forms.sort((a, b) => b._creationTime - a._creationTime);
@@ -909,6 +919,72 @@ export const regenerateAccessTokens = mutation({
       buddyAccessToken,
       jcAccessToken,
     };
+  },
+});
+
+/**
+ * Archive a review form (admin only)
+ * Archives a form that has been submitted correctly, moving it to the archived tab
+ */
+export const archiveReviewForm = mutation({
+  args: {
+    ...SessionIdArg,
+    formId: v.id('reviewForms'),
+  },
+  handler: async (ctx, args) => {
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    // Only admins can archive forms
+    if (user.accessLevel !== 'system_admin') {
+      throw new Error('Only admins can archive review forms');
+    }
+
+    const form = await ctx.db.get('reviewForms', args.formId);
+    if (!form) {
+      throw new Error('Form not found');
+    }
+
+    // Update archive status
+    await ctx.db.patch('reviewForms', args.formId, {
+      archivedAt: Date.now(),
+      archivedBy: user._id,
+    });
+  },
+});
+
+/**
+ * Unarchive a review form (admin only)
+ * Restores an archived form back to the active list
+ */
+export const unarchiveReviewForm = mutation({
+  args: {
+    ...SessionIdArg,
+    formId: v.id('reviewForms'),
+  },
+  handler: async (ctx, args) => {
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    // Only admins can unarchive forms
+    if (user.accessLevel !== 'system_admin') {
+      throw new Error('Only admins can unarchive review forms');
+    }
+
+    const form = await ctx.db.get('reviewForms', args.formId);
+    if (!form) {
+      throw new Error('Form not found');
+    }
+
+    // Clear archive status
+    await ctx.db.patch('reviewForms', args.formId, {
+      archivedAt: null,
+      archivedBy: null,
+    });
   },
 });
 

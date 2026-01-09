@@ -42,14 +42,14 @@ jcepApplications: defineTable({
   ageGroupChoice1: v.union(
     v.literal('RK'),
     v.literal('DR'),
-    v.literal('ARG / ARB'),
+    v.literal('AR'),
     v.literal('ER')
   ),
   reasonForChoice1: v.string(),
   ageGroupChoice2: v.union(
     v.literal('RK'),
     v.literal('DR'),
-    v.literal('ARG / ARB'),
+    v.literal('AR'),
     v.literal('ER'),
     v.null()
   ),

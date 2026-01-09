@@ -95,6 +95,10 @@ export interface ReviewForm {
   submittedAt: number | null;
   submittedBy: Id<'users'> | null;
   createdBy: Id<'users'>;
+
+  // Archive metadata (admin feature)
+  archivedAt?: number | null;
+  archivedBy?: Id<'users'> | null;
 }
 
 // Hook return types

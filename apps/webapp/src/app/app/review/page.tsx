@@ -2,10 +2,10 @@
 
 import { api } from '@workspace/backend/convex/_generated/api';
 import { useSessionQuery } from 'convex-helpers/react/sessions';
-import { Clock, Plus } from 'lucide-react';
+import { Archive, Clock, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 import { AdminReviewListingTable } from '@/modules/review/components/admin/AdminReviewListingTable';
 import { ReviewFormList } from '@/modules/review/components/ReviewFormList';
@@ -50,12 +51,27 @@ function AdminReviewListContent({ selectedYear, selectedRotation }: AdminReviewL
     { value: '4', label: 'Rotation 4' },
   ];
 
-  const { forms: allForms, isLoading: isLoadingAllForms } = useAllReviewFormsByYear(
+  const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active');
+
+  // Fetch active forms
+  const { forms: activeForms, isLoading: isLoadingActiveForms } = useAllReviewFormsByYear(
     selectedYear,
     selectedRotation === 'all' ? undefined : Number(selectedRotation),
     undefined,
-    undefined
+    undefined,
+    false // Not archived
   );
+
+  // Fetch archived forms
+  const { forms: archivedForms, isLoading: isLoadingArchivedForms } = useAllReviewFormsByYear(
+    selectedYear,
+    selectedRotation === 'all' ? undefined : Number(selectedRotation),
+    undefined,
+    undefined,
+    true // Archived
+  );
+
+  const isLoading = isLoadingActiveForms || isLoadingArchivedForms;
 
   // Calculate current rotation for "View Most Recent" button
   const currentRotation = useMemo(() => getDefaultRotationQuarter(), []);
@@ -93,7 +109,7 @@ function AdminReviewListContent({ selectedYear, selectedRotation }: AdminReviewL
     router.push(`/app/review?${params.toString()}`);
   }, [router, currentYear, currentRotation]);
 
-  if (isLoadingAllForms) {
+  if (isLoading) {
     return (
       <div className="container mx-auto max-w-7xl space-y-6 p-6">
         <Skeleton className="h-12 w-full" />
@@ -174,7 +190,45 @@ function AdminReviewListContent({ selectedYear, selectedRotation }: AdminReviewL
         </div>
       </div>
 
-      {allForms && <AdminReviewListingTable forms={allForms} onFormDeleted={() => {}} />}
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'active' | 'archived')}>
+        <TabsList>
+          <TabsTrigger value="active">
+            Active
+            {activeForms && activeForms.length > 0 && (
+              <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                {activeForms.length}
+              </span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="archived">
+            <Archive className="mr-1.5 h-3.5 w-3.5" />
+            Archived
+            {archivedForms && archivedForms.length > 0 && (
+              <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                {archivedForms.length}
+              </span>
+            )}
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="active" className="mt-4">
+          {activeForms && (
+            <AdminReviewListingTable
+              forms={activeForms}
+              onFormDeleted={() => {}}
+              showArchiveAction
+            />
+          )}
+        </TabsContent>
+        <TabsContent value="archived" className="mt-4">
+          {archivedForms && (
+            <AdminReviewListingTable
+              forms={archivedForms}
+              onFormDeleted={() => {}}
+              showUnarchiveAction
+            />
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

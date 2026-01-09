@@ -17,10 +17,6 @@ export default function Home() {
           JCEP is part of the Royal Rangers programme, helping Junior Commanders grow through
           mentoring, ministry exposure, and structured reflections.
         </p>
-        <p className="text-sm text-muted-foreground">
-          Use this app to manage JCEP review forms between Buddies and Junior Commanders across
-          rotations.
-        </p>
         <div className="flex gap-4 items-center flex-col sm:flex-row mt-4">
           <Link href="/apply">
             <Button size="lg" className="w-full sm:w-auto">

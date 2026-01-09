@@ -6,6 +6,7 @@ import { api } from '@workspace/backend/convex/_generated/api';
 import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 import { useSessionMutation, useSessionQuery } from 'convex-helpers/react/sessions';
 import { useMemo } from 'react';
+
 import type {
   AllReviewFormsReturn,
   CreateReviewFormParams,
@@ -115,13 +116,15 @@ export function useAllReviewFormsByYear(
   year: number,
   quarter?: number,
   status?: 'not_started' | 'in_progress' | 'complete' | 'submitted',
-  ageGroup?: 'RK' | 'DR' | 'AR' | 'ER'
+  ageGroup?: 'RK' | 'DR' | 'AR' | 'ER',
+  includeArchived?: boolean
 ): AllReviewFormsReturn {
   const forms = useSessionQuery(api.reviewForms.getAllReviewFormsByYear, {
     year,
     quarter,
     status,
     ageGroup,
+    includeArchived,
   }) as ReviewForm[] | undefined;
 
   return {
@@ -248,5 +251,27 @@ export function useReviewFormsByBuddy(year?: number) {
     forms,
     isLoading: forms === undefined,
     totalCount: forms?.length || 0,
+  };
+}
+
+/**
+ * Hook to archive a review form (admin only)
+ */
+export function useArchiveReviewForm() {
+  const archiveMutation = useSessionMutation(api.reviewForms.archiveReviewForm);
+
+  return async (formId: Id<'reviewForms'>): Promise<void> => {
+    await archiveMutation({ formId });
+  };
+}
+
+/**
+ * Hook to unarchive a review form (admin only)
+ */
+export function useUnarchiveReviewForm() {
+  const unarchiveMutation = useSessionMutation(api.reviewForms.unarchiveReviewForm);
+
+  return async (formId: Id<'reviewForms'>): Promise<void> => {
+    await unarchiveMutation({ formId });
   };
 }

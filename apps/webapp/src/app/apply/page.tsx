@@ -16,7 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 
-type AgeGroup = 'RK' | 'DR' | 'ARG / ARB' | 'ER';
+type AgeGroup = 'RK' | 'DR' | 'AR' | 'ER';
 
 interface FormData {
   // Step 1 - Acknowledgement
@@ -36,7 +36,7 @@ interface FormData {
 const AGE_GROUPS: { value: AgeGroup; label: string; description: string }[] = [
   { value: 'RK', label: 'RK', description: 'Rangers Kids' },
   { value: 'DR', label: 'DR', description: 'Discovery Rangers' },
-  { value: 'ARG / ARB', label: 'ARG / ARB', description: 'Adventure Rangers Girls / Boys' },
+  { value: 'AR', label: 'AR', description: 'Adventure Rangers' },
   { value: 'ER', label: 'ER', description: 'Expedition Rangers' },
 ];
 
