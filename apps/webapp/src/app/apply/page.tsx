@@ -216,39 +216,39 @@ export default function ApplyPage() {
 
                 <div className="p-4 bg-accent/40 rounded-md">
                   <h3 className="font-semibold text-foreground mb-2">Royal Rangers Code</h3>
-                  <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-                    <li>
-                      <span className="font-medium">Alert:</span> He is mentally, physically, and
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <p>
+                      <span className="font-bold">ALERT:</span> He is mentally, physically, and
                       spiritually alert.
-                    </li>
-                    <li>
-                      <span className="font-medium">Clean:</span> He is clean in body, mind, and
+                    </p>
+                    <p>
+                      <span className="font-bold">CLEAN:</span> He is clean in body, mind, and
                       speech.
-                    </li>
-                    <li>
-                      <span className="font-medium">Honest:</span> He does not lie, cheat, or steal.
-                    </li>
-                    <li>
-                      <span className="font-medium">Courageous:</span> He is brave in spite of
-                      danger, criticism, or threats.
-                    </li>
-                    <li>
-                      <span className="font-medium">Loyal:</span> He is faithful to his church,
+                    </p>
+                    <p>
+                      <span className="font-bold">HONEST:</span> He does not lie, cheat, or steal.
+                    </p>
+                    <p>
+                      <span className="font-bold">COURAGEOUS:</span> He is brave in spite of danger,
+                      criticism, or threats.
+                    </p>
+                    <p>
+                      <span className="font-bold">LOYAL:</span> He is faithful to his church,
                       family, outpost, and friends.
-                    </li>
-                    <li>
-                      <span className="font-medium">Courteous:</span> He is polite, kind, and
+                    </p>
+                    <p>
+                      <span className="font-bold">COURTEOUS:</span> He is polite, kind, and
                       thoughtful.
-                    </li>
-                    <li>
-                      <span className="font-medium">Obedient:</span> He obeys his parents, leaders,
+                    </p>
+                    <p>
+                      <span className="font-bold">OBEDIENT:</span> He obeys his parents, leaders,
                       and those in authority.
-                    </li>
-                    <li>
-                      <span className="font-medium">Spiritual:</span> He prays, reads the Bible, and
+                    </p>
+                    <p>
+                      <span className="font-bold">SPIRITUAL:</span> He prays, reads the Bible, and
                       witnesses.
-                    </li>
-                  </ol>
+                    </p>
+                  </div>
                 </div>
               </div>
 
