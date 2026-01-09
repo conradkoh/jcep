@@ -3,13 +3,14 @@
 import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 import { Check, Lock } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useReviewFormAccess } from '../../hooks/useReviewFormAccess';
-import type { AccessLevel } from '../../utils/sectionAccessControl';
-import { getSectionAccessRules } from '../../utils/sectionAccessControl';
+
 import { BuddyEvaluationSection } from './BuddyEvaluationSection';
 import { JCFeedbackSection } from './JCFeedbackSection';
 import { JCReflectionSection } from './JCReflectionSection';
 import { ParticularsSection } from './ParticularsSection';
+import { useReviewFormAccess } from '../../hooks/useReviewFormAccess';
+import { getSectionAccessRules } from '../../utils/sectionAccessControl';
+import type { AccessLevel } from '../../utils/sectionAccessControl';
 
 interface ReviewFormViewProps {
   formId: Id<'reviewForms'>;
@@ -71,12 +72,22 @@ export function ReviewFormView({ formId, accessToken }: ReviewFormViewProps) {
     [sectionCompletion, sectionAccess]
   );
 
+  // Determine the preferred step based on what the user can access/edit
+  // Prioritize sections the user can edit, then fall back to sections they can view
   const preferredStep = useMemo<StepId>(() => {
+    // First, prefer sections the user can edit
     if (canEditBuddyEvaluation) return 'buddy';
     if (canEditJCReflection) return 'jc-reflection';
     if (canEditJCFeedback) return 'jc-feedback';
+
+    // Fall back to first accessible section (for view-only access)
+    if (sectionAccess?.canAccessBuddyEvaluation) return 'buddy';
+    if (sectionAccess?.canAccessJCReflection) return 'jc-reflection';
+    if (sectionAccess?.canAccessJCFeedback) return 'jc-feedback';
+
+    // Default to buddy if nothing else matches
     return 'buddy';
-  }, [canEditBuddyEvaluation, canEditJCReflection, canEditJCFeedback]);
+  }, [canEditBuddyEvaluation, canEditJCReflection, canEditJCFeedback, sectionAccess]);
 
   const [activeStep, setActiveStep] = useState<StepId>(preferredStep);
   const userSelectedStep = useRef(false);
@@ -187,7 +198,7 @@ type StepId = 'buddy' | 'jc-reflection' | 'jc-feedback';
 
 interface StepperProps {
   activeStep: StepId;
-  steps: Array<{ id: StepId; label: string; completed: boolean; locked: boolean }>;
+  steps: { id: StepId; label: string; completed: boolean; locked: boolean }[];
   onSelectStep: (id: StepId, locked: boolean) => void;
 }
 
