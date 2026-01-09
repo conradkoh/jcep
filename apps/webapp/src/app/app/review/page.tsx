@@ -2,10 +2,11 @@
 
 import { api } from '@workspace/backend/convex/_generated/api';
 import { useSessionQuery } from 'convex-helpers/react/sessions';
-import { Plus } from 'lucide-react';
+import { Clock, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -21,37 +22,76 @@ import { RequireLogin } from '@/modules/auth/RequireLogin';
 import { AdminReviewListingTable } from '@/modules/review/components/admin/AdminReviewListingTable';
 import { ReviewFormList } from '@/modules/review/components/ReviewFormList';
 import { useAllReviewFormsByYear } from '@/modules/review/hooks/useReviewForm';
+import { getDefaultRotationQuarter } from '@/modules/review/utils/rotationUtils';
 
 /**
  * Props for admin review list content component.
  */
-interface _AdminReviewListContentProps {
+interface AdminReviewListContentProps {
   /** The selected year to filter review forms */
   selectedYear: number;
+  /** The selected rotation to filter review forms ('all' or '1'-'4') */
+  selectedRotation: string;
 }
 
 /**
  * Content component for admin review list page.
  * Displays all review forms for administrators with filtering capabilities.
  */
-function _AdminReviewListContent({ selectedYear }: _AdminReviewListContentProps) {
+function AdminReviewListContent({ selectedYear, selectedRotation }: AdminReviewListContentProps) {
   const router = useRouter();
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 6 }, (_, i) => currentYear - i);
+  const rotationOptions = [
+    { value: 'all', label: 'All Rotations' },
+    { value: '1', label: 'Rotation 1' },
+    { value: '2', label: 'Rotation 2' },
+    { value: '3', label: 'Rotation 3' },
+    { value: '4', label: 'Rotation 4' },
+  ];
 
   const { forms: allForms, isLoading: isLoadingAllForms } = useAllReviewFormsByYear(
     selectedYear,
-    undefined,
+    selectedRotation === 'all' ? undefined : Number(selectedRotation),
     undefined,
     undefined
   );
 
+  // Calculate current rotation for "View Most Recent" button
+  const currentRotation = useMemo(() => getDefaultRotationQuarter(), []);
+  const isViewingCurrentRotation =
+    selectedYear === currentYear && selectedRotation === String(currentRotation);
+
   const handleYearChange = useCallback(
     (year: string) => {
-      router.push(`/app/review?year=${year}`);
+      const params = new URLSearchParams();
+      params.set('year', year);
+      if (selectedRotation !== 'all') {
+        params.set('rotation', selectedRotation);
+      }
+      router.push(`/app/review?${params.toString()}`);
     },
-    [router]
+    [router, selectedRotation]
   );
+
+  const handleRotationChange = useCallback(
+    (rotation: string) => {
+      const params = new URLSearchParams();
+      params.set('year', String(selectedYear));
+      if (rotation !== 'all') {
+        params.set('rotation', rotation);
+      }
+      router.push(`/app/review?${params.toString()}`);
+    },
+    [router, selectedYear]
+  );
+
+  const handleViewCurrentRotation = useCallback(() => {
+    const params = new URLSearchParams();
+    params.set('year', String(currentYear));
+    params.set('rotation', String(currentRotation));
+    router.push(`/app/review?${params.toString()}`);
+  }, [router, currentYear, currentRotation]);
 
   if (isLoadingAllForms) {
     return (
@@ -67,34 +107,71 @@ function _AdminReviewListContent({ selectedYear }: _AdminReviewListContentProps)
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">All Review Forms</h1>
-          <p className="text-sm text-muted-foreground">Manage all JCEP rotation review forms</p>
+          <p className="text-sm text-muted-foreground">View and manage all JCEP review forms</p>
         </div>
-        <Button asChild aria-label="Create a new review form">
-          <Link href="/app/review/create" className="flex items-center">
-            <Plus className="mr-2 h-4 w-4" />
-            Create New Form
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          {!isViewingCurrentRotation && (
+            <Button
+              variant="outline"
+              onClick={handleViewCurrentRotation}
+              aria-label="View most recent rotation"
+            >
+              <Clock className="mr-2 h-4 w-4" />
+              Current Rotation
+            </Button>
+          )}
+          <Button asChild aria-label="Create a new review form">
+            <Link href="/app/review/create" className="flex items-center">
+              <Plus className="mr-2 h-4 w-4" />
+              Create New Form
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <Separator />
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-        <Label htmlFor="year-filter" className="text-sm font-medium text-foreground">
-          Showing forms for
-        </Label>
-        <Select value={String(selectedYear)} onValueChange={handleYearChange}>
-          <SelectTrigger id="year-filter" className="w-full sm:w-[220px]">
-            <SelectValue placeholder="Select year" />
-          </SelectTrigger>
-          <SelectContent>
-            {yearOptions.map((year) => (
-              <SelectItem key={year} value={String(year)}>
-                {year}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
+        <div className="flex items-center gap-2">
+          <Label
+            htmlFor="year-filter"
+            className="text-sm font-medium text-foreground whitespace-nowrap"
+          >
+            Year
+          </Label>
+          <Select value={String(selectedYear)} onValueChange={handleYearChange}>
+            <SelectTrigger id="year-filter" className="w-[120px]">
+              <SelectValue placeholder="Select year" />
+            </SelectTrigger>
+            <SelectContent>
+              {yearOptions.map((year) => (
+                <SelectItem key={year} value={String(year)}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-2">
+          <Label
+            htmlFor="rotation-filter"
+            className="text-sm font-medium text-foreground whitespace-nowrap"
+          >
+            Rotation
+          </Label>
+          <Select value={selectedRotation} onValueChange={handleRotationChange}>
+            <SelectTrigger id="rotation-filter" className="w-[160px]">
+              <SelectValue placeholder="Select rotation" />
+            </SelectTrigger>
+            <SelectContent>
+              {rotationOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {allForms && <AdminReviewListingTable forms={allForms} onFormDeleted={() => {}} />}
@@ -105,7 +182,7 @@ function _AdminReviewListContent({ selectedYear }: _AdminReviewListContentProps)
 /**
  * Props for user review list content component.
  */
-interface _UserReviewListContentProps {
+interface UserReviewListContentProps {
   /** The selected year to filter review forms */
   selectedYear: number;
 }
@@ -114,7 +191,7 @@ interface _UserReviewListContentProps {
  * Content component for user review list page.
  * Displays review forms for the current authenticated user.
  */
-function _UserReviewListContent({ selectedYear }: _UserReviewListContentProps) {
+function UserReviewListContent({ selectedYear }: UserReviewListContentProps) {
   const router = useRouter();
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 6 }, (_, i) => currentYear - i);
@@ -131,7 +208,7 @@ function _UserReviewListContent({ selectedYear }: _UserReviewListContentProps) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">My Review Forms</h1>
-          <p className="text-sm text-muted-foreground">Manage your JCEP rotation review forms</p>
+          <p className="text-sm text-muted-foreground">View and manage your JCEP review forms</p>
         </div>
         <Button asChild aria-label="Create a new review form">
           <Link href="/app/review/create" className="flex items-center">
@@ -170,10 +247,11 @@ function _UserReviewListContent({ selectedYear }: _UserReviewListContentProps) {
  * Content component for the review list page.
  * Determines whether to show admin or user view based on authentication state.
  */
-function _ReviewListPageContent() {
+function ReviewListPageContent() {
   const searchParams = useSearchParams();
   const currentYear = new Date().getFullYear();
   const selectedYear = Number.parseInt(searchParams.get('year') || String(currentYear));
+  const selectedRotation = searchParams.get('rotation') || 'all';
 
   // Check if user is system admin
   const authState = useSessionQuery(api.auth.getState, {});
@@ -191,9 +269,9 @@ function _ReviewListPageContent() {
   }
 
   return isAdmin ? (
-    <_AdminReviewListContent selectedYear={selectedYear} />
+    <AdminReviewListContent selectedYear={selectedYear} selectedRotation={selectedRotation} />
   ) : (
-    <_UserReviewListContent selectedYear={selectedYear} />
+    <UserReviewListContent selectedYear={selectedYear} />
   );
 }
 
@@ -205,7 +283,7 @@ function _ReviewListPageContent() {
 export default function ReviewListPage() {
   return (
     <RequireLogin>
-      <_ReviewListPageContent />
+      <ReviewListPageContent />
     </RequireLogin>
   );
 }

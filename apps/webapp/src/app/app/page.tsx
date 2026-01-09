@@ -1,5 +1,6 @@
 'use client';
 
+import { ClipboardList, FileText, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
 
@@ -7,97 +8,86 @@ import { Button } from '@/components/ui/button';
 import { useAuthState } from '@/modules/auth/AuthProvider';
 
 /**
- * Displays the main application dashboard with user-specific content and navigation.
+ * Navigation card component for dashboard links.
+ */
+interface NavCardProps {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}
+
+function NavCard({ href, icon, title, description }: NavCardProps) {
+  return (
+    <Link
+      href={href}
+      className="group p-6 border border-border rounded-lg hover:border-primary hover:bg-accent/50 transition-colors"
+    >
+      <div className="flex items-center gap-4">
+        <div className="p-3 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
+          {icon}
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+          <p className="text-sm text-muted-foreground">{description}</p>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+/**
+ * Displays the main application dashboard with navigation links.
  */
 export default function AppPage() {
   const authState = useAuthState();
-
   const isAuthenticated = authState?.state === 'authenticated';
-  const isAnonymousUser = useMemo(() => {
-    return isAuthenticated && authState.user.type === 'anonymous';
-  }, [isAuthenticated, authState]);
-
   const isAdmin = useMemo(() => {
-    if (!isAuthenticated) return false;
-    return authState.user.accessLevel === 'system_admin';
+    return isAuthenticated && authState.user.accessLevel === 'system_admin';
   }, [isAuthenticated, authState]);
 
-  const dashboardContent = useMemo(() => {
-    if (!isAuthenticated) return null;
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="bg-card rounded-lg shadow-md p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold">Welcome to JCEP</h1>
 
-    return (
-      <div className="space-y-4">
-        <div className="p-4 bg-accent/40 rounded-md">
-          <h2 className="text-xl font-semibold mb-2">JCEP Review Forms</h2>
-          <p className="text-foreground">
-            Access your Junior Commander Exposure Programme (JCEP) review forms for the current
-            rotation.
-          </p>
-
-          {isAnonymousUser && (
-            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800">
-              <p className="text-sm text-blue-800 dark:text-blue-300">
-                <span className="font-semibold">Tip:</span> You're using an anonymous account. Visit
-                your{' '}
-                <Link
-                  href="/app/profile"
-                  className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300"
-                >
-                  profile page
-                </Link>{' '}
-                to personalize your display name.
-              </p>
-            </div>
-          )}
-
-          <div className="mt-4 flex flex-wrap gap-3">
-            <Link href="/app/review">
-              <Button size="sm" className="font-medium">
-                {isAdmin ? 'Manage all JCEP review forms' : 'View my JCEP review forms'}
-              </Button>
-            </Link>
-            {isAdmin && (
-              <Link href="/app/review/create">
-                <Button size="sm" variant="outline">
-                  Create new JCEP review form
+            {isAuthenticated && (
+              <Link href="/app/profile">
+                <Button variant="outline" size="sm">
+                  View Profile
                 </Button>
               </Link>
             )}
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-          <div className="p-4 border rounded-md">
-            <h3 className="font-medium mb-2">Your Content</h3>
-            <p className="text-sm text-muted-foreground">
-              No content yet. Start creating by using the app features.
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <NavCard
+              href="/app/review"
+              icon={<ClipboardList className="h-6 w-6 text-primary" />}
+              title="Review Forms"
+              description={
+                isAdmin ? 'View and manage all review forms' : 'View and manage your review forms'
+              }
+            />
+
+            <NavCard
+              href="/apply"
+              icon={<FileText className="h-6 w-6 text-primary" />}
+              title="Apply to JCEP"
+              description="Submit an application to join the programme"
+            />
+
+            {isAdmin && (
+              <NavCard
+                href="/app/applications"
+                icon={<Users className="h-6 w-6 text-primary" />}
+                title="View Applications"
+                description="View all submitted JCEP applications"
+              />
+            )}
           </div>
-
-          <div className="p-4 border rounded-md">
-            <h3 className="font-medium mb-2">Recent Activity</h3>
-            <p className="text-sm text-muted-foreground">Your recent activity will appear here.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }, [isAuthenticated, isAnonymousUser, isAdmin]);
-
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-card rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold">Welcome to the App</h1>
-
-            <Link href="/app/profile">
-              <Button variant="outline" size="sm">
-                View Profile
-              </Button>
-            </Link>
-          </div>
-
-          {dashboardContent}
         </div>
       </div>
     </div>

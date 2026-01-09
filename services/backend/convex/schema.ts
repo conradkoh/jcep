@@ -362,4 +362,41 @@ export default defineSchema({
     .index('by_status', ['status'])
     .index('by_buddy_access_token', ['buddyAccessToken'])
     .index('by_jc_access_token', ['jcAccessToken']),
+
+  /**
+   * JCEP Application Forms for public application submissions.
+   * Does not require authentication - public applicants can submit.
+   */
+  jcepApplications: defineTable({
+    // Metadata
+    submittedAt: v.number(), // Timestamp of submission
+    submissionYear: v.number(), // Year of submission for grouping (e.g., 2025)
+
+    // Section 2: Personal Particulars
+    fullName: v.string(),
+    contactNumber: v.string(),
+
+    // Section 3: Serving Preferences
+    ageGroupChoice1: v.union(
+      v.literal('RK'),
+      v.literal('DR'),
+      v.literal('ARG / ARB'),
+      v.literal('ER')
+    ),
+    reasonForChoice1: v.string(),
+    ageGroupChoice2: v.union(
+      v.literal('RK'),
+      v.literal('DR'),
+      v.literal('ARG / ARB'),
+      v.literal('ER'),
+      v.null()
+    ),
+    reasonForChoice2: v.union(v.string(), v.null()),
+
+    // Acknowledgements (implicit by submission)
+    acknowledgedMottoAndPledge: v.boolean(), // Always true on submit
+  })
+    .index('by_submission_year', ['submissionYear'])
+    .index('by_submitted_at', ['submittedAt'])
+    .index('by_year_and_submitted', ['submissionYear', 'submittedAt']),
 });

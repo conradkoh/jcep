@@ -1,4 +1,7 @@
 'use client';
+import Link from 'next/link';
+
+import { Button } from '@/components/ui/button';
 import { useAppVersion } from '@/modules/app/useAppInfo';
 
 export default function Home() {
@@ -18,6 +21,18 @@ export default function Home() {
           Use this app to manage JCEP review forms between Buddies and Junior Commanders across
           rotations.
         </p>
+        <div className="flex gap-4 items-center flex-col sm:flex-row mt-4">
+          <Link href="/apply">
+            <Button size="lg" className="w-full sm:w-auto">
+              Apply Now
+            </Button>
+          </Link>
+          <Link href="/app">
+            <Button size="lg" variant="outline" className="w-full sm:w-auto">
+              Go to Dashboard
+            </Button>
+          </Link>
+        </div>
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
         <div>App Version: {appVersion ?? 'Loading...'}</div>
