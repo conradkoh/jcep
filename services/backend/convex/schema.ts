@@ -370,11 +370,13 @@ export default defineSchema({
   /**
    * JCEP Application Forms for public application submissions.
    * Does not require authentication - public applicants can submit.
+   * If user is logged in, their userId is associated with the submission.
    */
   jcepApplications: defineTable({
     // Metadata
     submittedAt: v.number(), // Timestamp of submission
     submissionYear: v.number(), // Year of submission for grouping (e.g., 2025)
+    userId: v.optional(v.union(v.id('users'), v.null())), // User who submitted (if logged in)
 
     // Section 2: Personal Particulars
     fullName: v.string(),

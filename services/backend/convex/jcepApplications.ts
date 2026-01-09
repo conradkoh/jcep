@@ -1,15 +1,18 @@
 import { v } from 'convex/values';
+import type { SessionId } from 'convex-helpers/server/sessions';
 import { SessionIdArg } from 'convex-helpers/server/sessions';
 
 import { mutation, query } from './_generated/server';
-import { getAuthUser } from '../modules/auth/getAuthUser';
+import { getAuthUser, getAuthUserOptional } from '../modules/auth/getAuthUser';
 
 /**
  * Public mutation to submit a JCEP application form.
  * Does NOT require authentication - anyone can submit.
+ * If a sessionId is provided and the user is logged in, associates the user with the submission.
  */
 export const submitApplication = mutation({
   args: {
+    sessionId: v.optional(v.string()), // Optional session ID to associate logged-in user
     fullName: v.string(),
     contactNumber: v.string(),
     ageGroupChoice1: v.union(v.literal('RK'), v.literal('DR'), v.literal('AR'), v.literal('ER')),
@@ -40,12 +43,24 @@ export const submitApplication = mutation({
       throw new Error('Reason for choice 2 is required when age group choice 2 is selected');
     }
 
+    // Try to get user if sessionId provided (optional - don't fail if not logged in)
+    let userId = null;
+    if (args.sessionId) {
+      const user = await getAuthUserOptional(ctx, {
+        sessionId: args.sessionId as SessionId,
+      });
+      if (user) {
+        userId = user._id;
+      }
+    }
+
     const now = Date.now();
     const submissionYear = new Date(now).getFullYear();
 
     const applicationId = await ctx.db.insert('jcepApplications', {
       submittedAt: now,
       submissionYear,
+      userId,
       fullName: args.fullName.trim(),
       contactNumber: args.contactNumber.trim(),
       ageGroupChoice1: args.ageGroupChoice1,

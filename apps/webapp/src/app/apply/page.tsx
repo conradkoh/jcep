@@ -2,6 +2,7 @@
 
 import { api } from '@workspace/backend/convex/_generated/api';
 import { useMutation } from 'convex/react';
+import { useSessionId } from 'convex-helpers/react/sessions';
 import { CheckCircle2, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -45,6 +46,7 @@ export default function ApplyPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const submitApplication = useMutation(api.jcepApplications.submitApplication);
+  const [sessionId] = useSessionId();
 
   const [formData, setFormData] = useState<FormData>({
     acknowledgedMottoAndPledge: false,
@@ -118,6 +120,7 @@ export default function ApplyPage() {
     setIsSubmitting(true);
     try {
       await submitApplication({
+        sessionId: sessionId || undefined, // Pass session ID to associate logged-in user
         fullName: formData.fullName,
         contactNumber: formData.contactNumber,
         ageGroupChoice1: formData.ageGroupChoice1 as AgeGroup,
