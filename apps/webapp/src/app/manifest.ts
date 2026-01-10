@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'JCEP',
     short_name: 'JCEP',
-    description: 'Jesus Centre Emmanuel Parish Management',
+    description: 'Junior Commander Exposure Programme',
     icons: [
       {
         src: '/appicon-16x16.png',

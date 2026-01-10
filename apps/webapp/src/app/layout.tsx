@@ -28,7 +28,7 @@ export const viewport = {
 
 export const metadata: Metadata = {
   title: 'JCEP',
-  description: 'Jesus Centre Emmanuel Parish Management',
+  description: 'Junior Commander Exposure Programme',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
