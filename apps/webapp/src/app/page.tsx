@@ -1,4 +1,7 @@
 'use client';
+import { ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+
 import { useAppVersion } from '@/modules/app/useAppInfo';
 
 export default function Home() {
@@ -11,6 +14,18 @@ export default function Home() {
           Junior Commander Exposure Programme
         </h1>
         <p className="text-muted-foreground">Royal Rangers Singapore Outpost 1</p>
+        <div className="mt-8">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+            Helpful Links
+          </p>
+          <Link
+            href="/apply"
+            className="group inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-base font-medium border-b border-transparent hover:border-foreground/20 py-2"
+          >
+            View Application Form
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
         <div>App Version: {appVersion ?? 'Loading...'}</div>
