@@ -79,11 +79,8 @@ function ApplicationsPageContent() {
 
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+      month: 'short',
     });
   };
 
@@ -249,7 +246,7 @@ function ApplicationsPageContent() {
                         <CollapsibleContent>
                           <div className="border-t">
                             <Table>
-                              <TableHeader>
+                              <TableHeader className="sticky top-0 bg-card z-10">
                                 <TableRow>
                                   <TableHead>Applicant</TableHead>
                                   <TableHead>Choices</TableHead>
@@ -260,9 +257,9 @@ function ApplicationsPageContent() {
                                 {yearApplications.map((app) => (
                                   <TableRow key={app._id}>
                                     <TableCell>
-                                      <div className="space-y-1">
-                                        <p className="font-medium">{app.fullName}</p>
-                                        <p className="text-sm text-muted-foreground">
+                                      <div className="space-y-1 max-w-[180px]">
+                                        <p className="font-medium truncate">{app.fullName}</p>
+                                        <p className="text-sm text-muted-foreground truncate">
                                           {app.contactNumber}
                                         </p>
                                         <p className="text-xs text-muted-foreground">
