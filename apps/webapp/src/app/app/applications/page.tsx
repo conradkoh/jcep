@@ -251,41 +251,32 @@ function ApplicationsPageContent() {
                             <Table>
                               <TableHeader>
                                 <TableRow>
-                                  <TableHead>Submitted</TableHead>
-                                  <TableHead>Full Name</TableHead>
-                                  <TableHead>Contact</TableHead>
-                                  <TableHead>Choice 1</TableHead>
-                                  <TableHead>Choice 2</TableHead>
+                                  <TableHead>Applicant</TableHead>
+                                  <TableHead>Choices</TableHead>
                                   <TableHead className="w-[50px]">Actions</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
                                 {yearApplications.map((app) => (
                                   <TableRow key={app._id}>
-                                    <TableCell className="text-sm text-muted-foreground">
-                                      {formatDate(app.submittedAt)}
-                                    </TableCell>
-                                    <TableCell className="font-medium">{app.fullName}</TableCell>
-                                    <TableCell className="text-sm">{app.contactNumber}</TableCell>
                                     <TableCell>
                                       <div className="space-y-1">
-                                        <Badge variant="outline">{app.ageGroupChoice1}</Badge>
-                                        <p className="text-xs text-muted-foreground line-clamp-2">
-                                          {app.reasonForChoice1}
+                                        <p className="font-medium">{app.fullName}</p>
+                                        <p className="text-sm text-muted-foreground">
+                                          {app.contactNumber}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                          {formatDate(app.submittedAt)}
                                         </p>
                                       </div>
                                     </TableCell>
                                     <TableCell>
-                                      {app.ageGroupChoice2 ? (
-                                        <div className="space-y-1">
-                                          <Badge variant="outline">{app.ageGroupChoice2}</Badge>
-                                          <p className="text-xs text-muted-foreground line-clamp-2">
-                                            {app.reasonForChoice2}
-                                          </p>
-                                        </div>
-                                      ) : (
-                                        <span className="text-sm text-muted-foreground">—</span>
-                                      )}
+                                      <div className="flex flex-wrap gap-1">
+                                        <Badge variant="outline">{app.ageGroupChoice1}</Badge>
+                                        {app.ageGroupChoice2 && (
+                                          <Badge variant="secondary">{app.ageGroupChoice2}</Badge>
+                                        )}
+                                      </div>
                                     </TableCell>
                                     <TableCell>
                                       <DropdownMenu>
