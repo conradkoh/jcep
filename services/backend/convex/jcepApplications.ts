@@ -239,7 +239,7 @@ export const getApplication = query({
 
     const application = await ctx.db.get('jcepApplications', args.applicationId);
     if (!application) {
-      throw new Error('Application not found');
+      return null;
     }
 
     return application;
