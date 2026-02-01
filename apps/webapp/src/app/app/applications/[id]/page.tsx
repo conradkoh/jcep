@@ -11,6 +11,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { useAuthState } from '@/modules/auth/AuthProvider';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 
@@ -198,81 +205,108 @@ function ApplicationViewContent({ applicationId }: { applicationId: Id<'jcepAppl
           <Card className="p-6">
             <h2 className="text-xl font-semibold text-foreground mb-4">Acknowledgement</h2>
 
-            <div className="space-y-4">
-              <div className="p-4 bg-accent/40 rounded-md">
-                <h3 className="font-semibold text-foreground mb-2">Royal Rangers Motto</h3>
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-medium">&quot;Ready&quot;</span> - Meaning of Motto: Ready
-                  for anything! Ready to work, play, serve, worship, live, and obey God&apos;s Word.
-                </p>
-              </div>
-
-              <div className="p-4 bg-accent/40 rounded-md">
-                <h3 className="font-semibold text-foreground mb-2">Royal Rangers Pledge</h3>
-                <p className="text-sm text-muted-foreground">
-                  With God&apos;s help, I will do my best to: Serve God, my church, and my fellow
-                  man. To live by the Ranger Code. To make the golden rule my daily rule.
-                </p>
-              </div>
-
-              <div className="p-4 bg-accent/40 rounded-md">
-                <h3 className="font-semibold text-foreground mb-2">Royal Rangers Code</h3>
-                <div className="text-sm text-muted-foreground space-y-1">
-                  <p>
-                    <span className="font-bold">ALERT:</span> He is mentally, physically, and
-                    spiritually alert.
-                  </p>
-                  <p>
-                    <span className="font-bold">CLEAN:</span> He is clean in body, mind, and speech.
-                  </p>
-                  <p>
-                    <span className="font-bold">HONEST:</span> He does not lie, cheat, or steal.
-                  </p>
-                  <p>
-                    <span className="font-bold">COURAGEOUS:</span> He is brave in spite of danger,
-                    criticism, or threats.
-                  </p>
-                  <p>
-                    <span className="font-bold">LOYAL:</span> He is faithful to his church, family,
-                    outpost, and friends.
-                  </p>
-                  <p>
-                    <span className="font-bold">COURTEOUS:</span> He is polite, kind, and
-                    thoughtful.
-                  </p>
-                  <p>
-                    <span className="font-bold">OBEDIENT:</span> He obeys his parents, leaders, and
-                    those in authority.
-                  </p>
-                  <p>
-                    <span className="font-bold">SPIRITUAL:</span> He prays, reads the Bible, and
-                    witnesses.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 mt-4 border-t">
-              <div className="flex items-start space-x-3">
-                <Checkbox
-                  id="acknowledgement-view"
-                  checked={application.acknowledgedMottoAndPledge}
-                  disabled
-                  className="mt-0.5"
-                />
-                <div className="grid gap-1.5 leading-none">
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                id="acknowledgement-view"
+                checked={application.acknowledgedMottoAndPledge}
+                disabled
+                className="mt-0.5"
+              />
+              <div className="grid gap-1.5 leading-none">
+                <div className="flex items-center gap-2">
                   <label
                     htmlFor="acknowledgement-view"
                     className="text-sm font-medium leading-none"
                   >
-                    I acknowledge and agree
+                    Royal Rangers Motto, Pledge, and Code
                   </label>
-                  <p className="text-sm text-muted-foreground">
-                    By applying for this programme, I agree to commit to coming for weekly
-                    programmes, and understand that my mentor(s) may give me feedback with the
-                    intention of preparing me to readiness towards becoming a commander.
-                  </p>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="link" size="sm" className="h-auto p-0 text-xs">
+                        View Details
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Royal Rangers Motto, Pledge, and Code</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 mt-4">
+                        <div className="p-4 bg-accent/40 rounded-md">
+                          <h3 className="font-semibold text-foreground mb-2">
+                            Royal Rangers Motto
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            <span className="font-medium">&quot;Ready&quot;</span> - Meaning of
+                            Motto: Ready for anything! Ready to work, play, serve, worship, live,
+                            and obey God&apos;s Word.
+                          </p>
+                        </div>
+
+                        <div className="p-4 bg-accent/40 rounded-md">
+                          <h3 className="font-semibold text-foreground mb-2">
+                            Royal Rangers Pledge
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            With God&apos;s help, I will do my best to: Serve God, my church, and my
+                            fellow man. To live by the Ranger Code. To make the golden rule my daily
+                            rule.
+                          </p>
+                        </div>
+
+                        <div className="p-4 bg-accent/40 rounded-md">
+                          <h3 className="font-semibold text-foreground mb-2">Royal Rangers Code</h3>
+                          <div className="text-sm text-muted-foreground space-y-1">
+                            <p>
+                              <span className="font-bold">ALERT:</span> He is mentally, physically,
+                              and spiritually alert.
+                            </p>
+                            <p>
+                              <span className="font-bold">CLEAN:</span> He is clean in body, mind,
+                              and speech.
+                            </p>
+                            <p>
+                              <span className="font-bold">HONEST:</span> He does not lie, cheat, or
+                              steal.
+                            </p>
+                            <p>
+                              <span className="font-bold">COURAGEOUS:</span> He is brave in spite of
+                              danger, criticism, or threats.
+                            </p>
+                            <p>
+                              <span className="font-bold">LOYAL:</span> He is faithful to his
+                              church, family, outpost, and friends.
+                            </p>
+                            <p>
+                              <span className="font-bold">COURTEOUS:</span> He is polite, kind, and
+                              thoughtful.
+                            </p>
+                            <p>
+                              <span className="font-bold">OBEDIENT:</span> He obeys his parents,
+                              leaders, and those in authority.
+                            </p>
+                            <p>
+                              <span className="font-bold">SPIRITUAL:</span> He prays, reads the
+                              Bible, and witnesses.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="p-4 border rounded-md bg-muted/30">
+                          <p className="text-sm text-muted-foreground">
+                            By applying for this programme, I agree to commit to coming for weekly
+                            programmes, and understand that my mentor(s) may give me feedback with
+                            the intention of preparing me to readiness towards becoming a commander.
+                          </p>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  {application.acknowledgedMottoAndPledge
+                    ? 'Applicant has acknowledged the Motto, Pledge, and Code.'
+                    : 'Applicant has not acknowledged the Motto, Pledge, and Code.'}
+                </p>
               </div>
             </div>
           </Card>
