@@ -10,6 +10,7 @@ import { use } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useAuthState } from '@/modules/auth/AuthProvider';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 
@@ -196,20 +197,83 @@ function ApplicationViewContent({ applicationId }: { applicationId: Id<'jcepAppl
           {/* Acknowledgement */}
           <Card className="p-6">
             <h2 className="text-xl font-semibold text-foreground mb-4">Acknowledgement</h2>
-            <div className="flex items-center gap-2">
-              {application.acknowledgedMottoAndPledge ? (
-                <Badge
-                  variant="outline"
-                  className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800"
-                >
-                  Acknowledged
-                </Badge>
-              ) : (
-                <Badge variant="destructive">Not Acknowledged</Badge>
-              )}
-              <span className="text-sm text-muted-foreground">
-                Royal Rangers Motto, Pledge, and Code
-              </span>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-accent/40 rounded-md">
+                <h3 className="font-semibold text-foreground mb-2">Royal Rangers Motto</h3>
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-medium">&quot;Ready&quot;</span> - Meaning of Motto: Ready
+                  for anything! Ready to work, play, serve, worship, live, and obey God&apos;s Word.
+                </p>
+              </div>
+
+              <div className="p-4 bg-accent/40 rounded-md">
+                <h3 className="font-semibold text-foreground mb-2">Royal Rangers Pledge</h3>
+                <p className="text-sm text-muted-foreground">
+                  With God&apos;s help, I will do my best to: Serve God, my church, and my fellow
+                  man. To live by the Ranger Code. To make the golden rule my daily rule.
+                </p>
+              </div>
+
+              <div className="p-4 bg-accent/40 rounded-md">
+                <h3 className="font-semibold text-foreground mb-2">Royal Rangers Code</h3>
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p>
+                    <span className="font-bold">ALERT:</span> He is mentally, physically, and
+                    spiritually alert.
+                  </p>
+                  <p>
+                    <span className="font-bold">CLEAN:</span> He is clean in body, mind, and speech.
+                  </p>
+                  <p>
+                    <span className="font-bold">HONEST:</span> He does not lie, cheat, or steal.
+                  </p>
+                  <p>
+                    <span className="font-bold">COURAGEOUS:</span> He is brave in spite of danger,
+                    criticism, or threats.
+                  </p>
+                  <p>
+                    <span className="font-bold">LOYAL:</span> He is faithful to his church, family,
+                    outpost, and friends.
+                  </p>
+                  <p>
+                    <span className="font-bold">COURTEOUS:</span> He is polite, kind, and
+                    thoughtful.
+                  </p>
+                  <p>
+                    <span className="font-bold">OBEDIENT:</span> He obeys his parents, leaders, and
+                    those in authority.
+                  </p>
+                  <p>
+                    <span className="font-bold">SPIRITUAL:</span> He prays, reads the Bible, and
+                    witnesses.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 mt-4 border-t">
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="acknowledgement-view"
+                  checked={application.acknowledgedMottoAndPledge}
+                  disabled
+                  className="mt-0.5"
+                />
+                <div className="grid gap-1.5 leading-none">
+                  <label
+                    htmlFor="acknowledgement-view"
+                    className="text-sm font-medium leading-none"
+                  >
+                    I acknowledge and agree
+                  </label>
+                  <p className="text-sm text-muted-foreground">
+                    By applying for this programme, I agree to commit to coming for weekly
+                    programmes, and understand that my mentor(s) may give me feedback with the
+                    intention of preparing me to readiness towards becoming a commander.
+                  </p>
+                </div>
+              </div>
             </div>
           </Card>
         </div>
