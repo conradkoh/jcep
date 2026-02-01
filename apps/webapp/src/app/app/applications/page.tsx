@@ -244,22 +244,22 @@ function ApplicationsPageContent() {
                         </CollapsibleTrigger>
 
                         <CollapsibleContent>
-                          <div className="border-t">
-                            <Table>
+                          <div className="border-t overflow-hidden">
+                            <Table className="table-fixed">
                               <TableHeader className="sticky top-0 bg-card z-10">
                                 <TableRow>
-                                  <TableHead>Applicant</TableHead>
-                                  <TableHead>Choices</TableHead>
-                                  <TableHead className="w-[50px]">Actions</TableHead>
+                                  <TableHead className="w-[45%]">Applicant</TableHead>
+                                  <TableHead className="w-[45%]">Choices</TableHead>
+                                  <TableHead className="w-[10%]">Actions</TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
                                 {yearApplications.map((app) => (
                                   <TableRow key={app._id}>
-                                    <TableCell>
-                                      <div className="space-y-1 max-w-[180px]">
-                                        <p className="font-medium truncate">{app.fullName}</p>
-                                        <p className="text-sm text-muted-foreground truncate">
+                                    <TableCell className="whitespace-normal align-top">
+                                      <div className="space-y-1">
+                                        <p className="font-medium break-words">{app.fullName}</p>
+                                        <p className="text-sm text-muted-foreground break-words">
                                           {app.contactNumber}
                                         </p>
                                         <p className="text-xs text-muted-foreground">
@@ -267,13 +267,13 @@ function ApplicationsPageContent() {
                                         </p>
                                       </div>
                                     </TableCell>
-                                    <TableCell>
-                                      <div className="space-y-2 max-w-[200px]">
+                                    <TableCell className="whitespace-normal align-top">
+                                      <div className="space-y-2">
                                         <div>
                                           <Badge variant="outline" className="mb-1">
                                             {app.ageGroupChoice1}
                                           </Badge>
-                                          <p className="text-xs text-muted-foreground truncate">
+                                          <p className="text-xs text-muted-foreground break-words">
                                             {app.reasonForChoice1}
                                           </p>
                                         </div>
@@ -282,7 +282,7 @@ function ApplicationsPageContent() {
                                             <Badge variant="secondary" className="mb-1">
                                               {app.ageGroupChoice2}
                                             </Badge>
-                                            <p className="text-xs text-muted-foreground truncate">
+                                            <p className="text-xs text-muted-foreground break-words">
                                               {app.reasonForChoice2}
                                             </p>
                                           </div>
