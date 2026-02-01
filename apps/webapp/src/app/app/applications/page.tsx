@@ -248,9 +248,11 @@ function ApplicationsPageContent() {
                             <Table className="table-fixed w-full">
                               <TableHeader className="sticky top-0 bg-card z-10">
                                 <TableRow>
-                                  <TableHead className="w-[45%]">Applicant</TableHead>
-                                  <TableHead className="w-[45%]">Choices</TableHead>
-                                  <TableHead className="w-[10%]">Actions</TableHead>
+                                  <TableHead className="w-[42%]">Applicant</TableHead>
+                                  <TableHead className="w-[42%]">Choices</TableHead>
+                                  <TableHead className="w-[16%]">
+                                    <span className="sr-only">Actions</span>
+                                  </TableHead>
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
