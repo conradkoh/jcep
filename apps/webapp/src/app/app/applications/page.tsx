@@ -244,8 +244,8 @@ function ApplicationsPageContent() {
                         </CollapsibleTrigger>
 
                         <CollapsibleContent>
-                          <div className="border-t overflow-hidden">
-                            <Table className="table-fixed">
+                          <div className="border-t overflow-hidden [&_[data-slot=table-container]]:overflow-hidden">
+                            <Table className="table-fixed w-full">
                               <TableHeader className="sticky top-0 bg-card z-10">
                                 <TableRow>
                                   <TableHead className="w-[45%]">Applicant</TableHead>
