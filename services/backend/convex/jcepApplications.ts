@@ -217,6 +217,99 @@ export const unarchiveApplication = mutation({
 });
 
 /**
+ * Query to get a single JCEP application by ID.
+ * Requires authentication and system_admin access.
+ */
+export const getApplication = query({
+  args: {
+    ...SessionIdArg,
+    applicationId: v.id('jcepApplications'),
+  },
+  handler: async (ctx, args) => {
+    // Check authentication
+    const user = await getAuthUser(ctx, args);
+    if (!user) {
+      throw new Error('You must be logged in to view applications');
+    }
+
+    // Check admin access
+    if (user.accessLevel !== 'system_admin') {
+      throw new Error('You must be a system admin to view applications');
+    }
+
+    const application = await ctx.db.get('jcepApplications', args.applicationId);
+    if (!application) {
+      throw new Error('Application not found');
+    }
+
+    return application;
+  },
+});
+
+/**
+ * Mutation to update a JCEP application.
+ * Requires authentication and system_admin access.
+ */
+export const updateApplication = mutation({
+  args: {
+    ...SessionIdArg,
+    applicationId: v.id('jcepApplications'),
+    fullName: v.string(),
+    contactNumber: v.string(),
+    ageGroupChoice1: v.union(v.literal('RK'), v.literal('DR'), v.literal('AR'), v.literal('ER')),
+    reasonForChoice1: v.string(),
+    ageGroupChoice2: v.optional(
+      v.union(v.literal('RK'), v.literal('DR'), v.literal('AR'), v.literal('ER'))
+    ),
+    reasonForChoice2: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    // Check authentication
+    const user = await getAuthUser(ctx, args);
+    if (!user) {
+      throw new Error('You must be logged in to update applications');
+    }
+
+    // Check admin access
+    if (user.accessLevel !== 'system_admin') {
+      throw new Error('You must be a system admin to update applications');
+    }
+
+    // Validation
+    if (!args.fullName.trim()) {
+      throw new Error('Full name is required');
+    }
+    if (!args.contactNumber.trim()) {
+      throw new Error('Contact number is required');
+    }
+    if (!args.reasonForChoice1.trim()) {
+      throw new Error('Reason for choice 1 is required');
+    }
+
+    // If choice 2 is provided, reason 2 must also be provided
+    if (args.ageGroupChoice2 && !args.reasonForChoice2?.trim()) {
+      throw new Error('Reason for choice 2 is required when age group choice 2 is selected');
+    }
+
+    const application = await ctx.db.get('jcepApplications', args.applicationId);
+    if (!application) {
+      throw new Error('Application not found');
+    }
+
+    await ctx.db.patch('jcepApplications', args.applicationId, {
+      fullName: args.fullName.trim(),
+      contactNumber: args.contactNumber.trim(),
+      ageGroupChoice1: args.ageGroupChoice1,
+      reasonForChoice1: args.reasonForChoice1.trim(),
+      ageGroupChoice2: args.ageGroupChoice2 ?? null,
+      reasonForChoice2: args.reasonForChoice2?.trim() ?? null,
+    });
+
+    return { success: true };
+  },
+});
+
+/**
  * Query to get applications count by year (for dashboard summary).
  * Requires authentication and system_admin access.
  */

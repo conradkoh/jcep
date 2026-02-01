@@ -8,7 +8,9 @@ import {
   ArchiveRestore,
   ChevronDown,
   ChevronUp,
+  Eye,
   MoreVertical,
+  Pencil,
   Shield,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -23,6 +25,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -293,6 +296,19 @@ function ApplicationsPageContent() {
                                           </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
+                                          <DropdownMenuItem asChild className="cursor-pointer">
+                                            <Link href={`/app/applications/${app._id}`}>
+                                              <Eye className="mr-2 h-4 w-4" />
+                                              View
+                                            </Link>
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem asChild className="cursor-pointer">
+                                            <Link href={`/app/applications/${app._id}/edit`}>
+                                              <Pencil className="mr-2 h-4 w-4" />
+                                              Edit
+                                            </Link>
+                                          </DropdownMenuItem>
+                                          <DropdownMenuSeparator />
                                           {showArchiveAction && (
                                             <DropdownMenuItem
                                               onClick={() =>
