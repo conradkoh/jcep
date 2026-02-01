@@ -268,10 +268,24 @@ function ApplicationsPageContent() {
                                       </div>
                                     </TableCell>
                                     <TableCell>
-                                      <div className="flex flex-wrap gap-1">
-                                        <Badge variant="outline">{app.ageGroupChoice1}</Badge>
+                                      <div className="space-y-2 max-w-[200px]">
+                                        <div>
+                                          <Badge variant="outline" className="mb-1">
+                                            {app.ageGroupChoice1}
+                                          </Badge>
+                                          <p className="text-xs text-muted-foreground truncate">
+                                            {app.reasonForChoice1}
+                                          </p>
+                                        </div>
                                         {app.ageGroupChoice2 && (
-                                          <Badge variant="secondary">{app.ageGroupChoice2}</Badge>
+                                          <div>
+                                            <Badge variant="secondary" className="mb-1">
+                                              {app.ageGroupChoice2}
+                                            </Badge>
+                                            <p className="text-xs text-muted-foreground truncate">
+                                              {app.reasonForChoice2}
+                                            </p>
+                                          </div>
                                         )}
                                       </div>
                                     </TableCell>
