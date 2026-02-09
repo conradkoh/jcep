@@ -1,6 +1,6 @@
 'use client';
 
-import { ClipboardList, FileText, Users } from 'lucide-react';
+import { Calendar, ClipboardList, FileText, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
 
@@ -15,23 +15,36 @@ interface NavCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
+  external?: boolean;
 }
 
-function NavCard({ href, icon, title, description }: NavCardProps) {
-  return (
-    <Link
-      href={href}
-      className="group p-6 border border-border rounded-lg hover:border-primary hover:bg-accent/50 transition-colors"
-    >
-      <div className="flex items-center gap-4">
-        <div className="p-3 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-          {icon}
-        </div>
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-          <p className="text-sm text-muted-foreground">{description}</p>
-        </div>
+function NavCard({ href, icon, title, description, external }: NavCardProps) {
+  const content = (
+    <div className="flex items-center gap-4">
+      <div className="p-3 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
+        {icon}
       </div>
+      <div>
+        <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </div>
+    </div>
+  );
+
+  const className =
+    'group p-6 border border-border rounded-lg hover:border-primary hover:bg-accent/50 transition-colors block';
+
+  if (external) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} className={className}>
+      {content}
     </Link>
   );
 }
@@ -77,6 +90,14 @@ export default function AppPage() {
               icon={<FileText className="h-6 w-6 text-primary" />}
               title="Apply to JCEP"
               description="Submit an application to join the programme"
+            />
+
+            <NavCard
+              href="https://docs.google.com/spreadsheets/d/1oCii9CYZiTNhEi9IEkRD_40eTTzl4EAuyJPR9aBnZKI/edit?usp=drivesdk"
+              icon={<Calendar className="h-6 w-6 text-primary" />}
+              title="JCEP 2026 Schedule"
+              description="View the programme schedule and important dates"
+              external
             />
 
             {isAdmin && (
