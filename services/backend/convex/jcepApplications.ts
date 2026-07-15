@@ -350,3 +350,34 @@ export const getApplicationsCountByYear = query({
     };
   },
 });
+
+/**
+ * Query to get JCEP applications by year.
+ * Admin only. Returns non-archived applications for a given submission year.
+ */
+export const getApplicationsByYear = query({
+  args: {
+    ...SessionIdArg,
+    year: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const user = await getAuthUser(ctx, args);
+    if (!user) {
+      throw new Error('You must be logged in to view applications');
+    }
+
+    if (user.accessLevel !== 'system_admin') {
+      throw new Error('You must be a system admin to view applications');
+    }
+
+    const applications = await ctx.db
+      .query('jcepApplications')
+      .withIndex('by_submission_year', (q) => q.eq('submissionYear', args.year))
+      .collect();
+
+    // Filter out archived applications
+    const activeApplications = applications.filter((app) => app.archivedAt == null);
+
+    return activeApplications.sort((a, b) => b.submittedAt - a.submittedAt);
+  },
+});

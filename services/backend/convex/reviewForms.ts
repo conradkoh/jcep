@@ -1276,3 +1276,110 @@ export const updateParticularsByToken = mutation({
     await ctx.db.patch('reviewForms', args.formId, updates);
   },
 });
+
+/**
+ * Bulk create review forms.
+ * Admin only. Creates multiple forms at once, handles partial failures gracefully.
+ */
+export const bulkCreateReviewForms = mutation({
+  args: {
+    ...SessionIdArg,
+    rotationYear: v.number(),
+    rotationQuarter: v.number(),
+    evaluationDate: v.number(),
+    forms: v.array(
+      v.object({
+        buddyUserId: v.id('users'),
+        buddyName: v.string(),
+        juniorCommanderUserId: v.union(v.id('users'), v.null()),
+        juniorCommanderName: v.string(),
+        ageGroup: ageGroupValidator,
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    if (user.accessLevel !== 'system_admin') {
+      throw new Error('Admin only');
+    }
+
+    if (args.rotationQuarter < 1 || args.rotationQuarter > 4) {
+      throw new Error('rotationQuarter must be between 1 and 4');
+    }
+
+    const results: {
+      success: boolean;
+      formId?: string;
+      buddyAccessToken?: string;
+      jcAccessToken?: string;
+      juniorCommanderName?: string;
+      error?: string;
+    }[] = [];
+
+    for (const formData of args.forms) {
+      try {
+        const buddyUser = await ctx.db.get('users', formData.buddyUserId);
+        if (!buddyUser) {
+          throw new Error('Buddy user not found');
+        }
+
+        if (formData.juniorCommanderUserId) {
+          const jcUser = await ctx.db.get('users', formData.juniorCommanderUserId);
+          if (!jcUser) {
+            throw new Error('Junior Commander user not found');
+          }
+        }
+
+        const buddyAccessToken = generateSecureToken();
+        const jcAccessToken = generateSecureToken();
+
+        const formId = await ctx.db.insert('reviewForms', {
+          schemaVersion: CURRENT_SCHEMA_VERSION,
+          buddyAccessToken,
+          jcAccessToken,
+          tokenExpiresAt: null,
+          buddyResponsesVisibleToJC: false,
+          jcResponsesVisibleToBuddy: false,
+          visibilityChangedAt: null,
+          visibilityChangedBy: null,
+          rotationYear: args.rotationYear,
+          rotationQuarter: args.rotationQuarter,
+          buddyUserId: formData.buddyUserId,
+          buddyName: formData.buddyName,
+          juniorCommanderUserId: formData.juniorCommanderUserId,
+          juniorCommanderName: formData.juniorCommanderName,
+          ageGroup: formData.ageGroup,
+          evaluationDate: args.evaluationDate,
+          nextRotationPreference: null,
+          buddyEvaluation: null,
+          jcReflection: null,
+          jcFeedback: null,
+          status: 'not_started',
+          submittedAt: null,
+          submittedBy: null,
+          createdBy: user._id,
+        });
+
+        results.push({
+          success: true,
+          formId,
+          buddyAccessToken,
+          jcAccessToken,
+          juniorCommanderName: formData.juniorCommanderName,
+        });
+      } catch (error) {
+        results.push({
+          success: false,
+          juniorCommanderName: formData.juniorCommanderName,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    }
+
+    return results;
+  },
+});

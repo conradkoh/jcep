@@ -404,4 +404,19 @@ export default defineSchema({
     .index('by_submission_year', ['submissionYear'])
     .index('by_submitted_at', ['submittedAt'])
     .index('by_year_and_submitted', ['submissionYear', 'submittedAt']),
+
+  /**
+   * Rotation Mappings for bulk review form generation.
+   * Source of truth linking rotation number to evaluation date.
+   */
+  rotationMappings: defineTable({
+    rotationYear: v.number(),
+    rotationQuarter: v.number(), // 1-4
+    evaluationDate: v.number(), // timestamp
+    label: v.optional(v.string()), // e.g. "2025 Q1"
+    createdAt: v.number(),
+    createdBy: v.id('users'),
+  })
+    .index('by_year_quarter', ['rotationYear', 'rotationQuarter'])
+    .index('by_year', ['rotationYear']),
 });

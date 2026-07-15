@@ -9,6 +9,7 @@ import { useMemo } from 'react';
 
 import type {
   AllReviewFormsReturn,
+  AgeGroup,
   CreateReviewFormParams,
   CreateReviewFormResponse,
   RegenerateTokensResponse,
@@ -273,5 +274,86 @@ export function useUnarchiveReviewForm() {
 
   return async (formId: Id<'reviewForms'>): Promise<void> => {
     await unarchiveMutation({ formId });
+  };
+}
+
+export type RotationMapping = {
+  _id: Id<'rotationMappings'>;
+  _creationTime: number;
+  rotationYear: number;
+  rotationQuarter: number;
+  evaluationDate: number;
+  label?: string;
+  createdAt: number;
+  createdBy: Id<'users'>;
+};
+
+export function useListRotationMappings() {
+  const mappings = useSessionQuery(api.rotationMappings.listRotationMappings) as
+    | RotationMapping[]
+    | undefined;
+
+  return {
+    mappings,
+    isLoading: mappings === undefined,
+    error: null,
+  };
+}
+
+export type BulkCreateFormParams = {
+  rotationYear: number;
+  rotationQuarter: number;
+  evaluationDate: number;
+  forms: {
+    buddyUserId: Id<'users'>;
+    buddyName: string;
+    juniorCommanderUserId: Id<'users'> | null;
+    juniorCommanderName: string;
+    ageGroup: 'RK' | 'DR' | 'AR' | 'ER';
+  }[];
+};
+
+export type BulkCreateFormResult = {
+  success: boolean;
+  formId?: string;
+  buddyAccessToken?: string;
+  jcAccessToken?: string;
+  juniorCommanderName?: string;
+  error?: string;
+}[];
+
+export function useBulkCreateReviewForms() {
+  const createMutation = useSessionMutation(api.reviewForms.bulkCreateReviewForms);
+
+  return async (params: BulkCreateFormParams): Promise<BulkCreateFormResult> => {
+    return await createMutation(params);
+  };
+}
+
+export type JcepApplication = {
+  _id: Id<'jcepApplications'>;
+  _creationTime: number;
+  submissionYear: number;
+  userId: Id<'users'> | null;
+  fullName: string;
+  contactNumber: string;
+  ageGroupChoice1: AgeGroup;
+  reasonForChoice1: string;
+  ageGroupChoice2: AgeGroup | null;
+  reasonForChoice2: string | null;
+  acknowledgedMottoAndPledge: boolean;
+  archivedAt?: number | null;
+  archivedBy?: Id<'users'> | null;
+};
+
+export function useApplicationsByYear(year: number) {
+  const applications = useSessionQuery(api.jcepApplications.getApplicationsByYear, { year }) as
+    | JcepApplication[]
+    | undefined;
+
+  return {
+    applications,
+    isLoading: applications === undefined,
+    error: null,
   };
 }
