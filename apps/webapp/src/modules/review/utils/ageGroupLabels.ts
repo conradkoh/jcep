@@ -14,3 +14,13 @@ export const AGE_GROUP_LABELS: Record<AgeGroup, string> = {
 export function getAgeGroupLabel(ageGroup: AgeGroup): string {
   return AGE_GROUP_LABELS[ageGroup];
 }
+
+/** Ordered list for select dropdowns */
+export const AGE_GROUP_OPTIONS: { value: AgeGroup; label: string }[] = (
+  Object.entries(AGE_GROUP_LABELS) as [AgeGroup, string][]
+).map(([value, label]) => ({ value, label }));
+
+/** Display label with code, e.g. "Ranger Kids (RK)" */
+export function getAgeGroupSelectLabel(ageGroup: AgeGroup): string {
+  return `${AGE_GROUP_LABELS[ageGroup]} (${ageGroup})`;
+}

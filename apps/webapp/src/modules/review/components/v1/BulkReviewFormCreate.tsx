@@ -12,6 +12,7 @@ import {
   type BulkCreateFormResult,
 } from '../../hooks/useReviewForm';
 import type { AgeGroup } from '../../types';
+import { AGE_GROUP_OPTIONS, getAgeGroupLabel } from '../../utils/ageGroupLabels';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -47,13 +48,6 @@ interface SelectedParticipant {
 interface BulkReviewFormCreateProps {
   currentUserId: Id<'users'>;
 }
-
-const ageGroupOptions = [
-  { value: 'RK', label: 'Red Kangaroo (RK)' },
-  { value: 'DR', label: 'Dream Rider (DR)' },
-  { value: 'AR', label: 'Adventure Ranger (AR)' },
-  { value: 'ER', label: 'Exploration Ranger (ER)' },
-];
 
 function formatDate(timestamp: number): string {
   return new Date(timestamp).toLocaleDateString('en-GB', {
@@ -394,7 +388,7 @@ export function BulkReviewFormCreate({ currentUserId }: BulkReviewFormCreateProp
                             <td className="p-3 text-sm text-muted-foreground">{p.contactNumber}</td>
                             <td className="p-3">
                               <Badge variant="outline" className="text-xs">
-                                {p.registeredAgeGroup}
+                                {getAgeGroupLabel(p.registeredAgeGroup)}
                               </Badge>
                             </td>
                             <td className="p-3">
@@ -409,7 +403,7 @@ export function BulkReviewFormCreate({ currentUserId }: BulkReviewFormCreateProp
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {ageGroupOptions.map((opt) => (
+                                  {AGE_GROUP_OPTIONS.map((opt) => (
                                     <SelectItem key={opt.value} value={opt.value}>
                                       {opt.label}
                                     </SelectItem>
