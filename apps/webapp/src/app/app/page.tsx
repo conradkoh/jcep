@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, ClipboardList, FileText, Users } from 'lucide-react';
+import { Calendar, ClipboardList, FileText, MessageSquare, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
 
@@ -90,6 +90,13 @@ export default function AppPage() {
               icon={<FileText className="h-6 w-6 text-primary" />}
               title="Apply to JCEP"
               description="Submit an application to join the programme"
+            />
+
+            <NavCard
+              href="/app/feedback"
+              icon={<MessageSquare className="h-6 w-6 text-primary" />}
+              title="Share Feedback"
+              description="Submit feedback about the JCEP programme"
             />
 
             <NavCard

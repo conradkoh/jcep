@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Menu, Settings, Shield, X } from 'lucide-react';
+import { ArrowLeft, Menu, MessageSquare, Settings, Shield, X } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
 
@@ -145,6 +145,15 @@ function _renderSidebarContent(closeSidebar: () => void) {
         >
           <Shield className="h-4 w-4" />
           <span>Google Auth Config</span>
+        </Link>
+
+        <Link
+          href="/app/admin/feedback"
+          className="flex items-center space-x-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted transition-colors"
+          onClick={closeSidebar}
+        >
+          <MessageSquare className="h-4 w-4" />
+          <span>Feedback Submissions</span>
         </Link>
       </nav>
 

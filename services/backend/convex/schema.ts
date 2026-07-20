@@ -404,4 +404,15 @@ export default defineSchema({
     .index('by_submission_year', ['submissionYear'])
     .index('by_submitted_at', ['submittedAt'])
     .index('by_year_and_submitted', ['submissionYear', 'submittedAt']),
+
+  /**
+   * Standalone feedback submissions from the general feedback form.
+   * Viewable by system admins only.
+   */
+  feedbackSubmissions: defineTable({
+    respondentName: v.optional(v.string()),
+    message: v.string(),
+    submittedAt: v.number(),
+    userId: v.optional(v.id('users')),
+  }).index('by_submitted_at', ['submittedAt']),
 });
