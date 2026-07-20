@@ -20,7 +20,7 @@ import type * as jcepApplications from '../jcepApplications.js';
 import type * as migration from '../migration.js';
 import type * as presentations from '../presentations.js';
 import type * as reviewForms from '../reviewForms.js';
-import type * as rotationMappings from '../rotationMappings.js';
+import type * as rotations from '../rotations.js';
 import type * as serviceDesk from '../serviceDesk.js';
 import type * as system_auth_google from '../system/auth/google.js';
 import type * as utils_sectionCompletionHelpers from '../utils/sectionCompletionHelpers.js';
@@ -41,7 +41,7 @@ declare const fullApi: ApiFromModules<{
   migration: typeof migration;
   presentations: typeof presentations;
   reviewForms: typeof reviewForms;
-  rotationMappings: typeof rotationMappings;
+  rotations: typeof rotations;
   serviceDesk: typeof serviceDesk;
   'system/auth/google': typeof system_auth_google;
   'utils/sectionCompletionHelpers': typeof utils_sectionCompletionHelpers;

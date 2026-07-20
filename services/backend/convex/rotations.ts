@@ -1,8 +1,8 @@
 /**
- * Rotation Mappings Backend API
+ * Rotations Backend API
  *
- * Manages rotation mappings for bulk review form generation.
- * Provides CRUD operations for rotationYear/Quarter to evaluationDate mappings.
+ * Manages rotations for bulk review form generation.
+ * Each rotation links a year/quarter to an evaluation date.
  */
 
 import { v } from 'convex/values';
@@ -12,10 +12,10 @@ import { mutation, query } from './_generated/server';
 import { getAuthUser } from '../modules/auth/getAuthUser';
 
 /**
- * List all rotation mappings, ordered by year and quarter descending.
+ * List all rotations, ordered by year and quarter descending.
  * Admin only.
  */
-export const listRotationMappings = query({
+export const listRotations = query({
   args: {
     ...SessionIdArg,
   },
@@ -29,13 +29,13 @@ export const listRotationMappings = query({
       throw new Error('Admin only');
     }
 
-    const mappings = await ctx.db
+    const rotations = await ctx.db
       .query('rotationMappings')
       .withIndex('by_year', (q) => q)
       .collect();
 
     // Sort by year desc, then quarter desc
-    return mappings.sort((a, b) => {
+    return rotations.sort((a, b) => {
       if (a.rotationYear !== b.rotationYear) {
         return b.rotationYear - a.rotationYear;
       }
@@ -45,10 +45,10 @@ export const listRotationMappings = query({
 });
 
 /**
- * Get a rotation mapping by year and quarter.
+ * Get a rotation by year and quarter.
  * Admin only.
  */
-export const getRotationMappingByYearQuarter = query({
+export const getRotationByYearQuarter = query({
   args: {
     ...SessionIdArg,
     rotationYear: v.number(),
@@ -64,22 +64,22 @@ export const getRotationMappingByYearQuarter = query({
       throw new Error('Admin only');
     }
 
-    const mapping = await ctx.db
+    const rotation = await ctx.db
       .query('rotationMappings')
       .withIndex('by_year_quarter', (q) =>
         q.eq('rotationYear', args.rotationYear).eq('rotationQuarter', args.rotationQuarter)
       )
       .first();
 
-    return mapping;
+    return rotation;
   },
 });
 
 /**
- * Create a new rotation mapping.
+ * Create a new rotation.
  * Admin only.
  */
-export const createRotationMapping = mutation({
+export const createRotation = mutation({
   args: {
     ...SessionIdArg,
     rotationYear: v.number(),
@@ -111,10 +111,10 @@ export const createRotationMapping = mutation({
       .first();
 
     if (existing) {
-      throw new Error('Rotation mapping already exists for this year and quarter');
+      throw new Error('Rotation already exists for this year and quarter');
     }
 
-    const mappingId = await ctx.db.insert('rotationMappings', {
+    const rotationId = await ctx.db.insert('rotationMappings', {
       rotationYear: args.rotationYear,
       rotationQuarter: args.rotationQuarter,
       evaluationDate: args.evaluationDate,
@@ -123,18 +123,18 @@ export const createRotationMapping = mutation({
       createdBy: user._id,
     });
 
-    return mappingId;
+    return rotationId;
   },
 });
 
 /**
- * Update a rotation mapping.
+ * Update a rotation.
  * Admin only.
  */
-export const updateRotationMapping = mutation({
+export const updateRotation = mutation({
   args: {
     ...SessionIdArg,
-    mappingId: v.id('rotationMappings'),
+    rotationId: v.id('rotationMappings'),
     evaluationDate: v.optional(v.number()),
     label: v.optional(v.string()),
   },
@@ -148,9 +148,9 @@ export const updateRotationMapping = mutation({
       throw new Error('Admin only');
     }
 
-    const existing = await ctx.db.get('rotationMappings', args.mappingId);
+    const existing = await ctx.db.get('rotationMappings', args.rotationId);
     if (!existing) {
-      throw new Error('Rotation mapping not found');
+      throw new Error('Rotation not found');
     }
 
     const updates: Partial<typeof existing> = {};
@@ -161,18 +161,18 @@ export const updateRotationMapping = mutation({
       updates.label = args.label;
     }
 
-    await ctx.db.patch('rotationMappings', args.mappingId, updates);
+    await ctx.db.patch('rotationMappings', args.rotationId, updates);
   },
 });
 
 /**
- * Delete a rotation mapping.
+ * Delete a rotation.
  * Admin only.
  */
-export const deleteRotationMapping = mutation({
+export const deleteRotation = mutation({
   args: {
     ...SessionIdArg,
-    mappingId: v.id('rotationMappings'),
+    rotationId: v.id('rotationMappings'),
   },
   handler: async (ctx, args) => {
     const user = await getAuthUser(ctx, { sessionId: args.sessionId });
@@ -184,11 +184,11 @@ export const deleteRotationMapping = mutation({
       throw new Error('Admin only');
     }
 
-    const existing = await ctx.db.get('rotationMappings', args.mappingId);
+    const existing = await ctx.db.get('rotationMappings', args.rotationId);
     if (!existing) {
-      throw new Error('Rotation mapping not found');
+      throw new Error('Rotation not found');
     }
 
-    await ctx.db.delete('rotationMappings', args.mappingId);
+    await ctx.db.delete('rotationMappings', args.rotationId);
   },
 });

@@ -406,8 +406,8 @@ export default defineSchema({
     .index('by_year_and_submitted', ['submissionYear', 'submittedAt']),
 
   /**
-   * Rotation Mappings for bulk review form generation.
-   * Source of truth linking rotation number to evaluation date.
+   * Rotations for bulk review form generation.
+   * Each rotation links a year/quarter to an evaluation date.
    */
   rotationMappings: defineTable({
     rotationYear: v.number(),
