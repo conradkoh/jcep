@@ -1,23 +1,36 @@
 'use client';
 
 import type { Id } from '@workspace/backend/convex/_generated/dataModel';
-import { Users, Copy, ChevronRight, RotateCcw, Calendar, Check, Loader2 } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  Check,
+  ChevronRight,
+  Loader2,
+  RotateCcw,
+  Calendar,
+  Users,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import {
   useApplicationsByYear,
   useBulkCreateReviewForms,
-  useListRotationMappings,
+  useListRotations,
   type BulkCreateFormResult,
+  type Rotation,
 } from '../../hooks/useReviewForm';
 import type { AgeGroup } from '../../types';
 import { AGE_GROUP_OPTIONS, getAgeGroupLabel } from '../../utils/ageGroupLabels';
+import { RotationsWidget } from '../admin/RotationsWidget';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   Select,
   SelectContent,
@@ -27,14 +40,6 @@ import {
 } from '@/components/ui/select';
 
 type Step = 'select-rotation' | 'configure-participants' | 'results';
-
-interface RotationMapping {
-  _id: string;
-  rotationYear: number;
-  rotationQuarter: number;
-  evaluationDate: number;
-  label?: string;
-}
 
 interface SelectedParticipant {
   id: string;
@@ -57,17 +62,17 @@ function formatDate(timestamp: number): string {
   });
 }
 
-function getRotationLabel(m: RotationMapping): string {
+function getRotationLabel(m: Rotation): string {
   return m.label || `${m.rotationYear} Q${m.rotationQuarter}`;
 }
 
 export function BulkReviewFormCreate({ currentUserId }: BulkReviewFormCreateProps) {
-  const { mappings, isLoading: isLoadingMappings } = useListRotationMappings();
+  const { rotations, isLoading: isLoadingRotations } = useListRotations();
 
   const [step, setStep] = useState<Step>('select-rotation');
-  const [selectedMapping, setSelectedMapping] = useState<RotationMapping | null>(null);
+  const [selectedRotation, setSelectedRotation] = useState<Rotation | null>(null);
 
-  const currentYear = selectedMapping?.rotationYear ?? new Date().getFullYear();
+  const currentYear = selectedRotation?.rotationYear ?? new Date().getFullYear();
   const { applications, isLoading: isLoadingApplications } = useApplicationsByYear(currentYear);
 
   const bulkCreate = useBulkCreateReviewForms();
@@ -75,9 +80,10 @@ export function BulkReviewFormCreate({ currentUserId }: BulkReviewFormCreateProp
 
   const [participants, setParticipants] = useState<SelectedParticipant[]>([]);
   const [results, setResults] = useState<BulkCreateFormResult | null>(null);
+  const [isManageOpen, setIsManageOpen] = useState(false);
 
-  const handleMappingSelect = (mapping: RotationMapping) => {
-    setSelectedMapping(mapping);
+  const handleRotationSelect = (rotation: Rotation) => {
+    setSelectedRotation(rotation);
   };
 
   // Load participants when entering configure step
@@ -97,7 +103,7 @@ export function BulkReviewFormCreate({ currentUserId }: BulkReviewFormCreateProp
   }, [step, applications]);
 
   const goToConfigureStep = () => {
-    if (!selectedMapping) {
+    if (!selectedRotation) {
       toast.error('Please select a rotation');
       return;
     }
@@ -123,7 +129,7 @@ export function BulkReviewFormCreate({ currentUserId }: BulkReviewFormCreateProp
       toast.error('Please select at least one participant');
       return;
     }
-    if (!selectedMapping) return;
+    if (!selectedRotation) return;
 
     setIsGenerating(true);
     try {
@@ -138,9 +144,9 @@ export function BulkReviewFormCreate({ currentUserId }: BulkReviewFormCreateProp
         }));
 
       const result = await bulkCreate({
-        rotationYear: selectedMapping.rotationYear,
-        rotationQuarter: selectedMapping.rotationQuarter,
-        evaluationDate: selectedMapping.evaluationDate,
+        rotationYear: selectedRotation.rotationYear,
+        rotationQuarter: selectedRotation.rotationQuarter,
+        evaluationDate: selectedRotation.evaluationDate,
         forms,
       });
 
@@ -156,7 +162,7 @@ export function BulkReviewFormCreate({ currentUserId }: BulkReviewFormCreateProp
 
   const reset = () => {
     setStep('select-rotation');
-    setSelectedMapping(null);
+    setSelectedRotation(null);
     setParticipants([]);
     setResults(null);
   };
@@ -240,59 +246,79 @@ export function BulkReviewFormCreate({ currentUserId }: BulkReviewFormCreateProp
           {step === 'select-rotation' && (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Choose a rotation to create review forms for. The evaluation date is pre-configured
-                from the rotation mapping.
+                Choose a rotation to create review forms for. Each rotation has a pre-configured
+                evaluation date.
               </p>
 
-              {isLoadingMappings ? (
+              {isLoadingRotations ? (
                 <div className="py-8 text-center text-sm text-muted-foreground">
                   Loading rotations...
                 </div>
-              ) : mappings && mappings.length > 0 ? (
-                <div className="grid gap-3">
-                  {mappings.map((m) => {
-                    const isSelected = selectedMapping?._id === m._id;
-                    return (
-                      <button
-                        key={m._id}
-                        onClick={() => handleMappingSelect(m)}
-                        className={`flex items-center justify-between rounded-lg border p-4 text-left transition-colors hover:bg-accent/50 ${
-                          isSelected ? 'border-primary bg-primary/5' : 'border-border bg-card'
-                        }`}
+              ) : rotations && rotations.length > 0 ? (
+                <>
+                  <div className="grid gap-3">
+                    {rotations.map((m) => {
+                      const isSelected = selectedRotation?._id === m._id;
+                      return (
+                        <button
+                          key={m._id}
+                          onClick={() => handleRotationSelect(m)}
+                          className={`flex items-center justify-between rounded-lg border p-4 text-left transition-colors hover:bg-accent/50 ${
+                            isSelected ? 'border-primary bg-primary/5' : 'border-border bg-card'
+                          }`}
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-foreground">
+                                {getRotationLabel(m)}
+                              </span>
+                              {isSelected && (
+                                <Badge variant="default" className="text-xs">
+                                  Selected
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                              <Calendar className="h-3.5 w-3.5" />
+                              <span>Evaluation Date: {formatDate(m.evaluationDate)}</span>
+                            </div>
+                          </div>
+                          {isSelected && (
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                              <Check className="h-4 w-4" />
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <Collapsible open={isManageOpen} onOpenChange={setIsManageOpen}>
+                    <CollapsibleTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-between text-muted-foreground"
                       >
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-foreground">
-                              {getRotationLabel(m)}
-                            </span>
-                            {isSelected && (
-                              <Badge variant="default" className="text-xs">
-                                Selected
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                            <Calendar className="h-3.5 w-3.5" />
-                            <span>Evaluation Date: {formatDate(m.evaluationDate)}</span>
-                          </div>
-                        </div>
-                        {isSelected && (
-                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                            <Check className="h-4 w-4" />
-                          </div>
+                        <span>Manage Rotations</span>
+                        {isManageOpen ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
                         )}
-                      </button>
-                    );
-                  })}
-                </div>
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pt-2">
+                      <RotationsWidget embedded />
+                    </CollapsibleContent>
+                  </Collapsible>
+                </>
               ) : (
-                <div className="rounded-md bg-muted p-4 text-sm text-muted-foreground">
-                  No rotation mappings found. Please create one first in the admin settings.
-                </div>
+                <RotationsWidget defaultShowCreateForm embedded />
               )}
 
               <div className="flex justify-end pt-4">
-                <Button onClick={goToConfigureStep} disabled={!selectedMapping}>
+                <Button onClick={goToConfigureStep} disabled={!selectedRotation}>
                   Next <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
@@ -303,16 +329,17 @@ export function BulkReviewFormCreate({ currentUserId }: BulkReviewFormCreateProp
           {step === 'configure-participants' && (
             <div className="space-y-4">
               {/* Context banner */}
-              {selectedMapping && (
+              {selectedRotation && (
                 <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
                   <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                     <Calendar className="h-4 w-4 text-primary" />
                     <span>
-                      Creating review forms for <strong>{getRotationLabel(selectedMapping)}</strong>
+                      Creating review forms for{' '}
+                      <strong>{getRotationLabel(selectedRotation)}</strong>
                     </span>
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Evaluation Date: {formatDate(selectedMapping.evaluationDate)}
+                    Evaluation Date: {formatDate(selectedRotation.evaluationDate)}
                   </p>
                 </div>
               )}

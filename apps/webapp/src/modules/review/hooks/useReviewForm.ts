@@ -277,7 +277,7 @@ export function useUnarchiveReviewForm() {
   };
 }
 
-export type RotationMapping = {
+export type Rotation = {
   _id: Id<'rotationMappings'>;
   _creationTime: number;
   rotationYear: number;
@@ -288,15 +288,43 @@ export type RotationMapping = {
   createdBy: Id<'users'>;
 };
 
-export function useListRotationMappings() {
-  const mappings = useSessionQuery(api.rotationMappings.listRotationMappings) as
-    | RotationMapping[]
-    | undefined;
+export function useListRotations() {
+  const rotations = useSessionQuery(api.rotations.listRotations) as Rotation[] | undefined;
 
   return {
-    mappings,
-    isLoading: mappings === undefined,
+    rotations,
+    isLoading: rotations === undefined,
     error: null,
+  };
+}
+
+export function useCreateRotation() {
+  const createMutation = useSessionMutation(api.rotations.createRotation);
+  return async (params: {
+    rotationYear: number;
+    rotationQuarter: number;
+    evaluationDate: number;
+    label?: string;
+  }): Promise<Id<'rotationMappings'>> => {
+    return await createMutation(params);
+  };
+}
+
+export function useUpdateRotation() {
+  const updateMutation = useSessionMutation(api.rotations.updateRotation);
+  return async (params: {
+    rotationId: Id<'rotationMappings'>;
+    evaluationDate?: number;
+    label?: string;
+  }): Promise<void> => {
+    await updateMutation(params);
+  };
+}
+
+export function useDeleteRotation() {
+  const deleteMutation = useSessionMutation(api.rotations.deleteRotation);
+  return async (rotationId: Id<'rotationMappings'>): Promise<void> => {
+    await deleteMutation({ rotationId });
   };
 }
 
