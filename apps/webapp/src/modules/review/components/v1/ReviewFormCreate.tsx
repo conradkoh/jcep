@@ -33,9 +33,14 @@ type UserRole = 'buddy' | 'jc';
 
 interface ReviewFormCreateProps {
   currentUserId: Id<'users'>;
+  /** Path to navigate to after successful creation. Defaults to `/app/review`. */
+  redirectTo?: string;
 }
 
-export function ReviewFormCreate({ currentUserId }: ReviewFormCreateProps) {
+export function ReviewFormCreate({
+  currentUserId,
+  redirectTo = '/app/review',
+}: ReviewFormCreateProps) {
   const router = useRouter();
   const createForm = useCreateReviewForm();
 
@@ -82,7 +87,7 @@ export function ReviewFormCreate({ currentUserId }: ReviewFormCreateProps) {
       });
 
       toast.success('Review form created!');
-      router.push('/app/review');
+      router.push(redirectTo);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to create form');
       setIsCreating(false);
