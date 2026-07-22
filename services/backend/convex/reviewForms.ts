@@ -8,8 +8,8 @@
 import { v } from 'convex/values';
 import { SessionIdArg } from 'convex-helpers/server/sessions';
 
-import type { Doc } from './_generated/dataModel';
-import { mutation, query } from './_generated/server';
+import type { Doc, Id } from './_generated/dataModel';
+import { type MutationCtx, mutation, query } from './_generated/server';
 import {
   isBuddyEvaluationComplete,
   isJCFeedbackComplete,
@@ -28,6 +28,39 @@ const ageGroupValidator = v.union(
   v.literal('AR'),
   v.literal('ER')
 );
+
+async function _resolveRotationLinkForCreate(
+  ctx: MutationCtx,
+  rotationId: Id<'rotations'> | undefined,
+  rotationParticipantId: Id<'rotationParticipants'> | undefined
+): Promise<Id<'rotations'> | undefined> {
+  if (!rotationParticipantId) {
+    return rotationId;
+  }
+
+  const participant = await ctx.db.get('rotationParticipants', rotationParticipantId);
+  if (!participant) {
+    throw new Error('Rotation participant not found');
+  }
+  if (rotationId && participant.rotationId !== rotationId) {
+    throw new Error('Participant does not belong to the specified rotation');
+  }
+
+  const formsOnRotation = await ctx.db
+    .query('reviewForms')
+    .withIndex('by_rotation', (q) => q.eq('rotationId', participant.rotationId))
+    .collect();
+
+  const existingForParticipant = formsOnRotation.find(
+    (form) => form.rotationParticipantId === rotationParticipantId && form.archivedAt == null
+  );
+
+  if (existingForParticipant) {
+    throw new Error('A review form already exists for this participant');
+  }
+
+  return rotationId ?? participant.rotationId;
+}
 
 /**
  * Validates a token for a review form.
@@ -458,6 +491,39 @@ export const getAllReviewFormsByYear = query({
 });
 
 /**
+ * Get all review forms for a rotation (admin only).
+ */
+export const getReviewFormsByRotation = query({
+  args: {
+    ...SessionIdArg,
+    rotationId: v.id('rotations'),
+    includeArchived: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getAuthUser(ctx, { sessionId: args.sessionId });
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+    if (user.accessLevel !== 'system_admin') {
+      throw new Error('Not authorized - admin access required');
+    }
+
+    let forms = await ctx.db
+      .query('reviewForms')
+      .withIndex('by_rotation', (q) => q.eq('rotationId', args.rotationId))
+      .collect();
+
+    if (args.includeArchived === true) {
+      forms = forms.filter((form) => form.archivedAt != null);
+    } else {
+      forms = forms.filter((form) => form.archivedAt == null);
+    }
+
+    return forms.sort((a, b) => a.juniorCommanderName.localeCompare(b.juniorCommanderName));
+  },
+});
+
+/**
  * Create a new review form
  */
 export const createReviewForm = mutation({
@@ -471,6 +537,8 @@ export const createReviewForm = mutation({
     juniorCommanderName: v.string(),
     ageGroup: ageGroupValidator,
     evaluationDate: v.number(),
+    rotationId: v.optional(v.id('rotations')),
+    rotationParticipantId: v.optional(v.id('rotationParticipants')),
   },
   handler: async (ctx, args) => {
     const user = await getAuthUser(ctx, { sessionId: args.sessionId });
@@ -515,6 +583,16 @@ export const createReviewForm = mutation({
       throw new Error('rotationQuarter must be between 1 and 4');
     }
 
+    let resolvedRotationId = args.rotationId;
+
+    if (args.rotationParticipantId) {
+      resolvedRotationId = await _resolveRotationLinkForCreate(
+        ctx,
+        args.rotationId,
+        args.rotationParticipantId
+      );
+    }
+
     const formId = await ctx.db.insert('reviewForms', {
       schemaVersion: CURRENT_SCHEMA_VERSION,
 
@@ -537,6 +615,8 @@ export const createReviewForm = mutation({
       juniorCommanderName: args.juniorCommanderName,
       ageGroup: args.ageGroup,
       evaluationDate: args.evaluationDate,
+      rotationId: resolvedRotationId,
+      rotationParticipantId: args.rotationParticipantId,
       nextRotationPreference: null,
       buddyEvaluation: null,
       jcReflection: null,
