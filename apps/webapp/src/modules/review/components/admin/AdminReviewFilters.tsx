@@ -1,6 +1,10 @@
 'use client';
 
 import { X } from 'lucide-react';
+
+import type { AgeGroup, ReviewFormStatus } from '../../types';
+import { getRotationNumberOptionsShort } from '../../utils/rotationUtils';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,17 +15,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { AgeGroup, ReviewFormStatus } from '../../types';
-import { getRotationQuarterOptionsShort } from '../../utils/rotationUtils';
 
 interface AdminReviewFiltersProps {
   year: number;
-  quarter: number | 'all';
+  rotationNumber: number | 'all';
   status: ReviewFormStatus | 'all';
   ageGroup: AgeGroup | 'all';
   searchQuery: string;
   onYearChange: (year: number) => void;
-  onQuarterChange: (quarter: number | 'all') => void;
+  onRotationNumberChange: (rotationNumber: number | 'all') => void;
   onStatusChange: (status: ReviewFormStatus | 'all') => void;
   onAgeGroupChange: (ageGroup: AgeGroup | 'all') => void;
   onSearchChange: (query: string) => void;
@@ -30,12 +32,12 @@ interface AdminReviewFiltersProps {
 
 export function AdminReviewFilters({
   year,
-  quarter,
+  rotationNumber,
   status,
   ageGroup,
   searchQuery,
   onYearChange,
-  onQuarterChange,
+  onRotationNumberChange,
   onStatusChange,
   onAgeGroupChange,
   onSearchChange,
@@ -45,7 +47,7 @@ export function AdminReviewFilters({
   const yearOptions = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
   const hasActiveFilters =
-    quarter !== 'all' || status !== 'all' || ageGroup !== 'all' || searchQuery !== '';
+    rotationNumber !== 'all' || status !== 'all' || ageGroup !== 'all' || searchQuery !== '';
 
   return (
     <section
@@ -88,19 +90,21 @@ export function AdminReviewFilters({
         </div>
 
         <div>
-          <Label htmlFor="quarter-filter" className="text-sm font-medium text-foreground">
-            Quarter
+          <Label htmlFor="rotation-filter" className="text-sm font-medium text-foreground">
+            Rotation
           </Label>
           <Select
-            value={String(quarter)}
-            onValueChange={(v) => onQuarterChange(v === 'all' ? 'all' : Number.parseInt(v, 10))}
+            value={String(rotationNumber)}
+            onValueChange={(v) =>
+              onRotationNumberChange(v === 'all' ? 'all' : Number.parseInt(v, 10))
+            }
           >
-            <SelectTrigger id="quarter-filter" className="mt-1">
-              <SelectValue placeholder="All quarters" />
+            <SelectTrigger id="rotation-filter" className="mt-1">
+              <SelectValue placeholder="All rotations" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All quarters</SelectItem>
-              {getRotationQuarterOptionsShort().map((option) => (
+              <SelectItem value="all">All rotations</SelectItem>
+              {getRotationNumberOptionsShort().map((option) => (
                 <SelectItem key={option.value} value={String(option.value)}>
                   {option.label}
                 </SelectItem>

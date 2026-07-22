@@ -18,7 +18,7 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAllReviewFormsByYear } from '@/modules/review/hooks/useReviewForm';
-import { getDefaultRotationQuarter } from '@/modules/review/utils/rotationUtils';
+import { getDefaultRotationNumber } from '@/modules/review/utils/rotationUtils';
 import { useListRotations } from '@/modules/rotations/hooks/useRotations';
 
 interface ReviewManagementDashboardProps {
@@ -88,7 +88,7 @@ export function ReviewManagementDashboard({
   selectedRotationId,
 }: ReviewManagementDashboardProps) {
   const currentYear = new Date().getFullYear();
-  const currentQuarter = useMemo(() => getDefaultRotationQuarter(), []);
+  const currentRotationNumber = useMemo(() => getDefaultRotationNumber(), []);
 
   const { rotations, isLoading: isLoadingRotations } = useListRotations(true);
 
@@ -104,7 +104,7 @@ export function ReviewManagementDashboard({
     if (rotation) {
       handleRotationIdChange(rotationId, {
         year: rotation.rotationYear,
-        quarter: rotation.rotationQuarter,
+        rotationNumber: rotation.rotationQuarter,
       });
     } else {
       handleRotationIdChange(rotationId);
@@ -116,9 +116,9 @@ export function ReviewManagementDashboard({
     rotations,
     isLoading: isLoadingRotations,
     currentYear,
-    currentQuarter,
-    onSelect: (rotationId, year, quarter) => {
-      handleRotationIdChange(rotationId, { year, quarter });
+    currentRotationNumber,
+    onSelect: (rotationId, year, rotationNumber) => {
+      handleRotationIdChange(rotationId, { year, rotationNumber });
     },
   });
 
@@ -208,7 +208,7 @@ export function ReviewManagementDashboard({
 
         <TabsContent value="browse" className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Search and manage all review forms by year and quarter. Use the Generate Forms tab to
+            Search and manage all review forms by year and rotation. Use the Generate Forms tab to
             create forms for a specific rotation&apos;s participants.
           </p>
           <Separator />

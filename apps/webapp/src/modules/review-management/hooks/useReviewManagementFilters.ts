@@ -51,10 +51,10 @@ export function useReviewManagementFilters({
   );
 
   const handleRotationIdChange = useCallback(
-    (rotationId: Id<'rotations'> | null, sync?: { year: number; quarter: number }) => {
+    (rotationId: Id<'rotations'> | null, sync?: { year: number; rotationNumber: number }) => {
       pushWithParams({
         year: sync ? String(sync.year) : String(selectedYear),
-        rotation: sync ? String(sync.quarter) : selectedRotation,
+        rotation: sync ? String(sync.rotationNumber) : selectedRotation,
         rotationId,
       });
     },

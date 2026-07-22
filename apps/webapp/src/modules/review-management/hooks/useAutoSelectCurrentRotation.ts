@@ -10,12 +10,12 @@ interface UseAutoSelectCurrentRotationOptions {
   rotations: Rotation[] | undefined;
   isLoading: boolean;
   currentYear: number;
-  currentQuarter: number;
-  onSelect: (rotationId: Id<'rotations'>, year: number, quarter: number) => void;
+  currentRotationNumber: number;
+  onSelect: (rotationId: Id<'rotations'>, year: number, rotationNumber: number) => void;
 }
 
 /**
- * Auto-selects the rotation matching the current year/quarter on first visit.
+ * Auto-selects the rotation matching the current year and rotation number on first visit.
  */
 // fallow-ignore-next-line complexity
 export function useAutoSelectCurrentRotation({
@@ -23,7 +23,7 @@ export function useAutoSelectCurrentRotation({
   rotations,
   isLoading,
   currentYear,
-  currentQuarter,
+  currentRotationNumber,
   onSelect,
 }: UseAutoSelectCurrentRotationOptions) {
   const hasAutoSelected = useRef(false);
@@ -35,11 +35,11 @@ export function useAutoSelectCurrentRotation({
     }
 
     const currentRotation = rotations.find(
-      (r) => r.rotationYear === currentYear && r.rotationQuarter === currentQuarter
+      (r) => r.rotationYear === currentYear && r.rotationQuarter === currentRotationNumber
     );
     if (currentRotation) {
       hasAutoSelected.current = true;
       onSelect(currentRotation._id, currentRotation.rotationYear, currentRotation.rotationQuarter);
     }
-  }, [selectedRotationId, isLoading, rotations, currentYear, currentQuarter, onSelect]);
+  }, [selectedRotationId, isLoading, rotations, currentYear, currentRotationNumber, onSelect]);
 }
