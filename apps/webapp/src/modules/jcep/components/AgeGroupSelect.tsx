@@ -16,6 +16,7 @@ interface AgeGroupSelectProps {
   onValueChange: (value: AgeGroup) => void;
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export function AgeGroupSelect({
@@ -23,9 +24,10 @@ export function AgeGroupSelect({
   onValueChange,
   placeholder = 'Select age group',
   className,
+  disabled,
 }: AgeGroupSelectProps) {
   return (
-    <Select value={value} onValueChange={(v) => onValueChange(v as AgeGroup)}>
+    <Select value={value} onValueChange={(v) => onValueChange(v as AgeGroup)} disabled={disabled}>
       <SelectTrigger className={className}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>

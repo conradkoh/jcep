@@ -22,14 +22,8 @@ import { Card } from '@/components/ui/card';
 import { useAuthState } from '@/modules/auth/AuthProvider';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 import { formatRotationLabel } from '@/modules/review/utils/rotationUtils';
-import { ApplicantSearch } from '@/modules/rotations/components/ApplicantSearch';
-import { RotationParticipantsTable } from '@/modules/rotations/components/RotationParticipantsTable';
-import {
-  useDeleteRotation,
-  useRemoveParticipant,
-  useRotationWithParticipants,
-} from '@/modules/rotations/hooks/useRotations';
-import type { RotationParticipant } from '@/modules/rotations/types';
+import { RotationRosterTable } from '@/modules/rotations/components/RotationRosterTable';
+import { useDeleteRotation, useRotationRoster } from '@/modules/rotations/hooks/useRotations';
 
 function formatDate(timestamp: number): string {
   return new Date(timestamp).toLocaleDateString('en-GB', {
@@ -52,11 +46,9 @@ function RotationDetailContent({ rotationId }: { rotationId: Id<'rotations'> }) 
   const isAdmin =
     authState?.state === 'authenticated' && authState.user.accessLevel === 'system_admin';
 
-  const { data, isLoading } = useRotationWithParticipants(rotationId, isAdmin);
+  const { data, isLoading } = useRotationRoster(rotationId, isAdmin);
   const deleteRotation = useDeleteRotation();
-  const removeParticipant = useRemoveParticipant();
   const [isDeleting, setIsDeleting] = useState(false);
-  const [removingId, setRemovingId] = useState<string | null>(null);
 
   if (!isAdmin) {
     return (
@@ -110,8 +102,8 @@ function RotationDetailContent({ rotationId }: { rotationId: Id<'rotations'> }) 
     );
   }
 
-  const { rotation, participants } = data;
-  const participantCount = participants.length;
+  const { rotation, rotations, applicants } = data;
+  const participantCount = applicants.filter((a) => a.assignedRotationId === rotationId).length;
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -125,21 +117,9 @@ function RotationDetailContent({ rotationId }: { rotationId: Id<'rotations'> }) 
     }
   };
 
-  const handleRemoveParticipant = async (participantId: string) => {
-    setRemovingId(participantId);
-    try {
-      await removeParticipant({ participantId: participantId as Id<'rotationParticipants'> });
-      toast.success('Participant removed');
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to remove participant');
-    } finally {
-      setRemovingId(null);
-    }
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-4">
@@ -222,26 +202,24 @@ function RotationDetailContent({ rotationId }: { rotationId: Id<'rotations'> }) 
             <Users className="h-5 w-5 text-primary" />
             <p className="text-foreground">
               <span className="font-semibold">{participantCount}</span> participant
-              {participantCount !== 1 ? 's' : ''} assigned
+              {participantCount !== 1 ? 's' : ''} assigned of {applicants.length} eligible
             </p>
           </div>
         </Card>
 
-        {/* Search & Add */}
-        <div>
-          <h2 className="text-xl font-semibold text-foreground mb-4">Add Participants</h2>
-          <ApplicantSearch rotationId={rotationId} isAdmin={isAdmin} />
-        </div>
-
-        {/* Participants Table */}
+        {/* Roster */}
         <div>
           <h2 className="text-xl font-semibold text-foreground mb-4">
-            Participants ({participantCount})
+            Applicant Roster ({applicants.length} eligible)
           </h2>
-          <RotationParticipantsTable
-            participants={participants as RotationParticipant[]}
-            onRemove={handleRemoveParticipant}
-            removingId={removingId}
+          <p className="text-sm text-muted-foreground mb-4">
+            Applicants submitted within 1 year of the evaluation date. Assign each to a rotation or
+            leave unassigned.
+          </p>
+          <RotationRosterTable
+            currentRotationId={rotationId}
+            rotations={rotations}
+            applicants={applicants}
           />
         </div>
       </div>

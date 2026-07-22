@@ -15,17 +15,12 @@ export function useRotationWithParticipants(rotationId: Id<'rotations'> | null, 
   return { data, isLoading: data === undefined };
 }
 
-export function useSearchApplicants(
-  searchTerm: string,
-  rotationId: Id<'rotations'> | null,
-  isAdmin: boolean
-) {
-  const shouldSkip = !isAdmin || !rotationId || searchTerm.trim().length < 2;
-  const results = useSessionQuery(
-    api.rotations.searchApplicants,
-    shouldSkip ? 'skip' : { searchTerm, rotationId }
+export function useRotationRoster(rotationId: Id<'rotations'> | null, isAdmin: boolean) {
+  const data = useSessionQuery(
+    api.rotations.getRotationRoster,
+    isAdmin && rotationId ? { rotationId } : 'skip'
   );
-  return { results: results ?? [], isLoading: results === undefined };
+  return { data, isLoading: data === undefined };
 }
 
 export function useCreateRotation() {
@@ -46,4 +41,8 @@ export function useAddParticipant() {
 
 export function useRemoveParticipant() {
   return useSessionMutation(api.rotations.removeParticipant);
+}
+
+export function useSetApplicantAssignment() {
+  return useSessionMutation(api.rotations.setApplicantAssignment);
 }
