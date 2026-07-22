@@ -29,6 +29,7 @@ const ageGroupValidator = v.union(
   v.literal('ER')
 );
 
+// fallow-ignore-next-line complexity
 async function _resolveRotationLinkForCreate(
   ctx: MutationCtx,
   rotationId: Id<'rotations'> | undefined,
@@ -540,6 +541,7 @@ export const createReviewForm = mutation({
     rotationId: v.optional(v.id('rotations')),
     rotationParticipantId: v.optional(v.id('rotationParticipants')),
   },
+  // fallow-ignore-next-line complexity
   handler: async (ctx, args) => {
     const user = await getAuthUser(ctx, { sessionId: args.sessionId });
     if (!user) {

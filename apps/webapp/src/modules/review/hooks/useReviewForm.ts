@@ -32,9 +32,7 @@ import {
  */
 export function useReviewForm(formId: Id<'reviewForms'> | null | undefined): ReviewFormHookReturn {
   const form = useSessionQuery(api.reviewForms.getReviewForm, formId ? { formId } : 'skip') as
-    | ReviewForm
-    | undefined
-    | null;
+    ReviewForm | undefined | null;
 
   const authState = useSessionQuery(api.auth.getState, {});
   const currentUserId = authState?.state === 'authenticated' ? authState.user._id : undefined;
@@ -148,6 +146,22 @@ export function useCreateReviewForm() {
 }
 
 /**
+ * Hook to get review forms for a rotation (admin only)
+ */
+export function useReviewFormsByRotation(rotationId: Id<'rotations'> | null) {
+  const forms = useSessionQuery(
+    api.reviewForms.getReviewFormsByRotation,
+    rotationId ? { rotationId } : 'skip'
+  ) as ReviewForm[] | undefined;
+
+  return {
+    forms,
+    isLoading: forms === undefined,
+    error: null,
+  };
+}
+
+/**
  * Hook to update particulars section
  */
 export function useUpdateParticulars() {
@@ -244,8 +258,7 @@ export function useToggleResponseVisibility() {
  */
 export function useReviewFormsByBuddy(year?: number) {
   const forms = useSessionQuery(api.reviewForms.getReviewFormsByBuddy, year ? { year } : {}) as
-    | ReviewForm[]
-    | undefined;
+    ReviewForm[] | undefined;
 
   return {
     forms,

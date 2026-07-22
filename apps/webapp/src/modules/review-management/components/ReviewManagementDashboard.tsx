@@ -1,11 +1,14 @@
 'use client';
 
+import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 import { Clock, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
 
 import { ReviewManagementFilters } from './ReviewManagementFilters';
 import { ReviewManagementFormTabs } from './ReviewManagementFormTabs';
+import { ReviewManagementRotationPanel } from './ReviewManagementRotationPanel';
+import { ReviewManagementRotationSelect } from './ReviewManagementRotationSelect';
 import { useReviewManagementFilters } from '../hooks/useReviewManagementFilters';
 
 import { Button } from '@/components/ui/button';
@@ -13,10 +16,12 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAllReviewFormsByYear } from '@/modules/review/hooks/useReviewForm';
 import { getDefaultRotationQuarter } from '@/modules/review/utils/rotationUtils';
+import { useListRotations } from '@/modules/rotations/hooks/useRotations';
 
 interface ReviewManagementDashboardProps {
   selectedYear: number;
   selectedRotation: string;
+  selectedRotationId: Id<'rotations'> | null;
 }
 
 /**
@@ -26,10 +31,13 @@ interface ReviewManagementDashboardProps {
 export function ReviewManagementDashboard({
   selectedYear,
   selectedRotation,
+  selectedRotationId,
 }: ReviewManagementDashboardProps) {
   const currentYear = new Date().getFullYear();
   const currentRotation = useMemo(() => getDefaultRotationQuarter(), []);
   const rotationNumber = selectedRotation === 'all' ? undefined : Number(selectedRotation);
+
+  const { rotations } = useListRotations(true);
 
   const { forms: activeForms, isLoading: isLoadingActiveForms } = useAllReviewFormsByYear(
     selectedYear,
@@ -47,11 +55,31 @@ export function ReviewManagementDashboard({
     true
   );
 
-  const { handleYearChange, handleRotationChange, handleViewCurrentRotation } =
-    useReviewManagementFilters({ selectedYear, selectedRotation });
+  const {
+    handleYearChange,
+    handleRotationChange,
+    handleRotationIdChange,
+    handleViewCurrentRotation,
+  } = useReviewManagementFilters({ selectedYear, selectedRotation, selectedRotationId });
 
   const isViewingCurrentRotation =
     selectedYear === currentYear && selectedRotation === String(currentRotation);
+
+  const handleRotationEntityChange = (rotationId: Id<'rotations'> | null) => {
+    if (!rotationId) {
+      handleRotationIdChange(null);
+      return;
+    }
+    const rotation = rotations?.find((r) => r._id === rotationId);
+    if (rotation) {
+      handleRotationIdChange(rotationId, {
+        year: rotation.rotationYear,
+        quarter: rotation.rotationQuarter,
+      });
+    } else {
+      handleRotationIdChange(rotationId);
+    }
+  };
 
   if (isLoadingActiveForms || isLoadingArchivedForms) {
     return (
@@ -68,11 +96,11 @@ export function ReviewManagementDashboard({
         <div>
           <h1 className="text-3xl font-bold text-foreground">Review Management</h1>
           <p className="text-sm text-muted-foreground">
-            View and manage all JCEP review forms across rotations
+            Select a rotation to generate review forms, or browse all forms below
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {!isViewingCurrentRotation && (
+          {!isViewingCurrentRotation && !selectedRotationId && (
             <Button
               variant="outline"
               onClick={() => handleViewCurrentRotation(currentYear, currentRotation)}
@@ -82,17 +110,26 @@ export function ReviewManagementDashboard({
               Current Rotation
             </Button>
           )}
-          <Button asChild aria-label="Create a new review form">
+          <Button asChild aria-label="Create a new review form manually">
             <Link
               href="/app/review/create?returnTo=review-management"
               className="flex items-center"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Create New Form
+              Create Manually
             </Link>
           </Button>
         </div>
       </div>
+
+      <Separator />
+
+      <ReviewManagementRotationSelect
+        selectedRotationId={selectedRotationId}
+        onRotationChange={handleRotationEntityChange}
+      />
+
+      {selectedRotationId && <ReviewManagementRotationPanel rotationId={selectedRotationId} />}
 
       <Separator />
 

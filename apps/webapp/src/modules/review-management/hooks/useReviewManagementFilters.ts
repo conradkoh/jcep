@@ -1,48 +1,73 @@
 'use client';
 
+import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 
 interface UseReviewManagementFiltersOptions {
   selectedYear: number;
   selectedRotation: string;
+  selectedRotationId: Id<'rotations'> | null;
 }
 
 export function useReviewManagementFilters({
   selectedYear,
   selectedRotation,
+  selectedRotationId,
 }: UseReviewManagementFiltersOptions) {
   const router = useRouter();
 
   const pushWithParams = useCallback(
-    (year: string, rotation: string) => {
-      const params = new URLSearchParams();
-      params.set('year', year);
-      if (rotation !== 'all') {
-        params.set('rotation', rotation);
+    (params: { year: string; rotation: string; rotationId: Id<'rotations'> | null }) => {
+      const searchParams = new URLSearchParams();
+      searchParams.set('year', params.year);
+      if (params.rotation !== 'all') {
+        searchParams.set('rotation', params.rotation);
       }
-      router.push(`/app/review-management?${params.toString()}`);
+      if (params.rotationId) {
+        searchParams.set('rotationId', params.rotationId);
+      }
+      router.push(`/app/review-management?${searchParams.toString()}`);
     },
     [router]
   );
 
   const handleYearChange = useCallback(
     (year: string) => {
-      pushWithParams(year, selectedRotation);
+      pushWithParams({ year, rotation: selectedRotation, rotationId: selectedRotationId });
     },
-    [pushWithParams, selectedRotation]
+    [pushWithParams, selectedRotation, selectedRotationId]
   );
 
   const handleRotationChange = useCallback(
     (rotation: string) => {
-      pushWithParams(String(selectedYear), rotation);
+      pushWithParams({
+        year: String(selectedYear),
+        rotation,
+        rotationId: selectedRotationId,
+      });
     },
-    [pushWithParams, selectedYear]
+    [pushWithParams, selectedYear, selectedRotationId]
+  );
+
+  const handleRotationIdChange = useCallback(
+    (rotationId: Id<'rotations'> | null, sync?: { year: number; quarter: number }) => {
+      pushWithParams({
+        year: sync ? String(sync.year) : String(selectedYear),
+        rotation: sync ? String(sync.quarter) : selectedRotation,
+        rotationId,
+      });
+    },
+    [pushWithParams, selectedYear, selectedRotation]
   );
 
   const handleViewCurrentRotation = useCallback(
     (currentYear: number, currentRotation: number) => {
-      pushWithParams(String(currentYear), String(currentRotation));
+      pushWithParams({
+        year: String(currentYear),
+        rotation: String(currentRotation),
+        rotationId: null,
+      });
     },
     [pushWithParams]
   );
@@ -50,6 +75,7 @@ export function useReviewManagementFilters({
   return {
     handleYearChange,
     handleRotationChange,
+    handleRotationIdChange,
     handleViewCurrentRotation,
   };
 }

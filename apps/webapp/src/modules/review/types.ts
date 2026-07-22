@@ -59,6 +59,8 @@ export interface ReviewForm {
   juniorCommanderName: string;
   ageGroup: AgeGroup;
   evaluationDate: number; // timestamp
+  rotationId?: Id<'rotations'>;
+  rotationParticipantId?: Id<'rotationParticipants'>;
 
   // Next rotation preference (filled by JC)
   nextRotationPreference: AgeGroup | null;
@@ -136,6 +138,8 @@ export interface CreateReviewFormParams {
   juniorCommanderName: string;
   ageGroup: AgeGroup;
   evaluationDate: number;
+  rotationId?: Id<'rotations'>;
+  rotationParticipantId?: Id<'rotationParticipants'>;
 }
 
 export interface UpdateParticularsParams {
