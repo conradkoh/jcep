@@ -46,6 +46,21 @@ export const setUserAccessLevelDefault = migrations.define({
   },
 });
 
+/**
+ * Migration: Backfill rotationNumber from rotationQuarter on review forms.
+ * Copies the deprecated rotationQuarter value into rotationNumber when missing.
+ */
+export const backfillReviewFormRotationNumber = migrations.define({
+  table: 'reviewForms',
+  migrateOne: async (_ctx, form) => {
+    if (form.rotationNumber === undefined) {
+      return {
+        rotationNumber: form.rotationQuarter,
+      };
+    }
+  },
+});
+
 // ========================================
 // Batch Runners
 // ========================================
@@ -57,4 +72,5 @@ export const setUserAccessLevelDefault = migrations.define({
 export const runAll = migrations.runner([
   internal.migrations.unsetSessionExpiration,
   internal.migrations.setUserAccessLevelDefault,
+  internal.migrations.backfillReviewFormRotationNumber,
 ]);
