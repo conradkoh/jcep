@@ -246,19 +246,18 @@ export const getRotationRoster = query({
       .collect();
     const eligible = applications.filter((app) => app.archivedAt == null);
 
-    const allRotations = await ctx.db.query('rotations').collect();
-    const sortedRotations = allRotations.sort((a, b) => {
-      if (a.rotationYear !== b.rotationYear) return b.rotationYear - a.rotationYear;
-      return b.rotationQuarter - a.rotationQuarter;
-    });
-
-    const allParticipants = await ctx.db.query('rotationParticipants').collect();
-    const assignmentByApplication = new Map(allParticipants.map((p) => [p.applicationId, p]));
+    const participantsOnRotation = await ctx.db
+      .query('rotationParticipants')
+      .withIndex('by_rotation', (q) => q.eq('rotationId', args.rotationId))
+      .collect();
+    const participantByApplication = new Map(
+      participantsOnRotation.map((p) => [p.applicationId, p])
+    );
 
     const applicants = eligible
       .sort((a, b) => a.fullName.localeCompare(b.fullName))
       .map((app) => {
-        const participant = assignmentByApplication.get(app._id);
+        const participant = participantByApplication.get(app._id);
         return {
           applicationId: app._id,
           fullName: app.fullName,
@@ -266,13 +265,12 @@ export const getRotationRoster = query({
           ageGroupChoice1: app.ageGroupChoice1,
           submissionYear: app.submissionYear,
           submittedAt: app.submittedAt,
-          assignedRotationId: participant?.rotationId ?? null,
+          ageGroupOnRotation: participant?.ageGroup ?? null,
           participantId: participant?._id ?? null,
-          ageGroup: participant?.ageGroup ?? null,
         };
       });
 
-    return { rotation, rotations: sortedRotations, applicants };
+    return { rotation, applicants };
   },
 });
 
@@ -328,6 +326,71 @@ export const setApplicantAssignment = mutation({
       fullName: application.fullName,
       contactNumber: application.contactNumber,
       ageGroup,
+      addedAt: Date.now(),
+      addedBy: user._id,
+    });
+    return { participantId };
+  },
+});
+
+export const setRotationParticipantAgeGroup = mutation({
+  args: {
+    ...SessionIdArg,
+    rotationId: v.id('rotations'),
+    applicationId: v.id('jcepApplications'),
+    ageGroup: v.union(ageGroupValidator, v.null()),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireSystemAdmin(ctx, args);
+    const rotation = await ctx.db.get('rotations', args.rotationId);
+    if (!rotation) throw new Error('Rotation not found');
+
+    const application = await ctx.db.get('jcepApplications', args.applicationId);
+    if (!application) throw new Error('Application not found');
+    if (application.archivedAt != null) {
+      throw new Error('Cannot assign archived application');
+    }
+
+    const existingOnRotation = await ctx.db
+      .query('rotationParticipants')
+      .withIndex('by_rotation_and_application', (q) =>
+        q.eq('rotationId', args.rotationId).eq('applicationId', args.applicationId)
+      )
+      .first();
+
+    // Unassign from this rotation only
+    if (args.ageGroup === null) {
+      if (existingOnRotation) {
+        await ctx.db.delete('rotationParticipants', existingOnRotation._id);
+      }
+      return { participantId: null };
+    }
+
+    // Already on this rotation — update age group if changed
+    if (existingOnRotation) {
+      if (existingOnRotation.ageGroup !== args.ageGroup) {
+        await ctx.db.patch('rotationParticipants', existingOnRotation._id, {
+          ageGroup: args.ageGroup,
+        });
+      }
+      return { participantId: existingOnRotation._id };
+    }
+
+    // On a different rotation — move
+    const existingAnywhere = await ctx.db
+      .query('rotationParticipants')
+      .withIndex('by_application', (q) => q.eq('applicationId', args.applicationId))
+      .first();
+    if (existingAnywhere) {
+      await ctx.db.delete('rotationParticipants', existingAnywhere._id);
+    }
+
+    const participantId = await ctx.db.insert('rotationParticipants', {
+      rotationId: args.rotationId,
+      applicationId: args.applicationId,
+      fullName: application.fullName,
+      contactNumber: application.contactNumber,
+      ageGroup: args.ageGroup,
       addedAt: Date.now(),
       addedBy: user._id,
     });
