@@ -37,10 +37,7 @@ export function formatRotationLabel(year: number, rotationNumber: number): strin
   return `${year} Rotation ${rotationNumber}`;
 }
 
-export function getReviewFormRotationNumber(form: { rotationNumber?: number }): number {
-  if (form.rotationNumber === undefined) {
-    throw new Error('Review form is missing rotationNumber');
-  }
+export function getReviewFormRotationNumber(form: { rotationNumber: number }): number {
   return form.rotationNumber;
 }
 

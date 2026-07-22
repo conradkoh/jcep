@@ -276,8 +276,8 @@ export default defineSchema({
 
     // Particulars
     rotationYear: v.number(), // For indexing by year (e.g., 2025)
-    rotationNumber: v.optional(v.number()), // Rotation number within the year (1-4)
-    rotationQuarter: v.number(), // DEPRECATED: use rotationNumber. Kept for index compatibility; dual-written.
+    rotationNumber: v.number(), // Rotation number within the year (1-4)
+    rotationQuarter: v.optional(v.number()), // DEPRECATED: use rotationNumber
     buddyUserId: v.id('users'), // The Buddy assigned to this JC
     buddyName: v.string(), // Buddy's display name
     juniorCommanderUserId: v.union(v.id('users'), v.null()), // Null if JC not registered
@@ -380,18 +380,14 @@ export default defineSchema({
   })
     .index('by_schema_version', ['schemaVersion'])
     .index('by_rotation_year', ['rotationYear'])
-    .index('by_rotation_year_quarter', ['rotationYear', 'rotationQuarter']) // DEPRECATED: use by_rotation_year_number
     .index('by_rotation_year_number', ['rotationYear', 'rotationNumber'])
     .index('by_buddy', ['buddyUserId'])
     .index('by_junior_commander', ['juniorCommanderUserId'])
     .index('by_year_and_buddy', ['rotationYear', 'buddyUserId'])
     .index('by_year_and_jc', ['rotationYear', 'juniorCommanderUserId'])
-    .index('by_year_quarter_and_buddy', ['rotationYear', 'rotationQuarter', 'buddyUserId']) // DEPRECATED
     .index('by_year_number_and_buddy', ['rotationYear', 'rotationNumber', 'buddyUserId'])
-    .index('by_year_quarter_and_jc', ['rotationYear', 'rotationQuarter', 'juniorCommanderUserId']) // DEPRECATED
     .index('by_year_number_and_jc', ['rotationYear', 'rotationNumber', 'juniorCommanderUserId'])
     .index('by_year_and_status', ['rotationYear', 'status'])
-    .index('by_year_quarter_and_status', ['rotationYear', 'rotationQuarter', 'status']) // DEPRECATED
     .index('by_year_number_and_status', ['rotationYear', 'rotationNumber', 'status'])
     .index('by_status', ['status'])
     .index('by_buddy_access_token', ['buddyAccessToken'])

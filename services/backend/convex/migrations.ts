@@ -61,6 +61,25 @@ export const backfillReviewFormRotationNumber = migrations.define({
   },
 });
 
+/**
+ * Migration: Verify all review forms have rotationNumber populated.
+ * Safety net after backfillReviewFormRotationNumber — backfills from rotationQuarter
+ * if still missing, throws if neither field is set.
+ */
+export const verifyReviewFormRotationNumber = migrations.define({
+  table: 'reviewForms',
+  migrateOne: async (_ctx, form) => {
+    if (form.rotationNumber === undefined) {
+      if (form.rotationQuarter === undefined) {
+        throw new Error(
+          `Review form ${form._id} is missing both rotationNumber and rotationQuarter`
+        );
+      }
+      return { rotationNumber: form.rotationQuarter };
+    }
+  },
+});
+
 // ========================================
 // Batch Runners
 // ========================================
@@ -73,4 +92,5 @@ export const runAll = migrations.runner([
   internal.migrations.unsetSessionExpiration,
   internal.migrations.setUserAccessLevelDefault,
   internal.migrations.backfillReviewFormRotationNumber,
+  internal.migrations.verifyReviewFormRotationNumber,
 ]);
