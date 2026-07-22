@@ -29,6 +29,31 @@ const ageGroupValidator = v.union(
   v.literal('ER')
 );
 
+function validateRotationNumber(rotationNumber: number): void {
+  if (rotationNumber < 1 || rotationNumber > 4) {
+    throw new Error('rotationNumber must be between 1 and 4');
+  }
+}
+
+/** Dual-write rotationNumber and deprecated rotationQuarter in sync. */
+function rotationNumberFields(rotationNumber: number): {
+  rotationNumber: number;
+  rotationQuarter: number;
+} {
+  validateRotationNumber(rotationNumber);
+  return {
+    rotationNumber,
+    rotationQuarter: rotationNumber,
+  };
+}
+
+function applyRotationNumberUpdate(
+  updates: Partial<Doc<'reviewForms'>>,
+  rotationNumber: number
+): void {
+  Object.assign(updates, rotationNumberFields(rotationNumber));
+}
+
 // fallow-ignore-next-line complexity
 async function _resolveRotationLinkForCreate(
   ctx: MutationCtx,
@@ -297,10 +322,10 @@ export const getReviewFormsByYear = query({
       // Get forms where user is buddy (with rotation number filter)
       buddyForms = await ctx.db
         .query('reviewForms')
-        .withIndex('by_year_quarter_and_buddy', (q) =>
+        .withIndex('by_year_number_and_buddy', (q) =>
           q
             .eq('rotationYear', args.year)
-            .eq('rotationQuarter', rotationNumber)
+            .eq('rotationNumber', rotationNumber)
             .eq('buddyUserId', user._id)
         )
         .collect();
@@ -308,10 +333,10 @@ export const getReviewFormsByYear = query({
       // Get forms where user is JC (with rotation number filter)
       jcForms = await ctx.db
         .query('reviewForms')
-        .withIndex('by_year_quarter_and_jc', (q) =>
+        .withIndex('by_year_number_and_jc', (q) =>
           q
             .eq('rotationYear', args.year)
-            .eq('rotationQuarter', rotationNumber)
+            .eq('rotationNumber', rotationNumber)
             .eq('juniorCommanderUserId', user._id)
         )
         .collect();
@@ -446,8 +471,8 @@ export const getAllReviewFormsByYear = query({
       const status = args.status;
       forms = await ctx.db
         .query('reviewForms')
-        .withIndex('by_year_quarter_and_status', (q) =>
-          q.eq('rotationYear', args.year).eq('rotationQuarter', rotationNumber).eq('status', status)
+        .withIndex('by_year_number_and_status', (q) =>
+          q.eq('rotationYear', args.year).eq('rotationNumber', rotationNumber).eq('status', status)
         )
         .collect();
     } else if (args.rotationNumber !== undefined) {
@@ -455,8 +480,8 @@ export const getAllReviewFormsByYear = query({
       const rotationNumber = args.rotationNumber; // Type narrowing
       forms = await ctx.db
         .query('reviewForms')
-        .withIndex('by_rotation_year_quarter', (q) =>
-          q.eq('rotationYear', args.year).eq('rotationQuarter', rotationNumber)
+        .withIndex('by_rotation_year_number', (q) =>
+          q.eq('rotationYear', args.year).eq('rotationNumber', rotationNumber)
         )
         .collect();
     } else if (args.status !== undefined) {
@@ -534,7 +559,7 @@ export const createReviewForm = mutation({
   args: {
     ...SessionIdArg,
     rotationYear: v.number(),
-    rotationQuarter: v.number(), // 1-4
+    rotationNumber: v.number(), // 1-4
     buddyUserId: v.id('users'),
     buddyName: v.string(),
     juniorCommanderUserId: v.union(v.id('users'), v.null()),
@@ -583,10 +608,8 @@ export const createReviewForm = mutation({
       throw new Error('Token collision detected. Please try again.');
     }
 
-    // Validate rotationQuarter is 1-4
-    if (args.rotationQuarter < 1 || args.rotationQuarter > 4) {
-      throw new Error('rotationQuarter must be between 1 and 4');
-    }
+    // Validate rotation number
+    validateRotationNumber(args.rotationNumber);
 
     let resolvedRotationId = args.rotationId;
 
@@ -613,7 +636,7 @@ export const createReviewForm = mutation({
       visibilityChangedBy: null,
 
       rotationYear: args.rotationYear,
-      rotationQuarter: args.rotationQuarter,
+      ...rotationNumberFields(args.rotationNumber),
       buddyUserId: args.buddyUserId,
       buddyName: args.buddyName,
       juniorCommanderUserId: args.juniorCommanderUserId,
@@ -654,7 +677,7 @@ export const updateParticulars = mutation({
     ...SessionIdArg,
     formId: v.id('reviewForms'),
     rotationYear: v.optional(v.number()),
-    rotationQuarter: v.optional(v.number()),
+    rotationNumber: v.optional(v.number()),
     buddyName: v.optional(v.string()),
     juniorCommanderName: v.optional(v.string()),
     ageGroup: v.optional(ageGroupValidator),
@@ -686,7 +709,7 @@ export const updateParticulars = mutation({
 
     const updates: Partial<typeof form> = {};
     if (args.rotationYear !== undefined) updates.rotationYear = args.rotationYear;
-    if (args.rotationQuarter !== undefined) updates.rotationQuarter = args.rotationQuarter;
+    if (args.rotationNumber !== undefined) applyRotationNumberUpdate(updates, args.rotationNumber);
     if (args.buddyName !== undefined) updates.buddyName = args.buddyName;
     if (args.juniorCommanderName !== undefined)
       updates.juniorCommanderName = args.juniorCommanderName;
@@ -1319,7 +1342,7 @@ export const updateParticularsByToken = mutation({
     accessToken: v.string(),
     formId: v.id('reviewForms'),
     rotationYear: v.optional(v.number()),
-    rotationQuarter: v.optional(v.number()),
+    rotationNumber: v.optional(v.number()),
     buddyName: v.optional(v.string()),
     juniorCommanderName: v.optional(v.string()),
     ageGroup: v.optional(ageGroupValidator),
@@ -1351,7 +1374,7 @@ export const updateParticularsByToken = mutation({
 
     const updates: Partial<typeof form> = {};
     if (args.rotationYear !== undefined) updates.rotationYear = args.rotationYear;
-    if (args.rotationQuarter !== undefined) updates.rotationQuarter = args.rotationQuarter;
+    if (args.rotationNumber !== undefined) applyRotationNumberUpdate(updates, args.rotationNumber);
     if (args.buddyName !== undefined) updates.buddyName = args.buddyName;
     if (args.juniorCommanderName !== undefined)
       updates.juniorCommanderName = args.juniorCommanderName;
