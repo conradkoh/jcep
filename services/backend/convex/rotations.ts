@@ -12,6 +12,8 @@ const ageGroupValidator = v.union(
   v.literal('ER')
 );
 
+const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+
 async function requireSystemAdmin(
   ctx: Parameters<typeof getAuthUser>[0],
   args: { sessionId: SessionId }
@@ -223,5 +225,112 @@ export const removeParticipant = mutation({
     const participant = await ctx.db.get('rotationParticipants', args.participantId);
     if (!participant) throw new Error('Participant not found');
     await ctx.db.delete('rotationParticipants', args.participantId);
+  },
+});
+
+export const getRotationRoster = query({
+  args: {
+    ...SessionIdArg,
+    rotationId: v.id('rotations'),
+  },
+  handler: async (ctx, args) => {
+    await requireSystemAdmin(ctx, args);
+    const rotation = await ctx.db.get('rotations', args.rotationId);
+    if (!rotation) return null;
+
+    const cutoff = rotation.evaluationDate - ONE_YEAR_MS;
+
+    const applications = await ctx.db
+      .query('jcepApplications')
+      .withIndex('by_submitted_at', (q) => q.gte('submittedAt', cutoff))
+      .collect();
+    const eligible = applications.filter((app) => app.archivedAt == null);
+
+    const allRotations = await ctx.db.query('rotations').collect();
+    const sortedRotations = allRotations.sort((a, b) => {
+      if (a.rotationYear !== b.rotationYear) return b.rotationYear - a.rotationYear;
+      return b.rotationQuarter - a.rotationQuarter;
+    });
+
+    const allParticipants = await ctx.db.query('rotationParticipants').collect();
+    const assignmentByApplication = new Map(allParticipants.map((p) => [p.applicationId, p]));
+
+    const applicants = eligible
+      .sort((a, b) => a.fullName.localeCompare(b.fullName))
+      .map((app) => {
+        const participant = assignmentByApplication.get(app._id);
+        return {
+          applicationId: app._id,
+          fullName: app.fullName,
+          contactNumber: app.contactNumber,
+          ageGroupChoice1: app.ageGroupChoice1,
+          submissionYear: app.submissionYear,
+          submittedAt: app.submittedAt,
+          assignedRotationId: participant?.rotationId ?? null,
+          participantId: participant?._id ?? null,
+          ageGroup: participant?.ageGroup ?? null,
+        };
+      });
+
+    return { rotation, rotations: sortedRotations, applicants };
+  },
+});
+
+export const setApplicantAssignment = mutation({
+  args: {
+    ...SessionIdArg,
+    applicationId: v.id('jcepApplications'),
+    rotationId: v.union(v.id('rotations'), v.null()),
+    ageGroup: v.optional(ageGroupValidator),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireSystemAdmin(ctx, args);
+    const application = await ctx.db.get('jcepApplications', args.applicationId);
+    if (!application) throw new Error('Application not found');
+    if (application.archivedAt != null) {
+      throw new Error('Cannot assign archived application');
+    }
+
+    const existing = await ctx.db
+      .query('rotationParticipants')
+      .withIndex('by_application', (q) => q.eq('applicationId', args.applicationId))
+      .first();
+
+    // Unassign
+    if (args.rotationId === null) {
+      if (existing) {
+        await ctx.db.delete('rotationParticipants', existing._id);
+      }
+      return { participantId: null };
+    }
+
+    const rotation = await ctx.db.get('rotations', args.rotationId);
+    if (!rotation) throw new Error('Rotation not found');
+
+    const ageGroup = args.ageGroup ?? application.ageGroupChoice1;
+
+    // Already on this rotation — update age group if changed
+    if (existing && existing.rotationId === args.rotationId) {
+      if (existing.ageGroup !== ageGroup) {
+        await ctx.db.patch('rotationParticipants', existing._id, { ageGroup });
+      }
+      return { participantId: existing._id };
+    }
+
+    // Move from another rotation — remove old first
+    if (existing) {
+      await ctx.db.delete('rotationParticipants', existing._id);
+    }
+
+    const participantId = await ctx.db.insert('rotationParticipants', {
+      rotationId: args.rotationId,
+      applicationId: args.applicationId,
+      fullName: application.fullName,
+      contactNumber: application.contactNumber,
+      ageGroup,
+      addedAt: Date.now(),
+      addedBy: user._id,
+    });
+    return { participantId };
   },
 });
