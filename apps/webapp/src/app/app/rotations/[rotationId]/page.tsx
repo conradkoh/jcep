@@ -102,8 +102,8 @@ function RotationDetailContent({ rotationId }: { rotationId: Id<'rotations'> }) 
     );
   }
 
-  const { rotation, rotations, applicants } = data;
-  const participantCount = applicants.filter((a) => a.assignedRotationId === rotationId).length;
+  const { rotation, applicants } = data;
+  const participantCount = applicants.filter((a) => a.ageGroupOnRotation !== null).length;
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -216,11 +216,7 @@ function RotationDetailContent({ rotationId }: { rotationId: Id<'rotations'> }) 
             Applicants submitted within 1 year of the evaluation date. Assign each to a rotation or
             leave unassigned.
           </p>
-          <RotationRosterTable
-            currentRotationId={rotationId}
-            rotations={rotations}
-            applicants={applicants}
-          />
+          <RotationRosterTable currentRotationId={rotationId} applicants={applicants} />
         </div>
       </div>
     </div>

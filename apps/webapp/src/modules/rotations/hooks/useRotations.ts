@@ -46,3 +46,7 @@ export function useRemoveParticipant() {
 export function useSetApplicantAssignment() {
   return useSessionMutation(api.rotations.setApplicantAssignment);
 }
+
+export function useSetRotationParticipantAgeGroup() {
+  return useSessionMutation(api.rotations.setRotationParticipantAgeGroup);
+}

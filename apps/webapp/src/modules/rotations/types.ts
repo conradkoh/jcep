@@ -42,13 +42,11 @@ export type RosterApplicant = {
   ageGroupChoice1: AgeGroup;
   submissionYear: number;
   submittedAt: number;
-  assignedRotationId: Id<'rotations'> | null;
+  ageGroupOnRotation: AgeGroup | null;
   participantId: Id<'rotationParticipants'> | null;
-  ageGroup: AgeGroup | null;
 };
 
 export type RotationRoster = {
   rotation: Rotation;
-  rotations: Rotation[];
   applicants: RosterApplicant[];
 };

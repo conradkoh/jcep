@@ -5,8 +5,8 @@ import { Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
-import { useSetApplicantAssignment } from '../hooks/useRotations';
-import type { AgeGroup, RosterApplicant, Rotation } from '../types';
+import { useSetRotationParticipantAgeGroup } from '../hooks/useRotations';
+import type { AgeGroup, RosterApplicant } from '../types';
 
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -26,30 +26,19 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { AgeGroupSelect } from '@/modules/jcep/components/AgeGroupSelect';
 import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
-import { formatRotationLabel } from '@/modules/review/utils/rotationUtils';
 
-const UNASSIGNED = 'unassigned';
+const UNASSIGNED = '__unassigned__';
 
 interface RotationRosterTableProps {
   currentRotationId: Id<'rotations'>;
-  rotations: Rotation[];
   applicants: RosterApplicant[];
 }
 
-function getRotationDisplayLabel(rotation: Rotation): string {
-  return rotation.label || formatRotationLabel(rotation.rotationYear, rotation.rotationQuarter);
-}
-
-export function RotationRosterTable({
-  currentRotationId,
-  rotations,
-  applicants,
-}: RotationRosterTableProps) {
+export function RotationRosterTable({ currentRotationId, applicants }: RotationRosterTableProps) {
   const [filterTerm, setFilterTerm] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const setAssignment = useSetApplicantAssignment();
+  const setParticipantAgeGroup = useSetRotationParticipantAgeGroup();
 
   const filteredApplicants = useMemo(() => {
     const term = filterTerm.trim().toLowerCase();
@@ -57,37 +46,18 @@ export function RotationRosterTable({
     return applicants.filter((a) => a.fullName.toLowerCase().includes(term));
   }, [applicants, filterTerm]);
 
-  const handleRotationChange = async (applicant: RosterApplicant, value: string) => {
+  const handleAgeGroupChange = async (applicant: RosterApplicant, value: string) => {
     setUpdatingId(applicant.applicationId);
     try {
-      const rotationId = value === UNASSIGNED ? null : (value as Id<'rotations'>);
-      const ageGroup =
-        rotationId !== null ? (applicant.ageGroup ?? applicant.ageGroupChoice1) : undefined;
-      await setAssignment({
+      const ageGroup = value === UNASSIGNED ? null : (value as AgeGroup);
+      await setParticipantAgeGroup({
+        rotationId: currentRotationId,
         applicationId: applicant.applicationId,
-        rotationId,
         ageGroup,
       });
-      toast.success(rotationId ? 'Assignment updated' : 'Applicant unassigned');
+      toast.success(ageGroup ? 'Assigned to rotation' : 'Removed from rotation');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to update assignment');
-    } finally {
-      setUpdatingId(null);
-    }
-  };
-
-  const handleAgeGroupChange = async (applicant: RosterApplicant, ageGroup: AgeGroup) => {
-    if (!applicant.assignedRotationId) return;
-    setUpdatingId(applicant.applicationId);
-    try {
-      await setAssignment({
-        applicationId: applicant.applicationId,
-        rotationId: applicant.assignedRotationId,
-        ageGroup,
-      });
-      toast.success('Age group updated');
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to update age group');
     } finally {
       setUpdatingId(null);
     }
@@ -123,21 +93,19 @@ export function RotationRosterTable({
                 <TableHead>Name</TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>App Preference</TableHead>
-                <TableHead>Age Group</TableHead>
-                <TableHead>Assigned Rotation</TableHead>
+                <TableHead>Age Group / Assignment</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredApplicants.map((applicant) => {
-                const isAssigned = applicant.assignedRotationId !== null;
+                const isAssigned = applicant.ageGroupOnRotation !== null;
                 const isUpdating = updatingId === applicant.applicationId;
-                const selectValue = applicant.assignedRotationId ?? UNASSIGNED;
-                const isOnCurrentRotation = applicant.assignedRotationId === currentRotationId;
+                const selectValue = applicant.ageGroupOnRotation ?? UNASSIGNED;
 
                 return (
                   <TableRow
                     key={applicant.applicationId}
-                    className={isOnCurrentRotation ? 'bg-primary/5' : undefined}
+                    className={isAssigned ? 'bg-primary/5' : undefined}
                   >
                     <TableCell className="font-medium">{applicant.fullName}</TableCell>
                     <TableCell className="text-muted-foreground">
@@ -146,34 +114,21 @@ export function RotationRosterTable({
                     <TableCell>
                       <Badge variant="outline">{getAgeGroupLabel(applicant.ageGroupChoice1)}</Badge>
                     </TableCell>
-                    <TableCell>
-                      {isAssigned ? (
-                        <AgeGroupSelect
-                          value={applicant.ageGroup ?? applicant.ageGroupChoice1}
-                          onValueChange={(value) => handleAgeGroupChange(applicant, value)}
-                          className="w-[160px]"
-                          disabled={isUpdating}
-                        />
-                      ) : (
-                        <span className="text-sm text-muted-foreground">&mdash;</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
+                    <TableCell className="w-[220px]">
                       <Select
                         value={selectValue}
-                        onValueChange={(value) => handleRotationChange(applicant, value)}
+                        onValueChange={(value) => handleAgeGroupChange(applicant, value)}
                         disabled={isUpdating}
                       >
                         <SelectTrigger className="w-[200px]">
-                          <SelectValue />
+                          <SelectValue placeholder="Unassigned" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value={UNASSIGNED}>Unassigned</SelectItem>
-                          {rotations.map((rotation) => (
-                            <SelectItem key={rotation._id} value={rotation._id}>
-                              {getRotationDisplayLabel(rotation)}
-                            </SelectItem>
-                          ))}
+                          <SelectItem value="RK">{getAgeGroupLabel('RK')}</SelectItem>
+                          <SelectItem value="DR">{getAgeGroupLabel('DR')}</SelectItem>
+                          <SelectItem value="AR">{getAgeGroupLabel('AR')}</SelectItem>
+                          <SelectItem value="ER">{getAgeGroupLabel('ER')}</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>
