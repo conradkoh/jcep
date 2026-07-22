@@ -13,7 +13,6 @@ import {
   getDefaultRotationQuarter,
   getRotationQuarterOptions,
 } from '../../utils/rotationUtils';
-import { AgeGroupSelect } from '../AgeGroupSelect';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -28,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { AgeGroupSelect } from '@/modules/jcep/components/AgeGroupSelect';
 
 type UserRole = 'buddy' | 'jc';
 

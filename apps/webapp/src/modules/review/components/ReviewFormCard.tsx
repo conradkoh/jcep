@@ -4,14 +4,16 @@ import { ChevronRight, Users } from 'lucide-react';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { useId } from 'react';
+
+import type { ReviewForm } from '../types';
+import { formatRotationLabel } from '../utils/rotationUtils';
+import { getSectionCompletionSummary } from '../utils/sectionCompletionHelpers';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import type { ReviewForm } from '../types';
-import { getAgeGroupLabel } from '../utils/ageGroupLabels';
-import { formatRotationLabel } from '../utils/rotationUtils';
-import { getSectionCompletionSummary } from '../utils/sectionCompletionHelpers';
+import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 
 interface ReviewFormCardProps {
   form: ReviewForm;

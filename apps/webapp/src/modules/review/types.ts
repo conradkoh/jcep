@@ -4,8 +4,9 @@
 
 import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 
-// Age group options
-export type AgeGroup = 'RK' | 'DR' | 'AR' | 'ER';
+import type { AgeGroup } from '@/modules/jcep/types';
+
+export type { AgeGroup };
 
 // Form completion status
 export type ReviewFormStatus = 'not_started' | 'in_progress' | 'complete' | 'submitted';

@@ -1,5 +1,8 @@
 'use client';
 
+import type { AgeGroup } from '../types';
+import { AGE_GROUP_LABELS } from '../utils/ageGroupLabels';
+
 import {
   Select,
   SelectContent,
@@ -7,14 +10,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { AgeGroup } from '../types';
-import { AGE_GROUP_LABELS } from '../utils/ageGroupLabels';
 
 interface AgeGroupSelectProps {
   value: AgeGroup | '';
   onValueChange: (value: AgeGroup) => void;
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export function AgeGroupSelect({
@@ -22,9 +24,10 @@ export function AgeGroupSelect({
   onValueChange,
   placeholder = 'Select age group',
   className,
+  disabled,
 }: AgeGroupSelectProps) {
   return (
-    <Select value={value} onValueChange={(v) => onValueChange(v as AgeGroup)}>
+    <Select value={value} onValueChange={(v) => onValueChange(v as AgeGroup)} disabled={disabled}>
       <SelectTrigger className={className}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>

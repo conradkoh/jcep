@@ -1,7 +1,3 @@
-/**
- * Age group label utilities
- */
-
 import type { AgeGroup } from '../types';
 
 export const AGE_GROUP_LABELS: Record<AgeGroup, string> = {

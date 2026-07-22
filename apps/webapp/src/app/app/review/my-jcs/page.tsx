@@ -3,6 +3,7 @@
 import { CheckCircle2, Circle, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,16 +18,16 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
+import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 import { useReviewFormsByBuddy } from '@/modules/review/hooks/useReviewForm';
 import type { ReviewForm } from '@/modules/review/types';
-import { getAgeGroupLabel } from '@/modules/review/utils/ageGroupLabels';
 import { getSectionCompletionSummary } from '@/modules/review/utils/sectionCompletionHelpers';
 
 /**
  * Content component for the buddy dashboard page.
  * Displays all Junior Commanders assigned to the current user (buddy) with filtering and statistics.
  */
-function _BuddyDashboardContent() {
+function BuddyDashboardContent() {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -312,7 +313,7 @@ function _BuddyDashboardContent() {
 export default function BuddyDashboardPage() {
   return (
     <RequireLogin>
-      <_BuddyDashboardContent />
+      <BuddyDashboardContent />
     </RequireLogin>
   );
 }
