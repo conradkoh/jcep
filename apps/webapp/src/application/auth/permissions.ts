@@ -15,6 +15,9 @@ const permissions = {
   'attendance:read': { description: 'View attendance records' },
   'attendance:manage': { description: 'Manage attendance records' },
   'presentation:read': { description: 'View presentations' },
+  'reviews:manage': { description: 'Manage JCEP review forms (generate, list, configure)' },
+  'rotations:manage': { description: 'Manage JCEP rotations and participants' },
+  'applications:manage': { description: 'View and manage JCEP application submissions' },
 } as const;
 
 export type Permission = keyof typeof permissions;
@@ -23,3 +26,9 @@ export const allPermissions = Object.keys(permissions) as Permission[];
 
 /** Platform system administration UI — use for authorization checks, not the `system_admin` role name. */
 export const SYSTEM_ADMIN_ACCESS_PERMISSION = 'system_admin:access' as const satisfies Permission;
+// fallow-ignore-next-line unused-export
+export const REVIEWS_MANAGE_PERMISSION = 'reviews:manage' as const satisfies Permission;
+// fallow-ignore-next-line unused-export
+export const ROTATIONS_MANAGE_PERMISSION = 'rotations:manage' as const satisfies Permission;
+// fallow-ignore-next-line unused-export
+export const APPLICATIONS_MANAGE_PERMISSION = 'applications:manage' as const satisfies Permission;

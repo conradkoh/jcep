@@ -16,6 +16,9 @@ const permissions = {
   'attendance:read': { description: 'View attendance records' },
   'attendance:manage': { description: 'Manage attendance records' },
   'presentation:read': { description: 'View presentations' },
+  'reviews:manage': { description: 'Manage JCEP review forms (generate, list, configure)' },
+  'rotations:manage': { description: 'Manage JCEP rotations and participants' },
+  'applications:manage': { description: 'View and manage JCEP application submissions' },
 } as const;
 
 export type Permission = keyof typeof permissions;
@@ -24,3 +27,9 @@ export const allPermissions = Object.keys(permissions) as Permission[];
 
 /** Configure authentication providers — use instead of checking roles in handlers. */
 export const AUTH_PROVIDER_MANAGE_PERMISSION = 'auth:provider:manage' as const satisfies Permission;
+// fallow-ignore-next-line unused-export
+export const REVIEWS_MANAGE_PERMISSION = 'reviews:manage' as const satisfies Permission;
+// fallow-ignore-next-line unused-export
+export const ROTATIONS_MANAGE_PERMISSION = 'rotations:manage' as const satisfies Permission;
+// fallow-ignore-next-line unused-export
+export const APPLICATIONS_MANAGE_PERMISSION = 'applications:manage' as const satisfies Permission;
