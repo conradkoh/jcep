@@ -4,6 +4,7 @@ import { SessionIdArg } from 'convex-helpers/server/sessions';
 
 import { mutation, query } from './_generated/server';
 import { getAuthUser } from '../modules/auth/getAuthUser';
+import { ROTATIONS_MANAGE_PERMISSION, requireAuthenticatedPermission } from '../application/auth';
 
 const ageGroupValidator = v.union(
   v.literal('RK'),
@@ -14,12 +15,14 @@ const ageGroupValidator = v.union(
 
 const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
 
-async function requireSystemAdmin(
+async function requireRotationsManage(
   ctx: Parameters<typeof getAuthUser>[0],
   args: { sessionId: SessionId }
 ) {
   const user = await getAuthUser(ctx, args);
-  if (user.accessLevel !== 'system_admin') throw new Error('Admin only');
+  requireAuthenticatedPermission(user, ROTATIONS_MANAGE_PERMISSION, {
+    unauthorizedMessage: 'Admin only',
+  });
   return user;
 }
 
@@ -28,7 +31,7 @@ export const listRotations = query({
     ...SessionIdArg,
   },
   handler: async (ctx, args) => {
-    await requireSystemAdmin(ctx, args);
+    await requireRotationsManage(ctx, args);
     const rotations = await ctx.db.query('rotations').order('desc').collect();
     const sorted = rotations.sort((a, b) => {
       if (a.rotationYear !== b.rotationYear) return b.rotationYear - a.rotationYear;
@@ -55,7 +58,7 @@ export const getRotationWithParticipants = query({
     rotationId: v.id('rotations'),
   },
   handler: async (ctx, args) => {
-    await requireSystemAdmin(ctx, args);
+    await requireRotationsManage(ctx, args);
     const rotation = await ctx.db.get('rotations', args.rotationId);
     if (!rotation) return null;
     const participants = await ctx.db
@@ -75,7 +78,7 @@ export const createRotation = mutation({
     label: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requireSystemAdmin(ctx, args);
+    await requireRotationsManage(ctx, args);
     if (args.rotationQuarter < 1 || args.rotationQuarter > 4) {
       throw new Error('rotationQuarter must be between 1 and 4');
     }
@@ -94,7 +97,7 @@ export const createRotation = mutation({
       evaluationDate: args.evaluationDate,
       label: args.label,
       createdAt: Date.now(),
-      createdBy: (await requireSystemAdmin(ctx, args))._id,
+      createdBy: (await requireRotationsManage(ctx, args))._id,
     });
     return { rotationId };
   },
@@ -108,7 +111,7 @@ export const updateRotation = mutation({
     label: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requireSystemAdmin(ctx, args);
+    await requireRotationsManage(ctx, args);
     const rotation = await ctx.db.get('rotations', args.rotationId);
     if (!rotation) throw new Error('Rotation not found');
     await ctx.db.patch('rotations', args.rotationId, {
@@ -124,7 +127,7 @@ export const deleteRotation = mutation({
     rotationId: v.id('rotations'),
   },
   handler: async (ctx, args) => {
-    await requireSystemAdmin(ctx, args);
+    await requireRotationsManage(ctx, args);
     const rotation = await ctx.db.get('rotations', args.rotationId);
     if (!rotation) throw new Error('Rotation not found');
     const participants = await ctx.db
@@ -146,7 +149,7 @@ export const searchApplicants = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    await requireSystemAdmin(ctx, args);
+    await requireRotationsManage(ctx, args);
     const trimmed = args.searchTerm.trim();
     if (trimmed.length < 2) return [];
     const maxResults = args.limit ?? 20;
@@ -185,7 +188,7 @@ export const addParticipant = mutation({
     ageGroup: v.optional(ageGroupValidator),
   },
   handler: async (ctx, args) => {
-    const user = await requireSystemAdmin(ctx, args);
+    const user = await requireRotationsManage(ctx, args);
     const rotation = await ctx.db.get('rotations', args.rotationId);
     if (!rotation) throw new Error('Rotation not found');
     const application = await ctx.db.get('jcepApplications', args.applicationId);
@@ -220,7 +223,7 @@ export const removeParticipant = mutation({
     participantId: v.id('rotationParticipants'),
   },
   handler: async (ctx, args) => {
-    await requireSystemAdmin(ctx, args);
+    await requireRotationsManage(ctx, args);
     const participant = await ctx.db.get('rotationParticipants', args.participantId);
     if (!participant) throw new Error('Participant not found');
     await ctx.db.delete('rotationParticipants', args.participantId);
@@ -233,7 +236,7 @@ export const getRotationRoster = query({
     rotationId: v.id('rotations'),
   },
   handler: async (ctx, args) => {
-    await requireSystemAdmin(ctx, args);
+    await requireRotationsManage(ctx, args);
     const rotation = await ctx.db.get('rotations', args.rotationId);
     if (!rotation) return null;
 
@@ -281,7 +284,7 @@ export const setApplicantAssignment = mutation({
     ageGroup: v.optional(ageGroupValidator),
   },
   handler: async (ctx, args) => {
-    const user = await requireSystemAdmin(ctx, args);
+    const user = await requireRotationsManage(ctx, args);
     const application = await ctx.db.get('jcepApplications', args.applicationId);
     if (!application) throw new Error('Application not found');
     if (application.archivedAt != null) {
@@ -339,7 +342,7 @@ export const setRotationParticipantAgeGroup = mutation({
     ageGroup: v.union(ageGroupValidator, v.null()),
   },
   handler: async (ctx, args) => {
-    const user = await requireSystemAdmin(ctx, args);
+    const user = await requireRotationsManage(ctx, args);
     const rotation = await ctx.db.get('rotations', args.rotationId);
     if (!rotation) throw new Error('Rotation not found');
 

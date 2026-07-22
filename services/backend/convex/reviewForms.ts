@@ -17,6 +17,7 @@ import {
 } from './utils/sectionCompletionHelpers';
 import { generateSecureToken, isTokenExpired } from './utils/tokenUtils';
 import { getAuthUser } from '../modules/auth/getAuthUser';
+import { hasPermission, REVIEWS_MANAGE_PERMISSION } from '../application/auth';
 
 // Schema version constant
 export const CURRENT_SCHEMA_VERSION = 1;
@@ -185,7 +186,7 @@ export const getReviewForm = query({
     }
 
     // Check access permissions
-    const isAdmin = user.accessLevel === 'system_admin';
+    const isAdmin = hasPermission(user, REVIEWS_MANAGE_PERMISSION);
     const isBuddy = form.buddyUserId === user._id;
     const isJC = form.juniorCommanderUserId === user._id;
 
@@ -372,7 +373,7 @@ export const getReviewFormsByUser = query({
     const targetUserId = args.userId || user._id;
 
     // Only admins can view other users' forms
-    if (targetUserId !== user._id && user.accessLevel !== 'system_admin') {
+    if (targetUserId !== user._id && !hasPermission(user, REVIEWS_MANAGE_PERMISSION)) {
       throw new Error('Not authorized to view other users forms');
     }
 
@@ -447,7 +448,7 @@ export const getAllReviewFormsByYear = query({
     }
 
     // Only admins can view all forms
-    if (user.accessLevel !== 'system_admin') {
+    if (!hasPermission(user, REVIEWS_MANAGE_PERMISSION)) {
       throw new Error('Not authorized - admin access required');
     }
 
@@ -522,7 +523,7 @@ export const getReviewFormsByRotation = query({
     if (!user) {
       throw new Error('Not authenticated');
     }
-    if (user.accessLevel !== 'system_admin') {
+    if (!hasPermission(user, REVIEWS_MANAGE_PERMISSION)) {
       throw new Error('Not authorized - admin access required');
     }
 
@@ -691,7 +692,7 @@ export const updateParticulars = mutation({
     }
 
     // Check permissions
-    const isAdmin = user.accessLevel === 'system_admin';
+    const isAdmin = hasPermission(user, REVIEWS_MANAGE_PERMISSION);
     const isCreator = form.createdBy === user._id;
 
     if (!isAdmin && !isCreator) {
@@ -741,7 +742,7 @@ export const updateBuddyEvaluation = mutation({
     }
 
     // Check permissions
-    const isAdmin = user.accessLevel === 'system_admin';
+    const isAdmin = hasPermission(user, REVIEWS_MANAGE_PERMISSION);
     const isBuddy = form.buddyUserId === user._id;
 
     if (!isAdmin && !isBuddy) {
@@ -799,7 +800,7 @@ export const updateJCReflection = mutation({
     }
 
     // Check permissions
-    const isAdmin = user.accessLevel === 'system_admin';
+    const isAdmin = hasPermission(user, REVIEWS_MANAGE_PERMISSION);
     const isJC = form.juniorCommanderUserId === user._id;
 
     if (!isAdmin && !isJC) {
@@ -855,7 +856,7 @@ export const updateJCFeedback = mutation({
     }
 
     // Check permissions
-    const isAdmin = user.accessLevel === 'system_admin';
+    const isAdmin = hasPermission(user, REVIEWS_MANAGE_PERMISSION);
     const isJC = form.juniorCommanderUserId === user._id;
 
     if (!isAdmin && !isJC) {
@@ -906,7 +907,7 @@ export const submitReviewForm = mutation({
     }
 
     // Check permissions
-    const isAdmin = user.accessLevel === 'system_admin';
+    const isAdmin = hasPermission(user, REVIEWS_MANAGE_PERMISSION);
     const isBuddy = form.buddyUserId === user._id;
     const isJC = form.juniorCommanderUserId === user._id;
 
@@ -954,7 +955,7 @@ export const deleteReviewForm = mutation({
     }
 
     // Check permissions
-    const isAdmin = user.accessLevel === 'system_admin';
+    const isAdmin = hasPermission(user, REVIEWS_MANAGE_PERMISSION);
     const isCreator = form.createdBy === user._id;
 
     if (!isAdmin && !isCreator) {
@@ -981,7 +982,7 @@ export const regenerateAccessTokens = mutation({
     }
 
     // Only admins can regenerate tokens
-    if (user.accessLevel !== 'system_admin') {
+    if (!hasPermission(user, REVIEWS_MANAGE_PERMISSION)) {
       throw new Error('Only admins can regenerate access tokens');
     }
 
@@ -1037,7 +1038,7 @@ export const archiveReviewForm = mutation({
     }
 
     // Only admins can archive forms
-    if (user.accessLevel !== 'system_admin') {
+    if (!hasPermission(user, REVIEWS_MANAGE_PERMISSION)) {
       throw new Error('Only admins can archive review forms');
     }
 
@@ -1070,7 +1071,7 @@ export const unarchiveReviewForm = mutation({
     }
 
     // Only admins can unarchive forms
-    if (user.accessLevel !== 'system_admin') {
+    if (!hasPermission(user, REVIEWS_MANAGE_PERMISSION)) {
       throw new Error('Only admins can unarchive review forms');
     }
 
@@ -1105,7 +1106,7 @@ export const toggleResponseVisibility = mutation({
     }
 
     // Only admins can toggle visibility
-    if (user.accessLevel !== 'system_admin') {
+    if (!hasPermission(user, REVIEWS_MANAGE_PERMISSION)) {
       throw new Error('Only admins can toggle response visibility');
     }
 
