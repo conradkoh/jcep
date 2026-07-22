@@ -31,7 +31,7 @@ import {
   useUnarchiveReviewForm,
 } from '../../hooks/useReviewForm';
 import type { ReviewForm } from '../../types';
-import { formatRotationLabel } from '../../utils/rotationUtils';
+import { formatRotationLabel, getReviewFormRotationNumber } from '../../utils/rotationUtils';
 import {
   isBuddyEvaluationComplete,
   isJCFeedbackComplete,
@@ -271,7 +271,7 @@ export function AdminReviewListingTable({
             {forms.map((form) => (
               <TableRow key={form._id}>
                 <TableCell className="font-medium">
-                  {formatRotationLabel(form.rotationYear, form.rotationQuarter)}
+                  {formatRotationLabel(form.rotationYear, getReviewFormRotationNumber(form))}
                 </TableCell>
                 <TableCell>{form.buddyName}</TableCell>
                 <TableCell>{form.juniorCommanderName}</TableCell>
@@ -456,7 +456,10 @@ export function AdminReviewListingTable({
               <strong>{formToDelete?.juniorCommanderName}</strong> and{' '}
               <strong>{formToDelete?.buddyName}</strong> (
               {formToDelete &&
-                formatRotationLabel(formToDelete.rotationYear, formToDelete.rotationQuarter)}
+                formatRotationLabel(
+                  formToDelete.rotationYear,
+                  getReviewFormRotationNumber(formToDelete)
+                )}
               )?
               <br />
               <br />

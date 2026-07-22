@@ -6,6 +6,7 @@
 
 import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 import { useCallback, useMemo } from 'react';
+
 import type { AgeGroup, QuestionResponse, ReviewForm, SectionCompletion } from '../types';
 import {
   useReviewForm,
@@ -41,7 +42,7 @@ export interface ReviewFormAccessReturn {
   updateParticulars: (args: {
     formId: Id<'reviewForms'>;
     rotationYear?: number;
-    rotationQuarter?: number;
+    rotationNumber?: number;
     buddyName?: string;
     juniorCommanderName?: string;
     ageGroup?: AgeGroup;
@@ -146,7 +147,7 @@ export function useReviewFormAccess(
     async (args: {
       formId: Id<'reviewForms'>;
       rotationYear?: number;
-      rotationQuarter?: number;
+      rotationNumber?: number;
       buddyName?: string;
       juniorCommanderName?: string;
       ageGroup?: 'RK' | 'DR' | 'AR' | 'ER';

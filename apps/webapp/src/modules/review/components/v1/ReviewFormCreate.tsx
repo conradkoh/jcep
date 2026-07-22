@@ -53,7 +53,7 @@ export function ReviewFormCreate({
 
   // Advanced options with sensible defaults
   const [rotationYear, setRotationYear] = useState(currentYear);
-  const [rotationQuarter, setRotationQuarter] = useState(getDefaultRotationNumber());
+  const [rotationNumber, setRotationNumber] = useState(getDefaultRotationNumber());
   const [ageGroup, setAgeGroup] = useState<AgeGroup | ''>('RK');
   const [evaluationDate, setEvaluationDate] = useState<Date>(new Date());
 
@@ -77,7 +77,7 @@ export function ReviewFormCreate({
     try {
       await createForm({
         rotationYear,
-        rotationQuarter,
+        rotationNumber,
         buddyUserId: myRole === 'buddy' ? currentUserId : currentUserId, // Creator is always linked
         buddyName: buddyName.trim(),
         juniorCommanderUserId: myRole === 'jc' ? currentUserId : null,
@@ -176,7 +176,7 @@ export function ReviewFormCreate({
           <CollapsibleContent className="space-y-4 pt-4">
             <div className="rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">
               <p>
-                Default: <strong>{formatRotationLabel(rotationYear, rotationQuarter)}</strong>
+                Default: <strong>{formatRotationLabel(rotationYear, rotationNumber)}</strong>
               </p>
             </div>
 
@@ -197,14 +197,14 @@ export function ReviewFormCreate({
               </div>
 
               <div>
-                <Label htmlFor="rotationQuarter" className="text-sm font-medium text-foreground">
+                <Label htmlFor="rotationNumber" className="text-sm font-medium text-foreground">
                   Rotation
                 </Label>
                 <Select
-                  value={String(rotationQuarter)}
-                  onValueChange={(value) => setRotationQuarter(Number.parseInt(value))}
+                  value={String(rotationNumber)}
+                  onValueChange={(value) => setRotationNumber(Number.parseInt(value))}
                 >
-                  <SelectTrigger id="rotationQuarter" className="mt-1">
+                  <SelectTrigger id="rotationNumber" className="mt-1">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>

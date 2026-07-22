@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useId } from 'react';
 
 import type { ReviewForm } from '../types';
-import { formatRotationLabel } from '../utils/rotationUtils';
+import { formatRotationLabel, getReviewFormRotationNumber } from '../utils/rotationUtils';
 import { getSectionCompletionSummary } from '../utils/sectionCompletionHelpers';
 
 import { Badge } from '@/components/ui/badge';
@@ -78,7 +78,7 @@ export function ReviewFormCard({ form }: ReviewFormCardProps) {
       <CardContent className="space-y-4 text-sm text-muted-foreground">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-medium text-foreground">
-            {formatRotationLabel(form.rotationYear, form.rotationQuarter)}
+            {formatRotationLabel(form.rotationYear, getReviewFormRotationNumber(form))}
           </span>
           <span aria-hidden>•</span>
           <span>{ageGroupLabel}</span>

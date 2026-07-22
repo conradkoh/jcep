@@ -6,6 +6,7 @@ import { api } from '@workspace/backend/convex/_generated/api';
 import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 import { useMutation } from 'convex/react';
 import { useCallback } from 'react';
+
 import type { AgeGroup, QuestionResponse } from '../types';
 
 /**
@@ -95,7 +96,7 @@ export function useUpdateParticularsByToken(accessToken: string | null | undefin
     async (args: {
       formId: Id<'reviewForms'>;
       rotationYear?: number;
-      rotationQuarter?: number;
+      rotationNumber?: number;
       buddyName?: string;
       juniorCommanderName?: string;
       ageGroup?: AgeGroup;

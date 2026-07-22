@@ -71,7 +71,7 @@ export function GenerateReviewFormDialog({
     try {
       await createForm({
         rotationYear: rotation.rotationYear,
-        rotationQuarter: rotation.rotationQuarter,
+        rotationNumber: rotation.rotationQuarter,
         buddyUserId: adminUserId,
         buddyName: buddyName.trim(),
         juniorCommanderUserId: null,

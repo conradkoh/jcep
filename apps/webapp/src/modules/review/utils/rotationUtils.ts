@@ -37,6 +37,13 @@ export function formatRotationLabel(year: number, rotationNumber: number): strin
   return `${year} Rotation ${rotationNumber}`;
 }
 
+export function getReviewFormRotationNumber(form: { rotationNumber?: number }): number {
+  if (form.rotationNumber === undefined) {
+    throw new Error('Review form is missing rotationNumber');
+  }
+  return form.rotationNumber;
+}
+
 /**
  * Get rotation number options for dropdowns
  * Returns array of options with value and label
