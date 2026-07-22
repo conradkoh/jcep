@@ -19,7 +19,6 @@ const createMockForm = (overrides?: Partial<ReviewForm>): ReviewForm => ({
   visibilityChangedBy: null,
   rotationYear: 2025,
   rotationNumber: 1,
-  rotationQuarter: 1,
   // biome-ignore lint/suspicious/noExplicitAny: Test mock requires type assertion
   buddyUserId: 'buddy-id' as any,
   buddyName: 'Test Buddy',

@@ -27,7 +27,6 @@ const createMockForm = (overrides?: Partial<ReviewForm>): ReviewForm => ({
   visibilityChangedBy: null,
   rotationYear: 2025,
   rotationNumber: 1,
-  rotationQuarter: 1,
   buddyUserId: 'buddy-id' as any,
   buddyName: 'Test Buddy',
   juniorCommanderUserId: 'jc-id' as any,

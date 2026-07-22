@@ -52,9 +52,7 @@ export interface ReviewForm {
 
   // Particulars
   rotationYear: number;
-  rotationNumber?: number; // Canonical rotation number (1-4)
-  /** @deprecated Dual-written during migration. Read rotationNumber instead. */
-  rotationQuarter: number;
+  rotationNumber: number; // Rotation number within the year (1-4)
   buddyUserId: Id<'users'>;
   buddyName: string;
   juniorCommanderUserId: Id<'users'> | null; // Null if JC is not a registered user
