@@ -4,6 +4,10 @@ import { Pencil1Icon } from '@radix-ui/react-icons';
 import { CalendarIcon, Check, X } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
+
+import type { AgeGroup, ReviewForm } from '../../types';
+import { formatRotationLabel, getRotationQuarterOptions } from '../../utils/rotationUtils';
+
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
@@ -16,10 +20,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import type { AgeGroup, ReviewForm } from '../../types';
-import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
-import { formatRotationLabel, getRotationQuarterOptions } from '../../utils/rotationUtils';
-import { AgeGroupSelect } from '../AgeGroupSelect';
+import { AgeGroupSelect } from '@/modules/jcep/components/AgeGroupSelect';
+import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 
 interface ParticularsSectionProps {
   form: ReviewForm;

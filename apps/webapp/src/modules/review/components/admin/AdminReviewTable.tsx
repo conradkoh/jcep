@@ -5,6 +5,11 @@ import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
+
+import { useDeleteReviewForm } from '../../hooks/useReviewForm';
+import type { ReviewForm } from '../../types';
+import { formatRotationLabel } from '../../utils/rotationUtils';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,10 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useDeleteReviewForm } from '../../hooks/useReviewForm';
-import type { ReviewForm } from '../../types';
-import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
-import { formatRotationLabel } from '../../utils/rotationUtils';
+import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 
 interface AdminReviewTableProps {
   forms: ReviewForm[];

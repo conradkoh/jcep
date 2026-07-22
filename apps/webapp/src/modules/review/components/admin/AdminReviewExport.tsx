@@ -3,9 +3,11 @@
 import { Download } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+
 import type { ReviewForm } from '../../types';
-import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
+
+import { Button } from '@/components/ui/button';
+import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 
 interface AdminReviewExportProps {
   forms: ReviewForm[];

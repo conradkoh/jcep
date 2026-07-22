@@ -12,8 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { AgeGroupSelect } from '@/modules/review/components/AgeGroupSelect';
-import { getAgeGroupLabel } from '@/modules/review/utils/ageGroupLabels';
+import { AgeGroupSelect } from '@/modules/jcep/components/AgeGroupSelect';
+import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 
 interface ApplicantSearchProps {
   rotationId: Id<'rotations'>;

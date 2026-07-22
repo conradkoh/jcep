@@ -31,7 +31,6 @@ import {
   useUnarchiveReviewForm,
 } from '../../hooks/useReviewForm';
 import type { ReviewForm } from '../../types';
-import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
 import { formatRotationLabel } from '../../utils/rotationUtils';
 import {
   isBuddyEvaluationComplete,
@@ -67,6 +66,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 
 /**
  * Props for the AdminReviewListingTable component.

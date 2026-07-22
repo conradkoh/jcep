@@ -27,7 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { getAgeGroupLabel } from '@/modules/review/utils/ageGroupLabels';
+import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 
 interface RotationParticipantsTableProps {
   participants: RotationParticipant[];

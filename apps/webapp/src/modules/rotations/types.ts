@@ -1,6 +1,8 @@
 import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 
-export type AgeGroup = 'RK' | 'DR' | 'AR' | 'ER';
+import type { AgeGroup } from '@/modules/jcep/types';
+
+export type { AgeGroup };
 
 export type Rotation = {
   _id: Id<'rotations'>;
