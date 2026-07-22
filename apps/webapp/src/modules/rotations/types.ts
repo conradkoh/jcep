@@ -13,6 +13,7 @@ export type Rotation = {
   label?: string;
   createdAt: number;
   createdBy: Id<'users'>;
+  participantCount?: number;
 };
 
 export type RotationParticipant = {

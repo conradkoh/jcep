@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import type { Rotation } from '../types';
 
@@ -33,6 +33,8 @@ function formatDate(timestamp: number): string {
 }
 
 export function RotationList({ rotations }: RotationListProps) {
+  const router = useRouter();
+
   if (rotations.length === 0) {
     return (
       <Card className="p-8">
@@ -58,18 +60,18 @@ export function RotationList({ rotations }: RotationListProps) {
           </TableHeader>
           <TableBody>
             {rotations.map((rotation) => (
-              <TableRow key={rotation._id}>
-                <TableCell className="font-medium">
-                  <Link href={`/app/rotations/${rotation._id}`} className="hover:underline">
-                    {getRotationDisplayLabel(rotation)}
-                  </Link>
-                </TableCell>
+              <TableRow
+                key={rotation._id}
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => router.push(`/app/rotations/${rotation._id}`)}
+              >
+                <TableCell className="font-medium">{getRotationDisplayLabel(rotation)}</TableCell>
                 <TableCell>{rotation.rotationYear}</TableCell>
                 <TableCell>
                   <Badge variant="secondary">Q{rotation.rotationQuarter}</Badge>
                 </TableCell>
                 <TableCell>{formatDate(rotation.evaluationDate)}</TableCell>
-                <TableCell>&mdash;</TableCell>
+                <TableCell>{rotation.participantCount ?? 0}</TableCell>
               </TableRow>
             ))}
           </TableBody>
