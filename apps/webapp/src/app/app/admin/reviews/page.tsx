@@ -1,15 +1,8 @@
-'use client';
-
-import { AdminReviewDashboard } from '@/modules/review/components/admin/AdminReviewDashboard';
+import { redirect } from 'next/navigation';
 
 /**
- * Admin reviews page component.
- * Access control is handled by the parent `/app/admin` layout.
+ * Legacy admin reviews route — redirects to Review Management.
  */
-export default function AdminReviewsPage() {
-  return (
-    <div className="container mx-auto max-w-7xl space-y-6 p-6">
-      <AdminReviewDashboard />
-    </div>
-  );
+export default function AdminReviewsRedirectPage() {
+  redirect('/app/review-management');
 }
