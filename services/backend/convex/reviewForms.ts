@@ -35,23 +35,12 @@ function validateRotationNumber(rotationNumber: number): void {
   }
 }
 
-/** Dual-write rotationNumber and deprecated rotationQuarter in sync. */
-function rotationNumberFields(rotationNumber: number): {
-  rotationNumber: number;
-  rotationQuarter: number;
-} {
-  validateRotationNumber(rotationNumber);
-  return {
-    rotationNumber,
-    rotationQuarter: rotationNumber,
-  };
-}
-
 function applyRotationNumberUpdate(
   updates: Partial<Doc<'reviewForms'>>,
   rotationNumber: number
 ): void {
-  Object.assign(updates, rotationNumberFields(rotationNumber));
+  validateRotationNumber(rotationNumber);
+  updates.rotationNumber = rotationNumber;
 }
 
 // fallow-ignore-next-line complexity
@@ -636,7 +625,7 @@ export const createReviewForm = mutation({
       visibilityChangedBy: null,
 
       rotationYear: args.rotationYear,
-      ...rotationNumberFields(args.rotationNumber),
+      rotationNumber: args.rotationNumber,
       buddyUserId: args.buddyUserId,
       buddyName: args.buddyName,
       juniorCommanderUserId: args.juniorCommanderUserId,
