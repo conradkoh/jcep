@@ -278,7 +278,7 @@ export default defineSchema({
     rotationYear: v.number(), // For indexing by year (e.g., 2025)
     rotationNumber: v.number(), // Rotation number within the year (1-4)
     rotationQuarter: v.optional(v.number()), // DEPRECATED: use rotationNumber
-    buddyUserId: v.id('users'), // The Buddy assigned to this JC
+    buddyUserId: v.union(v.id('users'), v.null()), // Null when buddy is text-only (token access)
     buddyName: v.string(), // Buddy's display name
     juniorCommanderUserId: v.union(v.id('users'), v.null()), // Null if JC not registered
     juniorCommanderName: v.string(), // JC's display name

@@ -549,7 +549,7 @@ export const createReviewForm = mutation({
     ...SessionIdArg,
     rotationYear: v.number(),
     rotationNumber: v.number(), // 1-4
-    buddyUserId: v.id('users'),
+    buddyUserId: v.union(v.id('users'), v.null()),
     buddyName: v.string(),
     juniorCommanderUserId: v.union(v.id('users'), v.null()),
     juniorCommanderName: v.string(),
@@ -565,10 +565,12 @@ export const createReviewForm = mutation({
       throw new Error('Not authenticated');
     }
 
-    // Verify buddy user exists
-    const buddyUser = await ctx.db.get('users', args.buddyUserId);
-    if (!buddyUser) {
-      throw new Error('Buddy user not found');
+    // Verify buddy user exists if provided
+    if (args.buddyUserId !== null) {
+      const buddyUser = await ctx.db.get('users', args.buddyUserId);
+      if (!buddyUser) {
+        throw new Error('Buddy user not found');
+      }
     }
 
     // Verify JC user exists if provided

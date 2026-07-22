@@ -26,10 +26,6 @@ export function validateParticulars(data: Partial<CreateReviewFormParams>): Vali
     errors.push('Rotation year must be between 2020 and 2100');
   }
 
-  if (!data.buddyUserId) {
-    errors.push('Buddy user is required');
-  }
-
   if (!data.buddyName || data.buddyName.trim().length === 0) {
     errors.push('Buddy name is required');
   }

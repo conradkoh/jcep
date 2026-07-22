@@ -78,7 +78,7 @@ export function ReviewFormCreate({
       await createForm({
         rotationYear,
         rotationNumber,
-        buddyUserId: myRole === 'buddy' ? currentUserId : currentUserId, // Creator is always linked
+        buddyUserId: myRole === 'buddy' ? currentUserId : null,
         buddyName: buddyName.trim(),
         juniorCommanderUserId: myRole === 'jc' ? currentUserId : null,
         juniorCommanderName: jcName.trim(),

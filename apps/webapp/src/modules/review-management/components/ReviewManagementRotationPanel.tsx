@@ -20,7 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useAuthState } from '@/modules/auth/AuthProvider';
 import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 import { useReviewFormsByRotation } from '@/modules/review/hooks/useReviewForm';
 import type { ReviewForm } from '@/modules/review/types';
@@ -113,9 +112,6 @@ function ParticipantRow({
  */
 // fallow-ignore-next-line complexity
 export function ReviewManagementRotationPanel({ rotationId }: ReviewManagementRotationPanelProps) {
-  const authState = useAuthState();
-  const adminUserId = authState?.state === 'authenticated' ? authState.user._id : null;
-
   const { data: rotationData, isLoading: isLoadingRotation } = useRotationWithParticipants(
     rotationId,
     true
@@ -210,23 +206,20 @@ export function ReviewManagementRotationPanel({ rotationId }: ReviewManagementRo
         </CardContent>
       </Card>
 
-      {adminUserId && (
-        <GenerateReviewFormDialog
-          open={dialogOpen}
-          onOpenChange={setDialogOpen}
-          rotation={rotation}
-          participant={
-            selectedParticipant
-              ? {
-                  participantId: selectedParticipant._id,
-                  fullName: selectedParticipant.fullName,
-                  ageGroup: selectedParticipant.ageGroup,
-                }
-              : null
-          }
-          adminUserId={adminUserId}
-        />
-      )}
+      <GenerateReviewFormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        rotation={rotation}
+        participant={
+          selectedParticipant
+            ? {
+                participantId: selectedParticipant._id,
+                fullName: selectedParticipant.fullName,
+                ageGroup: selectedParticipant.ageGroup,
+              }
+            : null
+        }
+      />
     </>
   );
 }

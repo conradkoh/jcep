@@ -31,7 +31,6 @@ interface GenerateReviewFormDialogProps {
   onOpenChange: (open: boolean) => void;
   rotation: Rotation;
   participant: GenerateReviewFormParticipant | null;
-  adminUserId: Id<'users'>;
   onCreated?: () => void;
 }
 
@@ -44,7 +43,6 @@ export function GenerateReviewFormDialog({
   onOpenChange,
   rotation,
   participant,
-  adminUserId,
   onCreated,
 }: GenerateReviewFormDialogProps) {
   const createForm = useCreateReviewForm();
@@ -72,7 +70,7 @@ export function GenerateReviewFormDialog({
       await createForm({
         rotationYear: rotation.rotationYear,
         rotationNumber: rotation.rotationQuarter,
-        buddyUserId: adminUserId,
+        buddyUserId: null,
         buddyName: buddyName.trim(),
         juniorCommanderUserId: null,
         juniorCommanderName: participant.fullName,
