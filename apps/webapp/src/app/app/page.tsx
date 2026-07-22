@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, ClipboardList, FileText, RotateCcw, Users } from 'lucide-react';
+import { Calendar, ClipboardList, FileText, RotateCcw, Settings, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
 
@@ -75,48 +75,65 @@ export default function AppPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <NavCard
-              href="/app/review"
-              icon={<ClipboardList className="h-6 w-6 text-primary" />}
-              title="Review Forms"
-              description={
-                isAdmin ? 'View and manage all review forms' : 'View and manage your review forms'
-              }
-            />
-
-            <NavCard
-              href="/apply"
-              icon={<FileText className="h-6 w-6 text-primary" />}
-              title="Apply to JCEP"
-              description="Submit an application to join the programme"
-            />
-
-            <NavCard
-              href="https://docs.google.com/spreadsheets/d/1oCii9CYZiTNhEi9IEkRD_40eTTzl4EAuyJPR9aBnZKI/edit?usp=drivesdk"
-              icon={<Calendar className="h-6 w-6 text-primary" />}
-              title="JCEP 2026 Schedule"
-              description="View the programme schedule and important dates"
-              external
-            />
-
+          <div className="space-y-8">
             {isAdmin && (
-              <NavCard
-                href="/app/applications"
-                icon={<Users className="h-6 w-6 text-primary" />}
-                title="View Applications"
-                description="View all submitted JCEP applications"
-              />
+              <section className="space-y-3">
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Administration
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <NavCard
+                    href="/app/applications"
+                    icon={<Users className="h-6 w-6 text-primary" />}
+                    title="View Applications"
+                    description="View all submitted JCEP applications"
+                  />
+                  <NavCard
+                    href="/app/rotations"
+                    icon={<RotateCcw className="h-6 w-6 text-primary" />}
+                    title="Rotation Management"
+                    description="Create rotations and assign Junior Commanders"
+                  />
+                  <NavCard
+                    href="/app/admin"
+                    icon={<Settings className="h-6 w-6 text-primary" />}
+                    title="System Admin"
+                    description="System configuration and administration"
+                  />
+                </div>
+              </section>
             )}
 
-            {isAdmin && (
-              <NavCard
-                href="/app/rotations"
-                icon={<RotateCcw className="h-6 w-6 text-primary" />}
-                title="Rotation Management"
-                description="Create rotations and assign Junior Commanders"
-              />
-            )}
+            <section className="space-y-3">
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                {isAdmin ? 'General' : 'Quick Links'}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <NavCard
+                  href="/app/review"
+                  icon={<ClipboardList className="h-6 w-6 text-primary" />}
+                  title="Review Forms"
+                  description={
+                    isAdmin
+                      ? 'View and manage all review forms'
+                      : 'View and manage your review forms'
+                  }
+                />
+                <NavCard
+                  href="/apply"
+                  icon={<FileText className="h-6 w-6 text-primary" />}
+                  title="Apply to JCEP"
+                  description="Submit an application to join the programme"
+                />
+                <NavCard
+                  href="https://docs.google.com/spreadsheets/d/1oCii9CYZiTNhEi9IEkRD_40eTTzl4EAuyJPR9aBnZKI/edit?usp=drivesdk"
+                  icon={<Calendar className="h-6 w-6 text-primary" />}
+                  title="JCEP 2026 Schedule"
+                  description="View the programme schedule and important dates"
+                  external
+                />
+              </div>
+            </section>
           </div>
         </div>
       </div>
