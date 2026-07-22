@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, ClipboardList, FileText, Users } from 'lucide-react';
+import { Calendar, ClipboardList, FileText, RotateCcw, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
 
@@ -106,6 +106,15 @@ export default function AppPage() {
                 icon={<Users className="h-6 w-6 text-primary" />}
                 title="View Applications"
                 description="View all submitted JCEP applications"
+              />
+            )}
+
+            {isAdmin && (
+              <NavCard
+                href="/app/rotations"
+                icon={<RotateCcw className="h-6 w-6 text-primary" />}
+                title="Rotation Management"
+                description="Create rotations and assign Junior Commanders"
               />
             )}
           </div>

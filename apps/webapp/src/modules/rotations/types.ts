@@ -1,0 +1,33 @@
+import type { Id } from '@workspace/backend/convex/_generated/dataModel';
+
+export type AgeGroup = 'RK' | 'DR' | 'AR' | 'ER';
+
+export type Rotation = {
+  _id: Id<'rotations'>;
+  _creationTime: number;
+  rotationYear: number;
+  rotationQuarter: number;
+  evaluationDate: number;
+  label?: string;
+  createdAt: number;
+  createdBy: Id<'users'>;
+};
+
+export type RotationParticipant = {
+  _id: Id<'rotationParticipants'>;
+  rotationId: Id<'rotations'>;
+  applicationId: Id<'jcepApplications'>;
+  fullName: string;
+  contactNumber: string;
+  ageGroup: AgeGroup;
+  addedAt: number;
+  addedBy: Id<'users'>;
+};
+
+export type ApplicantSearchResult = {
+  _id: Id<'jcepApplications'>;
+  fullName: string;
+  contactNumber: string;
+  ageGroupChoice1: AgeGroup;
+  submissionYear: number;
+};
