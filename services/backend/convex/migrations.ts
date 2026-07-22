@@ -88,9 +88,28 @@ export const verifyReviewFormRotationNumber = migrations.define({
  * Run all migrations in order.
  * Usage: npx convex run migrations:runAll
  */
+/**
+ * Migration: Clear buddyUserId on admin-generated rotation forms where the
+ * admin was incorrectly assigned as buddy (buddy is text-only).
+ * Heuristic: rotationParticipantId is set (admin flow) AND buddyUserId === createdBy.
+ */
+export const clearMisassignedBuddyOnReviewForms = migrations.define({
+  table: 'reviewForms',
+  migrateOne: async (_ctx, form) => {
+    if (
+      form.rotationParticipantId !== undefined &&
+      form.buddyUserId !== null &&
+      form.buddyUserId === form.createdBy
+    ) {
+      return { buddyUserId: null };
+    }
+  },
+});
+
 export const runAll = migrations.runner([
   internal.migrations.unsetSessionExpiration,
   internal.migrations.setUserAccessLevelDefault,
   internal.migrations.backfillReviewFormRotationNumber,
   internal.migrations.verifyReviewFormRotationNumber,
+  internal.migrations.clearMisassignedBuddyOnReviewForms,
 ]);
