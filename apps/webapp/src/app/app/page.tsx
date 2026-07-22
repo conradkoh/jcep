@@ -95,6 +95,12 @@ export default function AppPage() {
                     description="Create rotations and assign Junior Commanders"
                   />
                   <NavCard
+                    href="/app/review-management"
+                    icon={<ClipboardList className="h-6 w-6 text-primary" />}
+                    title="Review Management"
+                    description="Generate and manage review forms for all junior commanders"
+                  />
+                  <NavCard
                     href="/app/admin"
                     icon={<Settings className="h-6 w-6 text-primary" />}
                     title="System Admin"
@@ -112,12 +118,8 @@ export default function AppPage() {
                 <NavCard
                   href="/app/review"
                   icon={<ClipboardList className="h-6 w-6 text-primary" />}
-                  title="Review Forms"
-                  description={
-                    isAdmin
-                      ? 'View and manage all review forms'
-                      : 'View and manage your review forms'
-                  }
+                  title="My Review Forms"
+                  description="View and manage your review forms"
                 />
                 <NavCard
                   href="/apply"
