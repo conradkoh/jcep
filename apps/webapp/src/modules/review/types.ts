@@ -53,7 +53,7 @@ export interface ReviewForm {
   // Particulars
   rotationYear: number;
   rotationNumber: number; // Rotation number within the year (1-4)
-  buddyUserId: Id<'users'>;
+  buddyUserId: Id<'users'> | null; // Null when buddy is text-only (token access)
   buddyName: string;
   juniorCommanderUserId: Id<'users'> | null; // Null if JC is not a registered user
   juniorCommanderName: string;
@@ -132,7 +132,7 @@ export interface AllReviewFormsReturn {
 export interface CreateReviewFormParams {
   rotationYear: number;
   rotationNumber: number; // 1-4
-  buddyUserId: Id<'users'>;
+  buddyUserId: Id<'users'> | null;
   buddyName: string;
   juniorCommanderUserId: Id<'users'> | null;
   juniorCommanderName: string;
