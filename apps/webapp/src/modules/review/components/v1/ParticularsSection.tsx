@@ -6,7 +6,7 @@ import { DateTime } from 'luxon';
 import { useState } from 'react';
 
 import type { AgeGroup, ReviewForm } from '../../types';
-import { formatRotationLabel, getRotationQuarterOptions } from '../../utils/rotationUtils';
+import { formatRotationLabel, getRotationNumberOptions } from '../../utils/rotationUtils';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -83,12 +83,12 @@ export function ParticularsSection({
 
       switch (field) {
         case 'rotationYear':
-          // Save both rotation year and quarter together
+          // Save both rotation year and number together
           updates.rotationYear = rotationYear;
           updates.rotationQuarter = rotationQuarter;
           break;
         case 'rotationQuarter':
-          // Save both rotation year and quarter together
+          // Save both rotation year and number together
           updates.rotationYear = rotationYear;
           updates.rotationQuarter = rotationQuarter;
           break;
@@ -189,7 +189,7 @@ export function ParticularsSection({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {getRotationQuarterOptions().map((option) => (
+                    {getRotationNumberOptions().map((option) => (
                       <SelectItem key={option.value} value={String(option.value)}>
                         {option.label}
                       </SelectItem>

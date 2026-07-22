@@ -10,8 +10,8 @@ import { useCreateReviewForm } from '../../hooks/useReviewForm';
 import type { AgeGroup } from '../../types';
 import {
   formatRotationLabel,
-  getDefaultRotationQuarter,
-  getRotationQuarterOptions,
+  getDefaultRotationNumber,
+  getRotationNumberOptions,
 } from '../../utils/rotationUtils';
 
 import { Button } from '@/components/ui/button';
@@ -53,7 +53,7 @@ export function ReviewFormCreate({
 
   // Advanced options with sensible defaults
   const [rotationYear, setRotationYear] = useState(currentYear);
-  const [rotationQuarter, setRotationQuarter] = useState(getDefaultRotationQuarter());
+  const [rotationQuarter, setRotationQuarter] = useState(getDefaultRotationNumber());
   const [ageGroup, setAgeGroup] = useState<AgeGroup | ''>('RK');
   const [evaluationDate, setEvaluationDate] = useState<Date>(new Date());
 
@@ -208,7 +208,7 @@ export function ReviewFormCreate({
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
-                    {getRotationQuarterOptions().map((option) => (
+                    {getRotationNumberOptions().map((option) => (
                       <SelectItem key={option.value} value={String(option.value)}>
                         {option.label}
                       </SelectItem>

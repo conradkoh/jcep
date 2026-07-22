@@ -22,8 +22,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  getDefaultRotationQuarter,
-  getRotationQuarterOptions,
+  getDefaultRotationNumber,
+  getRotationNumberOptions,
 } from '@/modules/review/utils/rotationUtils';
 
 interface RotationCreateFormProps {
@@ -37,7 +37,7 @@ export function RotationCreateForm({ onCreated }: RotationCreateFormProps) {
 
   const currentYear = new Date().getFullYear();
   const [rotationYear, setRotationYear] = useState(currentYear);
-  const [rotationQuarter, setRotationQuarter] = useState(getDefaultRotationQuarter());
+  const [rotationQuarter, setRotationQuarter] = useState(getDefaultRotationNumber());
   const [evaluationDate, setEvaluationDate] = useState<Date>(new Date());
   const [label, setLabel] = useState('');
 
@@ -54,7 +54,7 @@ export function RotationCreateForm({ onCreated }: RotationCreateFormProps) {
       onCreated(result.rotationId as Id<'rotations'>);
       setIsOpen(false);
       setRotationYear(currentYear);
-      setRotationQuarter(getDefaultRotationQuarter());
+      setRotationQuarter(getDefaultRotationNumber());
       setEvaluationDate(new Date());
       setLabel('');
     } catch (error) {
@@ -94,7 +94,7 @@ export function RotationCreateForm({ onCreated }: RotationCreateFormProps) {
               </div>
               <div>
                 <Label htmlFor="rotationQuarter" className="text-sm font-medium text-foreground">
-                  Rotation Quarter
+                  Rotation
                 </Label>
                 <Select
                   value={String(rotationQuarter)}
@@ -104,7 +104,7 @@ export function RotationCreateForm({ onCreated }: RotationCreateFormProps) {
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
-                    {getRotationQuarterOptions().map((option) => (
+                    {getRotationNumberOptions().map((option) => (
                       <SelectItem key={option.value} value={String(option.value)}>
                         {option.label}
                       </SelectItem>
