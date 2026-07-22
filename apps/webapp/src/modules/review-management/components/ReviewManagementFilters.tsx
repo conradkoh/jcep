@@ -44,7 +44,7 @@ export function ReviewManagementFilters({
           htmlFor="rotation-filter"
           className="text-sm font-medium text-foreground whitespace-nowrap"
         >
-          Rotation
+          Quarter
         </Label>
         <Select value={selectedRotation} onValueChange={onRotationChange}>
           <SelectTrigger id="rotation-filter" className="w-[160px]">

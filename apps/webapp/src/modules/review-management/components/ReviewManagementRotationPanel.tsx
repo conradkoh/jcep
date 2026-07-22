@@ -172,8 +172,8 @@ export function ReviewManagementRotationPanel({ rotationId }: ReviewManagementRo
         <CardHeader>
           <CardTitle>{getRotationLabel(rotation)}</CardTitle>
           <CardDescription>
-            Generate review forms for each junior commander. {formsCreatedCount} of{' '}
-            {participants.length} forms created.
+            {formsCreatedCount} of {participants.length} review forms created. Generate a form for
+            each junior commander, then copy the Buddy and JC links to send out.
           </CardDescription>
         </CardHeader>
         <CardContent>

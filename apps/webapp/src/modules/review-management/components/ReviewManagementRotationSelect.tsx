@@ -32,7 +32,7 @@ export function ReviewManagementRotationSelect({
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
       <Label htmlFor="rotation-select" className="text-sm font-medium text-foreground">
-        Rotation
+        Rotation to manage
       </Label>
       <Select
         value={selectedRotationId ?? 'none'}
@@ -45,7 +45,7 @@ export function ReviewManagementRotationSelect({
           <SelectValue placeholder={isLoading ? 'Loading rotations...' : 'Select a rotation'} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="none">All rotations (browse forms)</SelectItem>
+          <SelectItem value="none">— Select a rotation —</SelectItem>
           {(rotations ?? []).map((rotation) => (
             <SelectItem key={rotation._id} value={rotation._id}>
               {getRotationLabel(rotation)} ({rotation.participantCount ?? 0} JCs)
