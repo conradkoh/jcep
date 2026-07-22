@@ -28,10 +28,22 @@ export const listRotations = query({
   handler: async (ctx, args) => {
     await requireSystemAdmin(ctx, args);
     const rotations = await ctx.db.query('rotations').order('desc').collect();
-    return rotations.sort((a, b) => {
+    const sorted = rotations.sort((a, b) => {
       if (a.rotationYear !== b.rotationYear) return b.rotationYear - a.rotationYear;
       return b.rotationQuarter - a.rotationQuarter;
     });
+
+    const rotationsWithCounts = await Promise.all(
+      sorted.map(async (rotation) => {
+        const participants = await ctx.db
+          .query('rotationParticipants')
+          .withIndex('by_rotation', (q) => q.eq('rotationId', rotation._id))
+          .collect();
+        return { ...rotation, participantCount: participants.length };
+      })
+    );
+
+    return rotationsWithCounts;
   },
 });
 
