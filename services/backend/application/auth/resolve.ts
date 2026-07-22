@@ -2,7 +2,7 @@ import { allPermissions, type Permission } from './permissions';
 import { type AppRole, getPermissionsForRole, type RolePermissionGrant } from './roles';
 import type { Doc } from '../../convex/_generated/dataModel';
 
-export type UserForPermissions = Pick<Doc<'users'>, 'accessLevel'>;
+export type UserForPermissions = Pick<Doc<'users'>, 'accessLevel' | 'roleNames'>;
 
 /**
  * Resolves application roles for a user.
@@ -10,9 +10,17 @@ export type UserForPermissions = Pick<Doc<'users'>, 'accessLevel'>;
  */
 export function getRolesForUser(user: UserForPermissions): AppRole[] {
   if (user.accessLevel === 'system_admin') {
-    return ['system_admin'];
+    const roles: AppRole[] = ['system_admin'];
+    if (user.roleNames?.includes('programme_admin')) {
+      roles.push('programme_admin');
+    }
+    return roles;
   }
-  return ['user'];
+  const roles: AppRole[] = ['user'];
+  if (user.roleNames?.includes('programme_admin')) {
+    roles.push('programme_admin');
+  }
+  return roles;
 }
 
 /**
