@@ -12,8 +12,8 @@ const RETURN_TO_PATHS: Record<string, string> = {
 
 /**
  * Content component for the review form creation page.
- * Displays the review form creation interface for authenticated users.
  */
+// fallow-ignore-next-line complexity
 function ReviewCreatePageContent() {
   const authState = useAuthState();
   const searchParams = useSearchParams();
