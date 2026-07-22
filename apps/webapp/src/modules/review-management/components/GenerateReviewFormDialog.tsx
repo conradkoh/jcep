@@ -59,6 +59,7 @@ export function GenerateReviewFormDialog({
     onOpenChange(nextOpen);
   };
 
+  // fallow-ignore-next-line complexity
   const handleGenerate = async () => {
     if (!participant) return;
     if (!buddyName.trim()) {
