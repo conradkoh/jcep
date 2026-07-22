@@ -86,7 +86,7 @@ export const createRotation = mutation({
       )
       .first();
     if (existing) {
-      throw new Error('Rotation already exists for this year and quarter');
+      throw new Error('Rotation already exists for this year and rotation number');
     }
     const rotationId = await ctx.db.insert('rotations', {
       rotationYear: args.rotationYear,

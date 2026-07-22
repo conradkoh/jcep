@@ -68,7 +68,7 @@ export function RotationList({ rotations }: RotationListProps) {
                 <TableCell className="font-medium">{getRotationDisplayLabel(rotation)}</TableCell>
                 <TableCell>{rotation.rotationYear}</TableCell>
                 <TableCell>
-                  <Badge variant="secondary">Q{rotation.rotationQuarter}</Badge>
+                  <Badge variant="secondary">Rotation {rotation.rotationQuarter}</Badge>
                 </TableCell>
                 <TableCell>{formatDate(rotation.evaluationDate)}</TableCell>
                 <TableCell>{rotation.participantCount ?? 0}</TableCell>

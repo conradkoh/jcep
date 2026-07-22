@@ -176,7 +176,7 @@ function RotationDetailContent({ rotationId }: { rotationId: Id<'rotations'> }) 
               <p className="text-lg font-semibold text-foreground">{rotation.rotationYear}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Quarter</p>
+              <p className="text-sm text-muted-foreground">Rotation</p>
               <p className="text-lg font-semibold text-foreground">
                 Rotation {rotation.rotationQuarter}
               </p>

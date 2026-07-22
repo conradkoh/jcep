@@ -1,5 +1,6 @@
 'use client';
 
+import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
@@ -13,6 +14,8 @@ function ReviewManagementPageContent() {
   const currentYear = new Date().getFullYear();
   const selectedYear = Number.parseInt(searchParams.get('year') || String(currentYear));
   const selectedRotation = searchParams.get('rotation') || 'all';
+  const rotationIdParam = searchParams.get('rotationId');
+  const selectedRotationId = rotationIdParam ? (rotationIdParam as Id<'rotations'>) : null;
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6">
@@ -21,7 +24,11 @@ function ReviewManagementPageContent() {
           <Link href="/app">Back to Dashboard</Link>
         </Button>
       </div>
-      <ReviewManagementDashboard selectedYear={selectedYear} selectedRotation={selectedRotation} />
+      <ReviewManagementDashboard
+        selectedYear={selectedYear}
+        selectedRotation={selectedRotation}
+        selectedRotationId={selectedRotationId}
+      />
     </div>
   );
 }

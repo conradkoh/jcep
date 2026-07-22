@@ -52,13 +52,17 @@ export interface ReviewForm {
 
   // Particulars
   rotationYear: number;
-  rotationQuarter: number; // 1-4 for up to 4 rotations per year
+  rotationNumber?: number; // Canonical rotation number (1-4)
+  /** @deprecated Dual-written during migration. Read rotationNumber instead. */
+  rotationQuarter: number;
   buddyUserId: Id<'users'>;
   buddyName: string;
   juniorCommanderUserId: Id<'users'> | null; // Null if JC is not a registered user
   juniorCommanderName: string;
   ageGroup: AgeGroup;
   evaluationDate: number; // timestamp
+  rotationId?: Id<'rotations'>;
+  rotationParticipantId?: Id<'rotationParticipants'>;
 
   // Next rotation preference (filled by JC)
   nextRotationPreference: AgeGroup | null;
@@ -129,19 +133,21 @@ export interface AllReviewFormsReturn {
 // Mutation parameter types
 export interface CreateReviewFormParams {
   rotationYear: number;
-  rotationQuarter: number; // 1-4
+  rotationNumber: number; // 1-4
   buddyUserId: Id<'users'>;
   buddyName: string;
   juniorCommanderUserId: Id<'users'> | null;
   juniorCommanderName: string;
   ageGroup: AgeGroup;
   evaluationDate: number;
+  rotationId?: Id<'rotations'>;
+  rotationParticipantId?: Id<'rotationParticipants'>;
 }
 
 export interface UpdateParticularsParams {
   formId: Id<'reviewForms'>;
   rotationYear?: number;
-  rotationQuarter?: number;
+  rotationNumber?: number;
   buddyName?: string;
   juniorCommanderName?: string;
   ageGroup?: AgeGroup;

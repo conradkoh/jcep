@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 
 import { useDeleteReviewForm } from '../../hooks/useReviewForm';
 import type { ReviewForm } from '../../types';
-import { formatRotationLabel } from '../../utils/rotationUtils';
+import { formatRotationLabel, getReviewFormRotationNumber } from '../../utils/rotationUtils';
 
 import {
   AlertDialog,
@@ -177,7 +177,10 @@ export function AdminReviewTable({ forms, onFormDeleted }: AdminReviewTableProps
               <strong>{formToDelete?.juniorCommanderName}</strong> and{' '}
               <strong>{formToDelete?.buddyName}</strong> (
               {formToDelete &&
-                formatRotationLabel(formToDelete.rotationYear, formToDelete.rotationQuarter)}
+                formatRotationLabel(
+                  formToDelete.rotationYear,
+                  getReviewFormRotationNumber(formToDelete)
+                )}
               )?
               <br />
               <br />

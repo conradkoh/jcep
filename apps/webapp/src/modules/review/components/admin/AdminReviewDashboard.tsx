@@ -1,18 +1,20 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { useAllReviewFormsByYear } from '../../hooks/useReviewForm';
-import type { AgeGroup, ReviewFormStatus } from '../../types';
+
 import { AdminReviewExport } from './AdminReviewExport';
 import { AdminReviewFilters } from './AdminReviewFilters';
 import { AdminReviewTable } from './AdminReviewTable';
+import { useAllReviewFormsByYear } from '../../hooks/useReviewForm';
+import type { AgeGroup, ReviewFormStatus } from '../../types';
+
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 export function AdminReviewDashboard() {
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
-  const [quarterFilter, setQuarterFilter] = useState<number | 'all'>('all');
+  const [rotationNumberFilter, setRotationNumberFilter] = useState<number | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<ReviewFormStatus | 'all'>('all');
   const [ageGroupFilter, setAgeGroupFilter] = useState<AgeGroup | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,7 +22,7 @@ export function AdminReviewDashboard() {
   // Fetch forms with backend filters
   const { forms, isLoading } = useAllReviewFormsByYear(
     year,
-    quarterFilter === 'all' ? undefined : quarterFilter,
+    rotationNumberFilter === 'all' ? undefined : rotationNumberFilter,
     statusFilter === 'all' ? undefined : statusFilter,
     ageGroupFilter === 'all' ? undefined : ageGroupFilter
   );
@@ -53,7 +55,7 @@ export function AdminReviewDashboard() {
   }, [filteredForms]);
 
   const handleClearFilters = () => {
-    setQuarterFilter('all');
+    setRotationNumberFilter('all');
     setStatusFilter('all');
     setAgeGroupFilter('all');
     setSearchQuery('');
@@ -106,12 +108,12 @@ export function AdminReviewDashboard() {
 
       <AdminReviewFilters
         year={year}
-        quarter={quarterFilter}
+        rotationNumber={rotationNumberFilter}
         status={statusFilter}
         ageGroup={ageGroupFilter}
         searchQuery={searchQuery}
         onYearChange={setYear}
-        onQuarterChange={setQuarterFilter}
+        onRotationNumberChange={setRotationNumberFilter}
         onStatusChange={setStatusFilter}
         onAgeGroupChange={setAgeGroupFilter}
         onSearchChange={setSearchQuery}
