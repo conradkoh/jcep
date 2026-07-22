@@ -37,13 +37,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuthState } from '@/modules/auth/AuthProvider';
+import { APPLICATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 
 function ApplicationsPageContent() {
-  const authState = useAuthState();
-  const isAdmin =
-    authState?.state === 'authenticated' && authState.user.accessLevel === 'system_admin';
+  const isAdmin = useHasPermission(APPLICATIONS_MANAGE_PERMISSION);
 
   const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active');
 
