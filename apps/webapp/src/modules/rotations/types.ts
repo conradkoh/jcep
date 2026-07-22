@@ -21,7 +21,6 @@ export type RotationParticipant = {
   rotationId: Id<'rotations'>;
   applicationId: Id<'jcepApplications'>;
   fullName: string;
-  contactNumber: string;
   ageGroup: AgeGroup;
   addedAt: number;
   addedBy: Id<'users'>;

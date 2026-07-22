@@ -431,7 +431,6 @@ export default defineSchema({
     rotationId: v.id('rotations'),
     applicationId: v.id('jcepApplications'),
     fullName: v.string(),
-    contactNumber: v.string(),
     ageGroup: v.union(v.literal('RK'), v.literal('DR'), v.literal('AR'), v.literal('ER')),
     addedAt: v.number(),
     addedBy: v.id('users'),
