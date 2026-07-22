@@ -260,6 +260,8 @@ export default defineSchema({
     juniorCommanderName: v.string(), // JC's display name
     ageGroup: v.union(v.literal('RK'), v.literal('DR'), v.literal('AR'), v.literal('ER')), // Age group rotation
     evaluationDate: v.number(), // Timestamp of evaluation
+    rotationId: v.optional(v.id('rotations')),
+    rotationParticipantId: v.optional(v.id('rotationParticipants')),
 
     // Next rotation preference (filled by JC)
     nextRotationPreference: v.union(
@@ -365,7 +367,8 @@ export default defineSchema({
     .index('by_year_quarter_and_status', ['rotationYear', 'rotationQuarter', 'status']) // NEW
     .index('by_status', ['status'])
     .index('by_buddy_access_token', ['buddyAccessToken'])
-    .index('by_jc_access_token', ['jcAccessToken']),
+    .index('by_jc_access_token', ['jcAccessToken'])
+    .index('by_rotation', ['rotationId']),
 
   /**
    * JCEP Application Forms for public application submissions.
@@ -404,4 +407,36 @@ export default defineSchema({
     .index('by_submission_year', ['submissionYear'])
     .index('by_submitted_at', ['submittedAt'])
     .index('by_year_and_submitted', ['submissionYear', 'submittedAt']),
+
+  /**
+   * JCEP Rotations — first-class evaluation cycles.
+   * System admins create rotations; participants are explicitly assigned.
+   */
+  rotations: defineTable({
+    rotationYear: v.number(),
+    rotationQuarter: v.number(), // 1-4
+    evaluationDate: v.number(),
+    label: v.optional(v.string()),
+    createdAt: v.number(),
+    createdBy: v.id('users'),
+  })
+    .index('by_year_quarter', ['rotationYear', 'rotationQuarter'])
+    .index('by_year', ['rotationYear']),
+
+  /**
+   * Participants (Junior Commanders) assigned to a rotation.
+   * Links rotation ↔ jcepApplications for stable identity across review forms.
+   */
+  rotationParticipants: defineTable({
+    rotationId: v.id('rotations'),
+    applicationId: v.id('jcepApplications'),
+    fullName: v.string(),
+    contactNumber: v.string(),
+    ageGroup: v.union(v.literal('RK'), v.literal('DR'), v.literal('AR'), v.literal('ER')),
+    addedAt: v.number(),
+    addedBy: v.id('users'),
+  })
+    .index('by_rotation', ['rotationId'])
+    .index('by_rotation_and_application', ['rotationId', 'applicationId'])
+    .index('by_application', ['applicationId']),
 });
