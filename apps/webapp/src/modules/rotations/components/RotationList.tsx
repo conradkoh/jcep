@@ -46,7 +46,7 @@ export function RotationList({ rotations }: RotationListProps) {
   }
 
   return (
-    <Card>
+    <Card className="px-6">
       <div className="overflow-hidden [&_[data-slot=table-container]]:overflow-hidden">
         <Table className="table-fixed w-full">
           <TableHeader className="sticky top-0 bg-card z-10">

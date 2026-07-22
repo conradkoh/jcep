@@ -85,7 +85,7 @@ export function RotationRosterTable({ currentRotationId, applicants }: RotationR
         />
       </div>
 
-      <Card>
+      <Card className="px-6">
         <div className="overflow-hidden [&_[data-slot=table-container]]:overflow-hidden">
           <Table>
             <TableHeader>
