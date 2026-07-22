@@ -1,0 +1,41 @@
+'use client';
+
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+
+import { SYSTEM_ADMIN_ACCESS_PERMISSION, RequirePermission } from '@/application/auth';
+import { Button } from '@/components/ui/button';
+import { RequireLogin } from '@/modules/auth/RequireLogin';
+import { ReviewManagementDashboard } from '@/modules/review-management/components/ReviewManagementDashboard';
+
+function ReviewManagementPageContent() {
+  const searchParams = useSearchParams();
+  const currentYear = new Date().getFullYear();
+  const selectedYear = Number.parseInt(searchParams.get('year') || String(currentYear));
+  const selectedRotation = searchParams.get('rotation') || 'all';
+
+  return (
+    <div className="container mx-auto max-w-7xl space-y-6 p-6">
+      <div className="flex justify-end">
+        <Button asChild variant="outline">
+          <Link href="/app">Back to Dashboard</Link>
+        </Button>
+      </div>
+      <ReviewManagementDashboard selectedYear={selectedYear} selectedRotation={selectedRotation} />
+    </div>
+  );
+}
+
+/**
+ * Admin page for managing all JCEP review forms.
+ * Requires system administrator access.
+ */
+export default function ReviewManagementPage() {
+  return (
+    <RequireLogin>
+      <RequirePermission permission={SYSTEM_ADMIN_ACCESS_PERMISSION}>
+        <ReviewManagementPageContent />
+      </RequirePermission>
+    </RequireLogin>
+  );
+}
