@@ -15,6 +15,7 @@
     "config/**/*",
     "convex/**/*",
     "modules/**/*",
+    "test-utils/**/*",
     "test.setup.ts",
     "vitest.config.mts"
   ],
