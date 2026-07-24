@@ -1,8 +1,8 @@
 import { ConvexError } from 'convex/values';
 import { describe, expect, it } from 'vitest';
 
-import { AUTH_PROVIDER_MANAGE_PERMISSION, APPLICATIONS_MANAGE_PERMISSION } from '../permissions';
-import { requireAuthenticatedPermission, requirePermissionForUser } from '../requirePermission';
+import { AUTH_PROVIDER_MANAGE_PERMISSION, APPLICATIONS_MANAGE_PERMISSION } from './permissions';
+import { requireAuthenticatedPermission, requirePermissionForUser } from './requirePermission';
 
 describe('requirePermissionForUser', () => {
   it('throws FORBIDDEN when permission is missing', () => {

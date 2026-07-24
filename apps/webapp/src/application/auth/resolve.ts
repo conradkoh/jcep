@@ -1,7 +1,18 @@
 import type { AuthState } from '@workspace/backend/modules/auth/types/AuthState';
 
 import { allPermissions, type Permission } from './permissions';
-import { type AppRole, getPermissionsForRole, type RolePermissionGrant } from './roles';
+import {
+  type AppRole,
+  getPermissionsForRole,
+  roleDefinitions,
+  type RolePermissionGrant,
+} from './roles';
+
+const knownRoles = new Set<AppRole>(roleDefinitions.map((d) => d.role));
+
+function filterKnownRoles(names: readonly string[]): AppRole[] {
+  return names.filter((name): name is AppRole => knownRoles.has(name as AppRole));
+}
 
 /** Minimal user shape for permission resolution (matches backend UserForPermissions). */
 export type UserForPermissions = {
@@ -10,18 +21,11 @@ export type UserForPermissions = {
 };
 
 export function getRolesForUser(user: UserForPermissions): AppRole[] {
+  const fromRoleNames = user.roleNames ? filterKnownRoles(user.roleNames) : [];
   if (user.accessLevel === 'system_admin') {
-    const roles: AppRole[] = ['system_admin'];
-    if (user.roleNames?.includes('jcep_admin')) {
-      roles.push('jcep_admin');
-    }
-    return roles;
+    return ['system_admin', ...fromRoleNames.filter((role) => role !== 'system_admin')];
   }
-  const roles: AppRole[] = ['user'];
-  if (user.roleNames?.includes('jcep_admin')) {
-    roles.push('jcep_admin');
-  }
-  return roles;
+  return fromRoleNames.length > 0 ? fromRoleNames : ['user'];
 }
 
 export function unionPermissionsForRoles(roles: readonly AppRole[]): Set<RolePermissionGrant> {
