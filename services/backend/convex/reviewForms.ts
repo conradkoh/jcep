@@ -15,6 +15,7 @@ import {
   isJCFeedbackComplete,
   isJCReflectionComplete,
 } from './utils/sectionCompletionHelpers';
+import { filterBuddyFormsForPersonalAccess } from './utils/reviewFormPersonalAccess';
 import { generateSecureToken, isTokenExpired } from './utils/tokenUtils';
 import { getAuthUser } from '../modules/auth/getAuthUser';
 import { hasPermission, REVIEWS_MANAGE_PERMISSION } from '../application/auth';
@@ -348,6 +349,9 @@ export const getReviewFormsByYear = query({
         .collect();
     }
 
+    // Exclude misassigned admin buddy forms from personal list
+    buddyForms = filterBuddyFormsForPersonalAccess(buddyForms, user._id);
+
     // Combine and deduplicate
     const allForms = [...buddyForms, ...jcForms];
     const uniqueForms = Array.from(new Map(allForms.map((form) => [form._id, form])).values());
@@ -419,10 +423,13 @@ export const getReviewFormsByBuddy = query({
 
     const forms = await query.collect();
 
+    // Exclude misassigned admin buddy forms
+    const accessibleForms = filterBuddyFormsForPersonalAccess(forms, user._id);
+
     // Filter by year if provided
     const filteredForms = args.year
-      ? forms.filter((form) => form.rotationYear === args.year)
-      : forms;
+      ? accessibleForms.filter((form) => form.rotationYear === args.year)
+      : accessibleForms;
 
     return filteredForms.sort((a, b) => b._creationTime - a._creationTime);
   },
