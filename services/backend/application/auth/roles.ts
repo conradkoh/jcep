@@ -17,7 +17,7 @@ export const roleDefinitions = [
     permissions: ['attendance:read', 'presentation:read'] as const satisfies readonly Permission[],
   },
   {
-    role: 'programme_admin',
+    role: 'jcep_admin',
     permissions: [
       'reviews:manage',
       'rotations:manage',

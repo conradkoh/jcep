@@ -13,8 +13,8 @@ describe('programme admin permission enforcement', () => {
       });
     });
 
-    test('allows programme_admin', async () => {
-      const { sessionId } = await loginAs({ roleNames: ['programme_admin'] });
+    test('allows jcep_admin', async () => {
+      const { sessionId } = await loginAs({ roleNames: ['jcep_admin'] });
       const result = await t.query(api.rotations.listRotations, { sessionId });
       expect(Array.isArray(result)).toBe(true);
     });
@@ -36,8 +36,8 @@ describe('programme admin permission enforcement', () => {
       });
     });
 
-    test('allows programme_admin', async () => {
-      const { sessionId } = await loginAs({ roleNames: ['programme_admin'] });
+    test('allows jcep_admin', async () => {
+      const { sessionId } = await loginAs({ roleNames: ['jcep_admin'] });
       const result = await t.query(api.jcepApplications.listApplications, { sessionId });
       expect(result).toBeDefined();
     });
@@ -59,8 +59,8 @@ describe('programme admin permission enforcement', () => {
       ).rejects.toThrow(/admin access required/);
     });
 
-    test('allows programme_admin', async () => {
-      const { sessionId } = await loginAs({ roleNames: ['programme_admin'] });
+    test('allows jcep_admin', async () => {
+      const { sessionId } = await loginAs({ roleNames: ['jcep_admin'] });
       const result = await t.query(api.reviewForms.getAllReviewFormsByYear, { sessionId, year });
       expect(Array.isArray(result)).toBe(true);
     });
