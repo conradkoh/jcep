@@ -26,6 +26,7 @@ import {
   isJCFeedbackComplete,
   isJCReflectionComplete,
 } from '../utils/sectionCompletionHelpers';
+
 import { REVIEWS_MANAGE_PERMISSION, authStateHasPermission } from '@/application/auth';
 
 /**
@@ -33,9 +34,7 @@ import { REVIEWS_MANAGE_PERMISSION, authStateHasPermission } from '@/application
  */
 export function useReviewForm(formId: Id<'reviewForms'> | null | undefined): ReviewFormHookReturn {
   const form = useSessionQuery(api.reviewForms.getReviewForm, formId ? { formId } : 'skip') as
-    | ReviewForm
-    | undefined
-    | null;
+    ReviewForm | undefined | null;
 
   const authState = useSessionQuery(api.auth.getState, {});
   const currentUserId = authState?.state === 'authenticated' ? authState.user._id : undefined;
@@ -96,9 +95,13 @@ export function useReviewForm(formId: Id<'reviewForms'> | null | undefined): Rev
 /**
  * Hook to get review forms by year for the current user
  */
-export function useReviewFormsByYear(year: number): ReviewFormsByYearReturn {
+export function useReviewFormsByYear(
+  year: number,
+  rotationNumber?: number
+): ReviewFormsByYearReturn {
   const forms = useSessionQuery(api.reviewForms.getReviewFormsByYear, {
     year,
+    ...(rotationNumber !== undefined ? { rotationNumber } : {}),
   }) as ReviewForm[] | undefined;
 
   return {
@@ -259,8 +262,7 @@ export function useToggleResponseVisibility() {
  */
 export function useReviewFormsByBuddy(year?: number) {
   const forms = useSessionQuery(api.reviewForms.getReviewFormsByBuddy, year ? { year } : {}) as
-    | ReviewForm[]
-    | undefined;
+    ReviewForm[] | undefined;
 
   return {
     forms,
