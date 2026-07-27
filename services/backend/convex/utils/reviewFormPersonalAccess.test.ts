@@ -103,9 +103,9 @@ describe('filterBuddyFormsForPersonalAccess', () => {
         rotationParticipantId: participantId,
         juniorCommanderUserId: null,
       },
-    ] as const;
+    ];
 
-    const filtered = filterBuddyFormsForPersonalAccess(forms as any[], userId);
+    const filtered = filterBuddyFormsForPersonalAccess(forms, userId);
 
     expect(filtered).toHaveLength(2);
     expect(filtered).not.toContain(forms[0]);
@@ -119,9 +119,9 @@ describe('filterBuddyFormsForPersonalAccess', () => {
         rotationParticipantId: participantId,
         juniorCommanderUserId: null,
       },
-    ] as const;
+    ];
 
-    const filtered = filterBuddyFormsForPersonalAccess(forms as any[], userId);
+    const filtered = filterBuddyFormsForPersonalAccess(forms, userId);
 
     expect(filtered).toHaveLength(0);
   });
@@ -140,9 +140,9 @@ describe('filterBuddyFormsForPersonalAccess', () => {
         rotationParticipantId: participantId,
         juniorCommanderUserId: null,
       },
-    ] as const;
+    ];
 
-    const filtered = filterBuddyFormsForPersonalAccess(forms as any[], userId);
+    const filtered = filterBuddyFormsForPersonalAccess(forms, userId);
 
     expect(filtered).toHaveLength(2);
   });

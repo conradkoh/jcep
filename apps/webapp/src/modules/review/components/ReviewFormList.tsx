@@ -1,6 +1,8 @@
 'use client';
 
-import { FileText } from 'lucide-react';
+import { FileText, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import { REVIEWS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import { useReviewFormsByYear } from '../hooks/useReviewForm';
 import { ReviewFormCard } from './ReviewFormCard';
 
@@ -10,6 +12,7 @@ interface ReviewFormListProps {
 
 export function ReviewFormList({ year }: ReviewFormListProps) {
   const { forms, isLoading } = useReviewFormsByYear(year);
+  const canManageReviews = useHasPermission(REVIEWS_MANAGE_PERMISSION);
 
   if (isLoading) {
     return (
@@ -24,11 +27,25 @@ export function ReviewFormList({ year }: ReviewFormListProps) {
   if (!forms || forms.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-muted/50 p-12 text-center">
-        <FileText className="h-12 w-12 text-muted-foreground" aria-hidden />
+        {canManageReviews ? (
+          <ShieldCheck className="h-12 w-12 text-muted-foreground" aria-hidden />
+        ) : (
+          <FileText className="h-12 w-12 text-muted-foreground" aria-hidden />
+        )}
         <h3 className="mt-4 text-lg font-semibold text-foreground">No Review Forms</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          You don’t have any review forms for {year} yet.
+          {canManageReviews
+            ? 'You don\u2019t have any personal review forms as a mentor. Manage all forms in'
+            : `You don\u2019t have any review forms for ${year} yet.`}
         </p>
+        {canManageReviews && (
+          <Link
+            href="/app/review-management"
+            className="mt-4 text-sm font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+          >
+            Review Management
+          </Link>
+        )}
       </div>
     );
   }
