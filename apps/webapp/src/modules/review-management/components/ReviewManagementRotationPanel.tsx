@@ -22,6 +22,11 @@ import {
 } from '@/components/ui/table';
 import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 import { useReviewFormsByRotation } from '@/modules/review/hooks/useReviewForm';
+import {
+  ReviewFormBuddyProgressBadge,
+  ReviewFormJCProgressBadge,
+} from '@/modules/review/components/ReviewFormProgressBadges';
+import { ReviewFormVisibilityToggle } from '@/modules/review/components/ReviewFormVisibilityToggle';
 import type { ReviewForm } from '@/modules/review/types';
 import { formatRotationLabel } from '@/modules/review/utils/rotationUtils';
 import { useRotationWithParticipants } from '@/modules/rotations/hooks/useRotations';
@@ -85,6 +90,27 @@ function ParticipantRow({
           </Badge>
         ) : (
           <Badge variant="outline">No form</Badge>
+        )}
+      </TableCell>
+      <TableCell>
+        {form ? (
+          <ReviewFormJCProgressBadge form={form} />
+        ) : (
+          <span className="text-muted-foreground">&mdash;</span>
+        )}
+      </TableCell>
+      <TableCell>
+        {form ? (
+          <ReviewFormBuddyProgressBadge form={form} />
+        ) : (
+          <span className="text-muted-foreground">&mdash;</span>
+        )}
+      </TableCell>
+      <TableCell className="text-center">
+        {form ? (
+          <ReviewFormVisibilityToggle form={form} />
+        ) : (
+          <span className="text-muted-foreground">&mdash;</span>
         )}
       </TableCell>
       <TableCell className="text-right">
@@ -187,7 +213,10 @@ export function ReviewManagementRotationPanel({ rotationId }: ReviewManagementRo
                 <TableRow>
                   <TableHead>Junior Commander</TableHead>
                   <TableHead>Age Group</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Form</TableHead>
+                  <TableHead>JC Sections</TableHead>
+                  <TableHead>Buddy Sections</TableHead>
+                  <TableHead className="text-center">Visibility</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
