@@ -199,7 +199,9 @@ Append to `roleDefinitions`:
 export const roleDefinitions = [
   {
     role: 'user',
-    permissions: [/* ... */] as const satisfies readonly Permission[],
+    permissions: [
+      /* ... */
+    ] as const satisfies readonly Permission[],
   },
   {
     role: 'manager',
@@ -230,12 +232,12 @@ permissions: ['users:*', 'attendance:read'] as const satisfies readonly RolePerm
 | `undefined` or `'user'` | `['user']`         |
 | `'system_admin'`        | `['system_admin']` |
 
-Custom roles such as `programme_admin` are assigned via `users.roleNames` (an `optional array of strings` field on both user union variants). To assign:
+Custom roles such as `jcep_admin` are assigned via `users.roleNames` (an `optional array of strings` field on both user union variants). To assign:
 
 1. Open the Convex dashboard → `users` table
 2. Find the user document
-3. Set `roleNames` to `["programme_admin"]`
-4. The resolution in `getRolesForUser` appends `programme_admin` to the user's roles if present in the array
+3. Set `roleNames` to `["jcep_admin"]`
+4. The resolution in `getRolesForUser` appends `jcep_admin` to the user's roles if present in the array
 
 **Note:** `system_admin` users retain programme access via `systemAdminPermissions` (= `allPermissions`) without needing `roleNames`. The `roleNames` field is only needed for non-system_admin users who require programme-level permissions.
 

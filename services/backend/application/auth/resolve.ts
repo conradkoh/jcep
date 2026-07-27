@@ -11,14 +11,14 @@ export type UserForPermissions = Pick<Doc<'users'>, 'accessLevel' | 'roleNames'>
 export function getRolesForUser(user: UserForPermissions): AppRole[] {
   if (user.accessLevel === 'system_admin') {
     const roles: AppRole[] = ['system_admin'];
-    if (user.roleNames?.includes('programme_admin')) {
-      roles.push('programme_admin');
+    if (user.roleNames?.includes('jcep_admin')) {
+      roles.push('jcep_admin');
     }
     return roles;
   }
   const roles: AppRole[] = ['user'];
-  if (user.roleNames?.includes('programme_admin')) {
-    roles.push('programme_admin');
+  if (user.roleNames?.includes('jcep_admin')) {
+    roles.push('jcep_admin');
   }
   return roles;
 }

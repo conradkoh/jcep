@@ -18,19 +18,19 @@ describe('requirePermissionForUser', () => {
     }
   });
 
-  it('allows programme_admin via roleNames', () => {
+  it('allows jcep_admin via roleNames', () => {
     expect(() =>
       requirePermissionForUser(
-        { accessLevel: 'user', roleNames: ['programme_admin'] },
+        { accessLevel: 'user', roleNames: ['jcep_admin'] },
         APPLICATIONS_MANAGE_PERMISSION
       )
     ).not.toThrow();
   });
 
-  it('denies programme_admin system-admin permissions', () => {
+  it('denies jcep_admin system-admin permissions', () => {
     expect(() =>
       requirePermissionForUser(
-        { accessLevel: 'user', roleNames: ['programme_admin'] },
+        { accessLevel: 'user', roleNames: ['jcep_admin'] },
         AUTH_PROVIDER_MANAGE_PERMISSION
       )
     ).toThrow(ConvexError);

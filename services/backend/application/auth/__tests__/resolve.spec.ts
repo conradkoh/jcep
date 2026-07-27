@@ -35,14 +35,15 @@ describe('getRolesForUser', () => {
     expect(getRolesForUser({ accessLevel: 'system_admin' })).toEqual(['system_admin']);
   });
 
-  it('resolves programme_admin via roleNames', () => {
-    expect(getRolesForUser({ accessLevel: 'user', roleNames: ['programme_admin'] })).toEqual([
+  it('resolves jcep_admin via roleNames', () => {
+    expect(getRolesForUser({ accessLevel: 'user', roleNames: ['jcep_admin'] })).toEqual([
       'user',
-      'programme_admin',
+      'jcep_admin',
     ]);
-    expect(
-      getRolesForUser({ accessLevel: 'system_admin', roleNames: ['programme_admin'] })
-    ).toEqual(['system_admin', 'programme_admin']);
+    expect(getRolesForUser({ accessLevel: 'system_admin', roleNames: ['jcep_admin'] })).toEqual([
+      'system_admin',
+      'jcep_admin',
+    ]);
   });
 });
 
@@ -103,8 +104,8 @@ describe('getPermissionsForUser', () => {
     );
   });
 
-  it('grants programme_admin permissions via roleNames', () => {
-    const user = { accessLevel: 'user' as const, roleNames: ['programme_admin'] };
+  it('grants jcep_admin permissions via roleNames', () => {
+    const user = { accessLevel: 'user' as const, roleNames: ['jcep_admin'] };
     expect(hasPermission(user, 'reviews:manage')).toBe(true);
     expect(hasPermission(user, 'rotations:manage')).toBe(true);
     expect(hasPermission(user, 'applications:manage')).toBe(true);
