@@ -3,17 +3,19 @@
 // Imports
 import { EyeOff } from 'lucide-react';
 import { useCallback, useMemo, useRef, useState } from 'react';
+
+import { JC_REFLECTION_QUESTIONS } from './formQuestions';
+import { SaveIndicator } from './SaveIndicator';
+import { useAutosave } from '../../hooks/useAutosave';
+import type { AgeGroup, QuestionResponse, ReviewForm } from '../../types';
+import { validatePayload } from '../../utils/autosaveHelpers';
+
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useAutosave } from '../../hooks/useAutosave';
-import type { AgeGroup, QuestionResponse, ReviewForm } from '../../types';
-import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
-import { validatePayload } from '../../utils/autosaveHelpers';
-import { AgeGroupSelect } from '../AgeGroupSelect';
-import { JC_REFLECTION_QUESTIONS } from './formQuestions';
-import { SaveIndicator } from './SaveIndicator';
+import { AgeGroupSelect } from '@/modules/jcep/components/AgeGroupSelect';
+import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 
 // Public interfaces and types
 /**
@@ -50,10 +52,7 @@ export interface JCReflectionSectionProps {
  * Field names available in the JC reflection section (excluding nextRotationPreference which is handled separately).
  */
 export type FieldName =
-  | 'activitiesParticipated'
-  | 'learningsFromJCEP'
-  | 'whatToDoDifferently'
-  | 'goalsForNextRotation';
+  'activitiesParticipated' | 'learningsFromJCEP' | 'whatToDoDifferently' | 'goalsForNextRotation';
 
 // Internal types
 type _SaveStatus = 'saved' | 'modified' | 'none';

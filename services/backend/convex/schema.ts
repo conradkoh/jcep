@@ -126,6 +126,7 @@ export default defineSchema({
         email: v.string(),
         recoveryCode: v.optional(v.string()),
         accessLevel: v.optional(v.union(v.literal('user'), v.literal('system_admin'))),
+        roleNames: v.optional(v.array(v.string())),
         google: v.optional(
           v.object({
             id: v.string(),
@@ -145,6 +146,7 @@ export default defineSchema({
         name: v.string(), //system generated name
         recoveryCode: v.optional(v.string()),
         accessLevel: v.optional(v.union(v.literal('user'), v.literal('system_admin'))),
+        roleNames: v.optional(v.array(v.string())),
       })
     )
   )
@@ -172,7 +174,19 @@ export default defineSchema({
     ), // How the user authenticated for this session
     expiresAt: v.optional(v.number()), // DEPRECATED: No longer used for session expiry. Kept for migration compatibility.
     expiresAtLabel: v.optional(v.string()), // DEPRECATED: No longer used for session expiry. Kept for migration compatibility.
-  }).index('by_sessionId', ['sessionId']),
+    // Device and activity tracking for session management
+    lastActivityAt: v.optional(v.number()), // Timestamp of last activity
+    deviceInfo: v.optional(
+      v.object({
+        userAgent: v.optional(v.string()), // Raw user agent string
+        browser: v.optional(v.string()), // Browser name (e.g., "Chrome", "Firefox")
+        os: v.optional(v.string()), // Operating system (e.g., "Windows", "macOS", "iOS")
+        device: v.optional(v.string()), // Device type (e.g., "Desktop", "Mobile", "Tablet")
+      })
+    ),
+  })
+    .index('by_sessionId', ['sessionId'])
+    .index('by_userId', ['userId']),
 
   /**
    * Temporary login codes for cross-device authentication.
@@ -184,6 +198,17 @@ export default defineSchema({
     createdAt: v.number(), // When the code was created
     expiresAt: v.number(), // When the code expires (1 minute after creation)
   }).index('by_code', ['code']),
+
+  /**
+   * Rate limiting for login attempts to prevent brute force attacks.
+   * Tracks failed login attempts per session with automatic lockout.
+   */
+  loginAttempts: defineTable({
+    sessionId: v.string(), // The session making the attempt
+    attemptCount: v.number(), // Number of failed attempts in the window
+    lastAttemptAt: v.number(), // Timestamp of the last attempt
+    lockedUntil: v.optional(v.number()), // If locked out, when the lockout expires
+  }).index('by_sessionId', ['sessionId']),
 
   /**
    * Authentication provider configuration for dynamic auth provider setup.
@@ -253,13 +278,16 @@ export default defineSchema({
 
     // Particulars
     rotationYear: v.number(), // For indexing by year (e.g., 2025)
-    rotationQuarter: v.number(), // Quarter within the year (1-4) for up to 4 rotations per year
-    buddyUserId: v.id('users'), // The Buddy assigned to this JC
+    rotationNumber: v.number(), // Rotation number within the year (1-4)
+    rotationQuarter: v.optional(v.number()), // DEPRECATED: use rotationNumber
+    buddyUserId: v.union(v.id('users'), v.null()), // Null when buddy is text-only (token access)
     buddyName: v.string(), // Buddy's display name
     juniorCommanderUserId: v.union(v.id('users'), v.null()), // Null if JC not registered
     juniorCommanderName: v.string(), // JC's display name
     ageGroup: v.union(v.literal('RK'), v.literal('DR'), v.literal('AR'), v.literal('ER')), // Age group rotation
     evaluationDate: v.number(), // Timestamp of evaluation
+    rotationId: v.optional(v.id('rotations')),
+    rotationParticipantId: v.optional(v.id('rotationParticipants')),
 
     // Next rotation preference (filled by JC)
     nextRotationPreference: v.union(
@@ -354,18 +382,19 @@ export default defineSchema({
   })
     .index('by_schema_version', ['schemaVersion'])
     .index('by_rotation_year', ['rotationYear'])
-    .index('by_rotation_year_quarter', ['rotationYear', 'rotationQuarter']) // NEW: Query by year + quarter
+    .index('by_rotation_year_number', ['rotationYear', 'rotationNumber'])
     .index('by_buddy', ['buddyUserId'])
     .index('by_junior_commander', ['juniorCommanderUserId'])
     .index('by_year_and_buddy', ['rotationYear', 'buddyUserId'])
     .index('by_year_and_jc', ['rotationYear', 'juniorCommanderUserId'])
-    .index('by_year_quarter_and_buddy', ['rotationYear', 'rotationQuarter', 'buddyUserId']) // NEW
-    .index('by_year_quarter_and_jc', ['rotationYear', 'rotationQuarter', 'juniorCommanderUserId']) // NEW
+    .index('by_year_number_and_buddy', ['rotationYear', 'rotationNumber', 'buddyUserId'])
+    .index('by_year_number_and_jc', ['rotationYear', 'rotationNumber', 'juniorCommanderUserId'])
     .index('by_year_and_status', ['rotationYear', 'status'])
-    .index('by_year_quarter_and_status', ['rotationYear', 'rotationQuarter', 'status']) // NEW
+    .index('by_year_number_and_status', ['rotationYear', 'rotationNumber', 'status'])
     .index('by_status', ['status'])
     .index('by_buddy_access_token', ['buddyAccessToken'])
-    .index('by_jc_access_token', ['jcAccessToken']),
+    .index('by_jc_access_token', ['jcAccessToken'])
+    .index('by_rotation', ['rotationId']),
 
   /**
    * JCEP Application Forms for public application submissions.
@@ -406,8 +435,38 @@ export default defineSchema({
     .index('by_year_and_submitted', ['submissionYear', 'submittedAt']),
 
   /**
+   * JCEP Rotations — first-class evaluation cycles.
+   * System admins create rotations; participants are explicitly assigned.
+   */
+  rotations: defineTable({
+    rotationYear: v.number(),
+    rotationQuarter: v.number(), // 1-4
+    evaluationDate: v.number(),
+    label: v.optional(v.string()),
+    createdAt: v.number(),
+    createdBy: v.id('users'),
+  })
+    .index('by_year_quarter', ['rotationYear', 'rotationQuarter'])
+    .index('by_year', ['rotationYear']),
+
+  /**
+   * Participants (Junior Commanders) assigned to a rotation.
+   * Links rotation ↔ jcepApplications for stable identity across review forms.
+   */
+  rotationParticipants: defineTable({
+    rotationId: v.id('rotations'),
+    applicationId: v.id('jcepApplications'),
+    fullName: v.string(),
+    ageGroup: v.union(v.literal('RK'), v.literal('DR'), v.literal('AR'), v.literal('ER')),
+    addedAt: v.number(),
+    addedBy: v.id('users'),
+  })
+    .index('by_rotation', ['rotationId'])
+    .index('by_rotation_and_application', ['rotationId', 'applicationId'])
+    .index('by_application', ['applicationId']),
+
+  /**
    * Standalone feedback submissions from the general feedback form.
-   * Viewable by system admins only.
    */
   feedbackSubmissions: defineTable({
     respondentName: v.optional(v.string()),

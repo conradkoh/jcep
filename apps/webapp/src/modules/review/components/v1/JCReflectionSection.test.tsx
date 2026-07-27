@@ -1,8 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { ReviewForm } from '../../types';
+
 import { JCReflectionSection } from './JCReflectionSection';
+import type { ReviewForm } from '../../types';
 
 const createMockForm = (overrides?: Partial<ReviewForm>): ReviewForm => ({
   // biome-ignore lint/suspicious/noExplicitAny: Test mock requires type assertion
@@ -17,7 +18,7 @@ const createMockForm = (overrides?: Partial<ReviewForm>): ReviewForm => ({
   visibilityChangedAt: null,
   visibilityChangedBy: null,
   rotationYear: 2025,
-  rotationQuarter: 1,
+  rotationNumber: 1,
   // biome-ignore lint/suspicious/noExplicitAny: Test mock requires type assertion
   buddyUserId: 'buddy-id' as any,
   buddyName: 'Test Buddy',

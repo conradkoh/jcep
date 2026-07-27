@@ -8,31 +8,38 @@
  * @module
  */
 
-import type * as appinfo from '../appinfo.js';
-import type * as attendance from '../attendance.js';
-import type * as auth from '../auth.js';
-import type * as auth_google from '../auth/google.js';
-import type * as checklists from '../checklists.js';
-import type * as cleanupTasks from '../cleanupTasks.js';
-import type * as crypto from '../crypto.js';
-import type * as discussions from '../discussions.js';
-import type * as feedbackSubmissions from '../feedbackSubmissions.js';
-import type * as jcepApplications from '../jcepApplications.js';
-import type * as migration from '../migration.js';
-import type * as presentations from '../presentations.js';
-import type * as reviewForms from '../reviewForms.js';
-import type * as serviceDesk from '../serviceDesk.js';
-import type * as system_auth_google from '../system/auth/google.js';
-import type * as utils_sectionCompletionHelpers from '../utils/sectionCompletionHelpers.js';
-import type * as utils_tokenUtils from '../utils/tokenUtils.js';
+import type * as appinfo from "../appinfo.js";
+import type * as attendance from "../attendance.js";
+import type * as auth from "../auth.js";
+import type * as auth_google from "../auth/google.js";
+import type * as checklists from "../checklists.js";
+import type * as cleanupTasks from "../cleanupTasks.js";
+import type * as crypto from "../crypto.js";
+import type * as discussions from "../discussions.js";
+import type * as feedbackSubmissions from "../feedbackSubmissions.js";
+import type * as jcepApplications from "../jcepApplications.js";
+import type * as migration from "../migration.js";
+import type * as migrations from "../migrations.js";
+import type * as presentations from "../presentations.js";
+import type * as reviewForms from "../reviewForms.js";
+import type * as rotations from "../rotations.js";
+import type * as serviceDesk from "../serviceDesk.js";
+import type * as sessions from "../sessions.js";
+import type * as system_auth_google from "../system/auth/google.js";
+import type * as utils_sectionCompletionHelpers from "../utils/sectionCompletionHelpers.js";
+import type * as utils_tokenUtils from "../utils/tokenUtils.js";
 
-import type { ApiFromModules, FilterApi, FunctionReference } from 'convex/server';
+import type {
+  ApiFromModules,
+  FilterApi,
+  FunctionReference,
+} from "convex/server";
 
 declare const fullApi: ApiFromModules<{
   appinfo: typeof appinfo;
   attendance: typeof attendance;
   auth: typeof auth;
-  'auth/google': typeof auth_google;
+  "auth/google": typeof auth_google;
   checklists: typeof checklists;
   cleanupTasks: typeof cleanupTasks;
   crypto: typeof crypto;
@@ -40,12 +47,15 @@ declare const fullApi: ApiFromModules<{
   feedbackSubmissions: typeof feedbackSubmissions;
   jcepApplications: typeof jcepApplications;
   migration: typeof migration;
+  migrations: typeof migrations;
   presentations: typeof presentations;
   reviewForms: typeof reviewForms;
+  rotations: typeof rotations;
   serviceDesk: typeof serviceDesk;
-  'system/auth/google': typeof system_auth_google;
-  'utils/sectionCompletionHelpers': typeof utils_sectionCompletionHelpers;
-  'utils/tokenUtils': typeof utils_tokenUtils;
+  sessions: typeof sessions;
+  "system/auth/google": typeof system_auth_google;
+  "utils/sectionCompletionHelpers": typeof utils_sectionCompletionHelpers;
+  "utils/tokenUtils": typeof utils_tokenUtils;
 }>;
 
 /**
@@ -56,7 +66,10 @@ declare const fullApi: ApiFromModules<{
  * const myFunctionReference = api.myModule.myFunction;
  * ```
  */
-export declare const api: FilterApi<typeof fullApi, FunctionReference<any, 'public'>>;
+export declare const api: FilterApi<
+  typeof fullApi,
+  FunctionReference<any, "public">
+>;
 
 /**
  * A utility for referencing Convex functions in your app's internal API.
@@ -66,6 +79,12 @@ export declare const api: FilterApi<typeof fullApi, FunctionReference<any, 'publ
  * const myFunctionReference = internal.myModule.myFunction;
  * ```
  */
-export declare const internal: FilterApi<typeof fullApi, FunctionReference<any, 'internal'>>;
+export declare const internal: FilterApi<
+  typeof fullApi,
+  FunctionReference<any, "internal">
+>;
 
-export declare const components: {};
+export declare const components: {
+  aggregate: import("@convex-dev/aggregate/_generated/component.js").ComponentApi<"aggregate">;
+  migrations: import("@convex-dev/migrations/_generated/component.js").ComponentApi<"migrations">;
+};

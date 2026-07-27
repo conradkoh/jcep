@@ -3,6 +3,10 @@ import type { SessionId } from 'convex-helpers/server/sessions';
 import { SessionIdArg } from 'convex-helpers/server/sessions';
 
 import { mutation, query } from './_generated/server';
+import {
+  APPLICATIONS_MANAGE_PERMISSION,
+  requireAuthenticatedPermission,
+} from '../application/auth';
 import { getAuthUser, getAuthUserOptional } from '../modules/auth/getAuthUser';
 
 /**
@@ -92,9 +96,7 @@ export const listApplications = query({
     }
 
     // Check admin access
-    if (user.accessLevel !== 'system_admin') {
-      throw new Error('You must be a system admin to view applications');
-    }
+    requireAuthenticatedPermission(user, APPLICATIONS_MANAGE_PERMISSION);
 
     // Fetch all applications, sorted by submitted date (descending)
     let applications = await ctx.db
@@ -168,9 +170,7 @@ export const archiveApplication = mutation({
     }
 
     // Only admins can archive applications
-    if (user.accessLevel !== 'system_admin') {
-      throw new Error('Only admins can archive applications');
-    }
+    requireAuthenticatedPermission(user, APPLICATIONS_MANAGE_PERMISSION);
 
     const application = await ctx.db.get('jcepApplications', args.applicationId);
     if (!application) {
@@ -200,9 +200,7 @@ export const unarchiveApplication = mutation({
     }
 
     // Only admins can unarchive applications
-    if (user.accessLevel !== 'system_admin') {
-      throw new Error('Only admins can unarchive applications');
-    }
+    requireAuthenticatedPermission(user, APPLICATIONS_MANAGE_PERMISSION);
 
     const application = await ctx.db.get('jcepApplications', args.applicationId);
     if (!application) {
@@ -233,9 +231,7 @@ export const getApplication = query({
     }
 
     // Check admin access
-    if (user.accessLevel !== 'system_admin') {
-      throw new Error('You must be a system admin to view applications');
-    }
+    requireAuthenticatedPermission(user, APPLICATIONS_MANAGE_PERMISSION);
 
     const application = await ctx.db.get('jcepApplications', args.applicationId);
     if (!application) {
@@ -271,9 +267,7 @@ export const updateApplication = mutation({
     }
 
     // Check admin access
-    if (user.accessLevel !== 'system_admin') {
-      throw new Error('You must be a system admin to update applications');
-    }
+    requireAuthenticatedPermission(user, APPLICATIONS_MANAGE_PERMISSION);
 
     // Validation
     if (!args.fullName.trim()) {
@@ -325,9 +319,7 @@ export const getApplicationsCountByYear = query({
     }
 
     // Check admin access
-    if (user.accessLevel !== 'system_admin') {
-      throw new Error('You must be a system admin to view application counts');
-    }
+    requireAuthenticatedPermission(user, APPLICATIONS_MANAGE_PERMISSION);
 
     // Fetch all applications
     const applications = await ctx.db.query('jcepApplications').collect();

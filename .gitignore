@@ -1,11 +1,7 @@
 node_modules
-.nx
 .DS_Store
 dist/
 *.tsbuildinfo
-
-# Nx Cloud
-.nx/cache
 
 # Turborepo
 .turbo
@@ -16,6 +12,9 @@ out/
 
 # Testing
 coverage/
+playwright-report/
+test-results/
 
 # Misc
 .env*.local
+package-lock.json

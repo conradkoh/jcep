@@ -58,7 +58,7 @@ function _createAuthenticatedState(): AuthState {
       _creationTime: Date.now(),
     } as Doc<'users'>,
     accessLevel: 'user',
-    isSystemAdmin: false,
+    permissions: ['attendance:read', 'presentation:read'],
   };
 }
 

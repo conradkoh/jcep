@@ -10,10 +10,9 @@ import { useCreateReviewForm } from '../../hooks/useReviewForm';
 import type { AgeGroup } from '../../types';
 import {
   formatRotationLabel,
-  getDefaultRotationQuarter,
-  getRotationQuarterOptions,
+  getDefaultRotationNumber,
+  getRotationNumberOptions,
 } from '../../utils/rotationUtils';
-import { AgeGroupSelect } from '../AgeGroupSelect';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -28,14 +27,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { AgeGroupSelect } from '@/modules/jcep/components/AgeGroupSelect';
 
 type UserRole = 'buddy' | 'jc';
 
 interface ReviewFormCreateProps {
   currentUserId: Id<'users'>;
+  /** Path to navigate to after successful creation. Defaults to `/app/review`. */
+  redirectTo?: string;
 }
 
-export function ReviewFormCreate({ currentUserId }: ReviewFormCreateProps) {
+export function ReviewFormCreate({
+  currentUserId,
+  redirectTo = '/app/review',
+}: ReviewFormCreateProps) {
   const router = useRouter();
   const createForm = useCreateReviewForm();
 
@@ -48,7 +53,7 @@ export function ReviewFormCreate({ currentUserId }: ReviewFormCreateProps) {
 
   // Advanced options with sensible defaults
   const [rotationYear, setRotationYear] = useState(currentYear);
-  const [rotationQuarter, setRotationQuarter] = useState(getDefaultRotationQuarter());
+  const [rotationNumber, setRotationNumber] = useState(getDefaultRotationNumber());
   const [ageGroup, setAgeGroup] = useState<AgeGroup | ''>('RK');
   const [evaluationDate, setEvaluationDate] = useState<Date>(new Date());
 
@@ -72,8 +77,8 @@ export function ReviewFormCreate({ currentUserId }: ReviewFormCreateProps) {
     try {
       await createForm({
         rotationYear,
-        rotationQuarter,
-        buddyUserId: myRole === 'buddy' ? currentUserId : currentUserId, // Creator is always linked
+        rotationNumber,
+        buddyUserId: myRole === 'buddy' ? currentUserId : null,
         buddyName: buddyName.trim(),
         juniorCommanderUserId: myRole === 'jc' ? currentUserId : null,
         juniorCommanderName: jcName.trim(),
@@ -82,7 +87,7 @@ export function ReviewFormCreate({ currentUserId }: ReviewFormCreateProps) {
       });
 
       toast.success('Review form created!');
-      router.push('/app/review');
+      router.push(redirectTo);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to create form');
       setIsCreating(false);
@@ -171,7 +176,7 @@ export function ReviewFormCreate({ currentUserId }: ReviewFormCreateProps) {
           <CollapsibleContent className="space-y-4 pt-4">
             <div className="rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">
               <p>
-                Default: <strong>{formatRotationLabel(rotationYear, rotationQuarter)}</strong>
+                Default: <strong>{formatRotationLabel(rotationYear, rotationNumber)}</strong>
               </p>
             </div>
 
@@ -192,18 +197,18 @@ export function ReviewFormCreate({ currentUserId }: ReviewFormCreateProps) {
               </div>
 
               <div>
-                <Label htmlFor="rotationQuarter" className="text-sm font-medium text-foreground">
+                <Label htmlFor="rotationNumber" className="text-sm font-medium text-foreground">
                   Rotation
                 </Label>
                 <Select
-                  value={String(rotationQuarter)}
-                  onValueChange={(value) => setRotationQuarter(Number.parseInt(value))}
+                  value={String(rotationNumber)}
+                  onValueChange={(value) => setRotationNumber(Number.parseInt(value))}
                 >
-                  <SelectTrigger id="rotationQuarter" className="mt-1">
+                  <SelectTrigger id="rotationNumber" className="mt-1">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
-                    {getRotationQuarterOptions().map((option) => (
+                    {getRotationNumberOptions().map((option) => (
                       <SelectItem key={option.value} value={String(option.value)}>
                         {option.label}
                       </SelectItem>

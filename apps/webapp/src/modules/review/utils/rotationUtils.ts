@@ -1,29 +1,30 @@
 /**
- * Rotation Quarter Utilities
- * Helpers for working with rotation quarters (1-4) within a year
+ * Rotation Number Utilities
+ * Helpers for working with rotation numbers (1-4) within a year
  */
 
 /**
- * Get the current quarter (1-4) based on the current month
+ * Estimate the current rotation number (1-4) from the calendar month.
+ * Used only as a default when auto-selecting or creating forms.
  */
-export function getCurrentQuarter(): number {
+function getCurrentRotationNumberFromCalendar(): number {
   const month = new Date().getMonth() + 1; // 1-12
   return Math.ceil(month / 3); // 1-4
 }
 
 /**
- * Get the default rotation quarter for form creation
- * Defaults to Q-1 (previous quarter), with minimum of 1
+ * Get the default rotation number for form creation.
+ * Defaults to one less than the calendar-based estimate, with minimum of 1.
  *
  * Logic:
- * - Q1 (Jan-Mar) → Default to Rotation 1
- * - Q2 (Apr-Jun) → Default to Rotation 1
- * - Q3 (Jul-Sep) → Default to Rotation 2
- * - Q4 (Oct-Dec) → Default to Rotation 3
+ * - Jan-Mar → Default to Rotation 1
+ * - Apr-Jun → Default to Rotation 1
+ * - Jul-Sep → Default to Rotation 2
+ * - Oct-Dec → Default to Rotation 3
  */
-export function getDefaultRotationQuarter(): number {
-  const currentQuarter = getCurrentQuarter();
-  return Math.max(1, currentQuarter - 1); // Q-1, min 1
+export function getDefaultRotationNumber(): number {
+  const calendarEstimate = getCurrentRotationNumberFromCalendar();
+  return Math.max(1, calendarEstimate - 1);
 }
 
 /**
@@ -36,12 +37,15 @@ export function formatRotationLabel(year: number, rotationNumber: number): strin
   return `${year} Rotation ${rotationNumber}`;
 }
 
+export function getReviewFormRotationNumber(form: { rotationNumber: number }): number {
+  return form.rotationNumber;
+}
+
 /**
  * Get rotation number options for dropdowns
  * Returns array of options with value and label
- * Note: Rotation numbers (1-4) are independent of calendar quarters
  */
-export function getRotationQuarterOptions(): Array<{ value: number; label: string }> {
+export function getRotationNumberOptions(): { value: number; label: string }[] {
   return [
     { value: 1, label: 'Rotation 1' },
     { value: 2, label: 'Rotation 2' },
@@ -51,20 +55,13 @@ export function getRotationQuarterOptions(): Array<{ value: number; label: strin
 }
 
 /**
- * Get short rotation quarter options for compact displays
+ * Get short rotation number options for compact displays
  */
-export function getRotationQuarterOptionsShort(): Array<{ value: number; label: string }> {
+export function getRotationNumberOptionsShort(): { value: number; label: string }[] {
   return [
-    { value: 1, label: 'Q1' },
-    { value: 2, label: 'Q2' },
-    { value: 3, label: 'Q3' },
-    { value: 4, label: 'Q4' },
+    { value: 1, label: 'Rotation 1' },
+    { value: 2, label: 'Rotation 2' },
+    { value: 3, label: 'Rotation 3' },
+    { value: 4, label: 'Rotation 4' },
   ];
-}
-
-/**
- * Validate that a quarter value is valid (1-4)
- */
-export function isValidQuarter(quarter: number): boolean {
-  return Number.isInteger(quarter) && quarter >= 1 && quarter <= 4;
 }

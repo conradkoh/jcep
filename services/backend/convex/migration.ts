@@ -195,7 +195,7 @@ export const getUsersBatch = internalQuery({
 });
 
 // ========================================
-// REVIEW FORM ROTATION QUARTER MIGRATION
+// REVIEW FORM ROTATION NUMBER MIGRATION
 // ========================================
 
 /**
@@ -213,7 +213,7 @@ export const setReviewFormQuarterDefault = internalMutation({
     // Only update if rotationQuarter is undefined (shouldn't happen after migration)
     if (form.rotationQuarter === undefined) {
       await ctx.db.patch('reviewForms', args.formId, {
-        rotationQuarter: 1, // Default to Q1 for all existing forms
+        rotationQuarter: 1, // Default to Rotation 1 for all existing forms
       });
     }
   },
@@ -221,7 +221,7 @@ export const setReviewFormQuarterDefault = internalMutation({
 
 /**
  * Internal action to migrate all review forms to include rotationQuarter field.
- * Sets undefined rotationQuarter fields to 1 (Q1) as the default.
+ * Sets undefined rotationQuarter fields to 1 (Rotation 1) as the default.
  * Processes forms in batches to handle large datasets safely.
  */
 export const migrateReviewFormsToQuarters = internalAction({
@@ -254,7 +254,7 @@ export const migrateReviewFormsToQuarters = internalAction({
         cursor: results.continueCursor,
       });
     } else {
-      console.log('Review form rotation quarter migration completed');
+      console.log('Review form rotation number migration completed');
     }
   },
 });

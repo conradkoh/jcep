@@ -5,8 +5,8 @@ import { AlertCircle, ChevronRight, KeyRound, KeySquare, Loader2 } from 'lucide-
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
+import { SearchParamsErrorHandler } from '@/components/SearchParamsErrorHandler';
 import { Button } from '@/components/ui/button';
 import { useGoogleAuthAvailable } from '@/modules/app/useAppInfo';
 import { AnonymousLoginButton } from '@/modules/auth/AnonymousLoginButton';
@@ -14,55 +14,36 @@ import { useAuthState } from '@/modules/auth/AuthProvider';
 import { GoogleLoginButton } from '@/modules/auth/GoogleLoginButton';
 
 /**
- * Component that handles search params with proper error handling
- */
-function SearchParamsHandler() {
-  const searchParams = useSearchParams();
-
-  // Handle error messages from OAuth redirects
-  useEffect(() => {
-    const error = searchParams.get('error');
-    if (error) {
-      toast.error(decodeURIComponent(error));
-      // Clear the error from URL without causing a page reload
-      const url = new URL(window.location.href);
-      url.searchParams.delete('error');
-      window.history.replaceState({}, '', url.toString());
-    }
-  }, [searchParams]);
-
-  return null; // This component only handles side effects
-}
-
-/**
  * Login page component providing multiple authentication options.
  * Includes Google OAuth, code-based login, and anonymous access.
  */
 function LoginPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const authState = useAuthState();
   const googleAuthAvailable = useGoogleAuthAvailable();
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionId] = useState<string | null>(() =>
+    typeof window !== 'undefined' ? localStorage.getItem('sessionId') : null
+  );
   const isLoading = authState === undefined;
 
   /**
-   * Redirects authenticated users to the main application.
+   * Redirects authenticated users — prefers returnTo param, falls back to /app.
    */
-  const redirectAuthenticated = useCallback(() => {
-    router.push('/app');
-  }, [router]);
+  const redirectAuthenticated = useCallback(
+    (returnTo?: string | null) => {
+      router.push(returnTo || '/app');
+    },
+    [router]
+  );
 
-  // Get session ID for anonymous login - moved to useEffect to avoid hydration mismatch
-  useEffect(() => {
-    setSessionId(localStorage.getItem('sessionId'));
-  }, []);
-
-  // Redirect authenticated users to app
+  // Redirect authenticated users to app (or returnTo)
   useEffect(() => {
     if (authState?.state === 'authenticated') {
-      redirectAuthenticated();
+      const returnTo = searchParams.get('returnTo');
+      redirectAuthenticated(returnTo);
     }
-  }, [authState, redirectAuthenticated]);
+  }, [authState, searchParams, redirectAuthenticated]);
 
   if (isLoading) {
     return _renderLoadingState();
@@ -82,7 +63,7 @@ function LoginPageContent() {
 export default function LoginPage() {
   return (
     <Suspense fallback={_renderLoadingState()}>
-      <SearchParamsHandler />
+      <SearchParamsErrorHandler />
       <LoginPageContent />
     </Suspense>
   );

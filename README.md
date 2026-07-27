@@ -1,6 +1,6 @@
 # NextJS Convex Starter App
 
-This is a starter application using NextJS and Convex, managed with NX for monorepo capabilities.
+This is a starter application using NextJS and Convex, managed with Turbo for monorepo capabilities.
 
 ## Getting Started
 
@@ -16,7 +16,6 @@ This is a starter application using NextJS and Convex, managed with NX for monor
 2. Run `pnpm run setup` to initialize the Convex backend and configure the webapp
 
    This script will:
-
    - **Check and update branding** - Detects if you're using template branding and prompts you to customize:
      - Application name and short name
      - App description
@@ -32,22 +31,25 @@ This is a starter application using NextJS and Convex, managed with NX for monor
    - Only prompt for updates if template values are detected
 
    **Non-Interactive Mode**: For CI/CD or automated setups:
+
    ```bash
-   node scripts/setup.js --non-interactive \
+   bun scripts/setup.ts --non-interactive \
      --app-name "My App" \
      --app-short-name "MyApp" \
      --app-description "Description" \
      --landing-page-title "Welcome" \
      --package-name "my-app"
-   
+
    # Or skip branding entirely
-   node scripts/setup.js --skip-branding
-   
+   bun scripts/setup.ts --skip-branding
+
    # Show all options
-   node scripts/setup.js --help
+   bun scripts/setup.ts --help
    ```
 
 3. Run `pnpm dev` in the root directory to start the NextJS application and Convex backend
+
+   After pulling schema changes, run `pnpm migrate` while `convex dev` is running (see [AGENTS.md](AGENTS.md#database-migrations)).
 
 #### Manual Setup (Alternative)
 
@@ -127,13 +129,13 @@ pnpm test:watch
 
 For comprehensive testing guidelines, conventions, and examples, see the [Testing Guide](guides/testing/testing.md).
 
-## NX Configuration
+## Turbo Configuration
 
-This project uses NX to manage the monorepo and run tasks in parallel. The main configuration files are:
+This project uses Turbo to manage the monorepo and run tasks in parallel. The main configuration files are:
 
-- `nx.json`: Main NX configuration
-- `apps/webapp/project.json`: Webapp project configuration
-- `services/backend/project.json`: Backend project configuration
+- `turbo.json`: Main Turbo configuration
+- `apps/webapp/package.json`: Webapp project configuration
+- `services/backend/package.json`: Backend project configuration
 
 The dev command is configured to run both services in parallel without dependencies between them, allowing for independent development.
 
@@ -152,13 +154,11 @@ To add a new project to the monorepo:
 To deploy your Convex backend to production:
 
 1. Generate a deployment key from the Convex dashboard:
-
    - Go to your project in the [Convex dashboard](https://dashboard.convex.dev)
-   - Navigate to Settings > URL & Deploy Key
+   - Navigate to Project Settings > Settings > General > Generate Production Deploy Key
    - Create a new deployment key
 
 2. Add the deployment key to GitHub Secrets:
-
    - Go to your GitHub repository
    - Navigate to Settings > Secrets and variables > Actions
    - Click "New repository secret"
@@ -174,13 +174,11 @@ This setup allows for secure automated deployments of your Convex functions and 
 To deploy your NextJS frontend to Vercel:
 
 1. Navigate to your Convex dashboard:
-
    - Go to [Convex dashboard](https://dashboard.convex.dev)
    - Navigate to Settings > URL & Deploy Key
    - Copy the Deployment URL
 
 2. Set up the Vercel deployment
-
    - Go to the Vercel dashboard
    - Navigate to Project Settings > Build and Deployment > Root Directory
      - Set the Root Directory to `apps/webapp`

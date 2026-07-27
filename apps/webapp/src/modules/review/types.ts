@@ -4,8 +4,9 @@
 
 import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 
-// Age group options
-export type AgeGroup = 'RK' | 'DR' | 'AR' | 'ER';
+import type { AgeGroup } from '@/modules/jcep/types';
+
+export type { AgeGroup };
 
 // Form completion status
 export type ReviewFormStatus = 'not_started' | 'in_progress' | 'complete' | 'submitted';
@@ -51,13 +52,15 @@ export interface ReviewForm {
 
   // Particulars
   rotationYear: number;
-  rotationQuarter: number; // 1-4 for up to 4 rotations per year
-  buddyUserId: Id<'users'>;
+  rotationNumber: number; // Rotation number within the year (1-4)
+  buddyUserId: Id<'users'> | null; // Null when buddy is text-only (token access)
   buddyName: string;
   juniorCommanderUserId: Id<'users'> | null; // Null if JC is not a registered user
   juniorCommanderName: string;
   ageGroup: AgeGroup;
   evaluationDate: number; // timestamp
+  rotationId?: Id<'rotations'>;
+  rotationParticipantId?: Id<'rotationParticipants'>;
 
   // Next rotation preference (filled by JC)
   nextRotationPreference: AgeGroup | null;
@@ -128,19 +131,21 @@ export interface AllReviewFormsReturn {
 // Mutation parameter types
 export interface CreateReviewFormParams {
   rotationYear: number;
-  rotationQuarter: number; // 1-4
-  buddyUserId: Id<'users'>;
+  rotationNumber: number; // 1-4
+  buddyUserId: Id<'users'> | null;
   buddyName: string;
   juniorCommanderUserId: Id<'users'> | null;
   juniorCommanderName: string;
   ageGroup: AgeGroup;
   evaluationDate: number;
+  rotationId?: Id<'rotations'>;
+  rotationParticipantId?: Id<'rotationParticipants'>;
 }
 
 export interface UpdateParticularsParams {
   formId: Id<'reviewForms'>;
   rotationYear?: number;
-  rotationQuarter?: number;
+  rotationNumber?: number;
   buddyName?: string;
   juniorCommanderName?: string;
   ageGroup?: AgeGroup;

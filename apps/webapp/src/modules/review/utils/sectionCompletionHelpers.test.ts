@@ -3,6 +3,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
+
 import type { ReviewForm } from '../types';
 import {
   getSectionCompletionSummary,
@@ -25,7 +26,7 @@ const createMockForm = (overrides?: Partial<ReviewForm>): ReviewForm => ({
   visibilityChangedAt: null,
   visibilityChangedBy: null,
   rotationYear: 2025,
-  rotationQuarter: 1,
+  rotationNumber: 1,
   buddyUserId: 'buddy-id' as any,
   buddyName: 'Test Buddy',
   juniorCommanderUserId: 'jc-id' as any,

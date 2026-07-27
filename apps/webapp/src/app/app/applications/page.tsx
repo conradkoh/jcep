@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 
+import { APPLICATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -37,13 +38,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuthState } from '@/modules/auth/AuthProvider';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 
 function ApplicationsPageContent() {
-  const authState = useAuthState();
-  const isAdmin =
-    authState?.state === 'authenticated' && authState.user.accessLevel === 'system_admin';
+  const isAdmin = useHasPermission(APPLICATIONS_MANAGE_PERMISSION);
 
   const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active');
 

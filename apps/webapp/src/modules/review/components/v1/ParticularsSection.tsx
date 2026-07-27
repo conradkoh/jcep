@@ -4,6 +4,14 @@ import { Pencil1Icon } from '@radix-ui/react-icons';
 import { CalendarIcon, Check, X } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
+
+import type { AgeGroup, ReviewForm } from '../../types';
+import {
+  formatRotationLabel,
+  getReviewFormRotationNumber,
+  getRotationNumberOptions,
+} from '../../utils/rotationUtils';
+
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
@@ -16,17 +24,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import type { AgeGroup, ReviewForm } from '../../types';
-import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
-import { formatRotationLabel, getRotationQuarterOptions } from '../../utils/rotationUtils';
-import { AgeGroupSelect } from '../AgeGroupSelect';
+import { AgeGroupSelect } from '@/modules/jcep/components/AgeGroupSelect';
+import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 
 interface ParticularsSectionProps {
   form: ReviewForm;
   canEdit: boolean;
   onUpdate: (updates: {
     rotationYear?: number;
-    rotationQuarter?: number;
+    rotationNumber?: number;
     buddyName?: string;
     juniorCommanderName?: string;
     ageGroup?: AgeGroup;
@@ -40,7 +46,7 @@ interface ParticularsSectionProps {
 
 type EditableField =
   | 'rotationYear'
-  | 'rotationQuarter'
+  | 'rotationNumber'
   | 'buddyName'
   | 'juniorCommanderName'
   | 'ageGroup'
@@ -58,7 +64,7 @@ export function ParticularsSection({
 }: ParticularsSectionProps) {
   const [editingField, setEditingField] = useState<EditableField>(null);
   const [rotationYear, setRotationYear] = useState(form.rotationYear);
-  const [rotationQuarter, setRotationQuarter] = useState(form.rotationQuarter);
+  const [rotationNumber, setRotationNumber] = useState(getReviewFormRotationNumber(form));
   const [buddyName, setBuddyName] = useState(form.buddyName);
   const [jcName, setJcName] = useState(form.juniorCommanderName);
   const [ageGroup, setAgeGroup] = useState<AgeGroup>(form.ageGroup);
@@ -81,14 +87,14 @@ export function ParticularsSection({
 
       switch (field) {
         case 'rotationYear':
-          // Save both rotation year and quarter together
+          // Save both rotation year and number together
           updates.rotationYear = rotationYear;
-          updates.rotationQuarter = rotationQuarter;
+          updates.rotationNumber = rotationNumber;
           break;
-        case 'rotationQuarter':
-          // Save both rotation year and quarter together
+        case 'rotationNumber':
+          // Save both rotation year and number together
           updates.rotationYear = rotationYear;
-          updates.rotationQuarter = rotationQuarter;
+          updates.rotationNumber = rotationNumber;
           break;
         case 'buddyName':
           updates.buddyName = buddyName;
@@ -121,8 +127,8 @@ export function ParticularsSection({
       case 'rotationYear':
         setRotationYear(form.rotationYear);
         break;
-      case 'rotationQuarter':
-        setRotationQuarter(form.rotationQuarter);
+      case 'rotationNumber':
+        setRotationNumber(getReviewFormRotationNumber(form));
         break;
       case 'buddyName':
         setBuddyName(form.buddyName);
@@ -150,7 +156,8 @@ export function ParticularsSection({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">
-            Review Form - {formatRotationLabel(form.rotationYear, form.rotationQuarter)}
+            Review Form -{' '}
+            {formatRotationLabel(form.rotationYear, getReviewFormRotationNumber(form))}
           </h1>
           <p className="text-sm text-muted-foreground">
             {buddyNameProp} & {juniorCommanderNameProp} ({getAgeGroupLabel(ageGroupProp)})
@@ -168,7 +175,7 @@ export function ParticularsSection({
         <div className="flex items-center justify-between gap-2">
           <div className="flex-1 min-w-0">
             <p className="text-xs text-muted-foreground">Rotation</p>
-            {editingField === 'rotationYear' || editingField === 'rotationQuarter' ? (
+            {editingField === 'rotationYear' || editingField === 'rotationNumber' ? (
               <div className="mt-1 space-y-2">
                 <Input
                   type="number"
@@ -180,14 +187,14 @@ export function ParticularsSection({
                   autoFocus
                 />
                 <Select
-                  value={String(rotationQuarter)}
-                  onValueChange={(value) => setRotationQuarter(Number.parseInt(value))}
+                  value={String(rotationNumber)}
+                  onValueChange={(value) => setRotationNumber(Number.parseInt(value))}
                 >
                   <SelectTrigger className="h-7 text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {getRotationQuarterOptions().map((option) => (
+                    {getRotationNumberOptions().map((option) => (
                       <SelectItem key={option.value} value={String(option.value)}>
                         {option.label}
                       </SelectItem>
@@ -217,11 +224,11 @@ export function ParticularsSection({
               </div>
             ) : (
               <p className="font-medium text-foreground">
-                {formatRotationLabel(form.rotationYear, form.rotationQuarter)}
+                {formatRotationLabel(form.rotationYear, getReviewFormRotationNumber(form))}
               </p>
             )}
           </div>
-          {isEditable && editingField !== 'rotationYear' && editingField !== 'rotationQuarter' && (
+          {isEditable && editingField !== 'rotationYear' && editingField !== 'rotationNumber' && (
             <Button
               variant="ghost"
               size="sm"

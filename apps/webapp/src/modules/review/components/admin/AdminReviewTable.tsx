@@ -5,6 +5,11 @@ import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
+
+import { useDeleteReviewForm } from '../../hooks/useReviewForm';
+import type { ReviewForm } from '../../types';
+import { formatRotationLabel, getReviewFormRotationNumber } from '../../utils/rotationUtils';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,10 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useDeleteReviewForm } from '../../hooks/useReviewForm';
-import type { ReviewForm } from '../../types';
-import { getAgeGroupLabel } from '../../utils/ageGroupLabels';
-import { formatRotationLabel } from '../../utils/rotationUtils';
+import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 
 interface AdminReviewTableProps {
   forms: ReviewForm[];
@@ -175,7 +177,10 @@ export function AdminReviewTable({ forms, onFormDeleted }: AdminReviewTableProps
               <strong>{formToDelete?.juniorCommanderName}</strong> and{' '}
               <strong>{formToDelete?.buddyName}</strong> (
               {formToDelete &&
-                formatRotationLabel(formToDelete.rotationYear, formToDelete.rotationQuarter)}
+                formatRotationLabel(
+                  formToDelete.rotationYear,
+                  getReviewFormRotationNumber(formToDelete)
+                )}
               )?
               <br />
               <br />

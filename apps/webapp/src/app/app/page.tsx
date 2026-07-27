@@ -1,9 +1,15 @@
 'use client';
 
-import { Calendar, ClipboardList, FileText, MessageSquare, Users } from 'lucide-react';
+import { Calendar, ClipboardList, FileText, RotateCcw, Settings, Users } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo } from 'react';
 
+import {
+  APPLICATIONS_MANAGE_PERMISSION,
+  REVIEWS_MANAGE_PERMISSION,
+  ROTATIONS_MANAGE_PERMISSION,
+  SYSTEM_ADMIN_ACCESS_PERMISSION,
+  useHasPermission,
+} from '@/application/auth';
 import { Button } from '@/components/ui/button';
 import { useAuthState } from '@/modules/auth/AuthProvider';
 
@@ -55,9 +61,10 @@ function NavCard({ href, icon, title, description, external }: NavCardProps) {
 export default function AppPage() {
   const authState = useAuthState();
   const isAuthenticated = authState?.state === 'authenticated';
-  const isAdmin = useMemo(() => {
-    return isAuthenticated && authState.user.accessLevel === 'system_admin';
-  }, [isAuthenticated, authState]);
+  const canManageReviews = useHasPermission(REVIEWS_MANAGE_PERMISSION);
+  const canManageRotations = useHasPermission(ROTATIONS_MANAGE_PERMISSION);
+  const canManageApplications = useHasPermission(APPLICATIONS_MANAGE_PERMISSION);
+  const hasSystemAdminAccess = useHasPermission(SYSTEM_ADMIN_ACCESS_PERMISSION);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -75,46 +82,83 @@ export default function AppPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <NavCard
-              href="/app/review"
-              icon={<ClipboardList className="h-6 w-6 text-primary" />}
-              title="Review Forms"
-              description={
-                isAdmin ? 'View and manage all review forms' : 'View and manage your review forms'
-              }
-            />
-
-            <NavCard
-              href="/apply"
-              icon={<FileText className="h-6 w-6 text-primary" />}
-              title="Apply to JCEP"
-              description="Submit an application to join the programme"
-            />
-
-            <NavCard
-              href="/app/feedback"
-              icon={<MessageSquare className="h-6 w-6 text-primary" />}
-              title="Share Feedback"
-              description="Submit feedback about the JCEP programme"
-            />
-
-            <NavCard
-              href="https://docs.google.com/spreadsheets/d/1oCii9CYZiTNhEi9IEkRD_40eTTzl4EAuyJPR9aBnZKI/edit?usp=drivesdk"
-              icon={<Calendar className="h-6 w-6 text-primary" />}
-              title="JCEP 2026 Schedule"
-              description="View the programme schedule and important dates"
-              external
-            />
-
-            {isAdmin && (
-              <NavCard
-                href="/app/applications"
-                icon={<Users className="h-6 w-6 text-primary" />}
-                title="View Applications"
-                description="View all submitted JCEP applications"
-              />
+          <div className="space-y-8">
+            {(canManageReviews || canManageRotations || canManageApplications) && (
+              <section className="space-y-3">
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Programme Administration
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {canManageApplications && (
+                    <NavCard
+                      href="/app/applications"
+                      icon={<Users className="h-6 w-6 text-primary" />}
+                      title="View Applications"
+                      description="View all submitted JCEP applications"
+                    />
+                  )}
+                  {canManageRotations && (
+                    <NavCard
+                      href="/app/rotations"
+                      icon={<RotateCcw className="h-6 w-6 text-primary" />}
+                      title="Rotation Management"
+                      description="Create rotations and assign Junior Commanders"
+                    />
+                  )}
+                  {canManageReviews && (
+                    <NavCard
+                      href="/app/review-management"
+                      icon={<ClipboardList className="h-6 w-6 text-primary" />}
+                      title="Review Management"
+                      description="Generate and manage review forms for all junior commanders"
+                    />
+                  )}
+                </div>
+              </section>
             )}
+
+            {hasSystemAdminAccess && (
+              <section className="space-y-3">
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  System Administration
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <NavCard
+                    href="/app/admin"
+                    icon={<Settings className="h-6 w-6 text-primary" />}
+                    title="System Admin"
+                    description="System configuration and administration"
+                  />
+                </div>
+              </section>
+            )}
+
+            <section className="space-y-3">
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                Quick Links
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <NavCard
+                  href="/app/review"
+                  icon={<ClipboardList className="h-6 w-6 text-primary" />}
+                  title="My Review Forms"
+                  description="View and manage your review forms"
+                />
+                <NavCard
+                  href="/apply"
+                  icon={<FileText className="h-6 w-6 text-primary" />}
+                  title="Apply to JCEP"
+                  description="Submit an application to join the programme"
+                />
+                <NavCard
+                  href="https://docs.google.com/spreadsheets/d/1oCii9CYZiTNhEi9IEkRD_40eTTzl4EAuyJPR9aBnZKI/edit?usp=drivesdk"
+                  icon={<Calendar className="h-6 w-6 text-primary" />}
+                  title="JCEP 2026 Schedule"
+                  description="View the programme schedule and important dates"
+                  external
+                />
+              </div>
+            </section>
           </div>
         </div>
       </div>
