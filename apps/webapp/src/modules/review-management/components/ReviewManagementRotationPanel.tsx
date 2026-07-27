@@ -21,12 +21,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
-import { useReviewFormsByRotation } from '@/modules/review/hooks/useReviewForm';
 import {
   ReviewFormBuddyProgressBadge,
   ReviewFormJCProgressBadge,
 } from '@/modules/review/components/ReviewFormProgressBadges';
 import { ReviewFormVisibilityToggle } from '@/modules/review/components/ReviewFormVisibilityToggle';
+import { useReviewFormsByRotation } from '@/modules/review/hooks/useReviewForm';
 import type { ReviewForm } from '@/modules/review/types';
 import { formatRotationLabel } from '@/modules/review/utils/rotationUtils';
 import { useRotationWithParticipants } from '@/modules/rotations/hooks/useRotations';
@@ -94,14 +94,14 @@ function ParticipantRow({
       </TableCell>
       <TableCell>
         {form ? (
-          <ReviewFormJCProgressBadge form={form} />
+          <ReviewFormBuddyProgressBadge form={form} />
         ) : (
           <span className="text-muted-foreground">&mdash;</span>
         )}
       </TableCell>
       <TableCell>
         {form ? (
-          <ReviewFormBuddyProgressBadge form={form} />
+          <ReviewFormJCProgressBadge form={form} />
         ) : (
           <span className="text-muted-foreground">&mdash;</span>
         )}
@@ -214,8 +214,8 @@ export function ReviewManagementRotationPanel({ rotationId }: ReviewManagementRo
                   <TableHead>Junior Commander</TableHead>
                   <TableHead>Age Group</TableHead>
                   <TableHead>Form</TableHead>
-                  <TableHead>JC Sections</TableHead>
                   <TableHead>Buddy Sections</TableHead>
+                  <TableHead>JC Sections</TableHead>
                   <TableHead className="text-center">Visibility</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
