@@ -2,6 +2,7 @@
 
 import { AlertCircle } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
+
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -9,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ParticipantInfoCard } from '@/modules/review/components/ParticipantInfoCard';
 import { ReviewFormRouter } from '@/modules/review/components/ReviewFormRouter';
 import { useReviewFormByToken } from '@/modules/review/hooks/useReviewFormByToken';
+import { useReviewFormDocumentTitle } from '@/modules/review/hooks/useReviewFormDocumentTitle';
 
 /**
  * Token-based access page for review forms.
@@ -21,6 +23,8 @@ export default function TokenAccessPage() {
   const token = typeof params.token === 'string' ? params.token : null;
 
   const { form, accessLevel, isLoading: isFormLoading } = useReviewFormByToken(token);
+
+  useReviewFormDocumentTitle(form, isFormLoading);
 
   if (isFormLoading) {
     return (
