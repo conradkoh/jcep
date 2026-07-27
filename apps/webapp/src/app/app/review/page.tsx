@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 import { ReviewFormList } from '@/modules/review/components/ReviewFormList';
+import { ReviewRotationSelect } from '@/modules/review/components/ReviewRotationSelect';
 import { ReviewYearSelect } from '@/modules/review/components/ReviewYearSelect';
 
 function ReviewListPageContent() {
@@ -16,12 +17,30 @@ function ReviewListPageContent() {
   const searchParams = useSearchParams();
   const currentYear = new Date().getFullYear();
   const selectedYear = Number.parseInt(searchParams.get('year') || String(currentYear));
+  const selectedRotation = searchParams.get('rotation') || 'all';
+  const rotationNumber =
+    selectedRotation === 'all' ? undefined : Number.parseInt(selectedRotation, 10);
 
-  const handleYearChange = useCallback(
-    (year: string) => {
-      router.push(`/app/review?year=${year}`);
+  const pushWithParams = useCallback(
+    (params: { year: string; rotation: string }) => {
+      const searchParams = new URLSearchParams();
+      searchParams.set('year', params.year);
+      if (params.rotation !== 'all') {
+        searchParams.set('rotation', params.rotation);
+      }
+      router.push(`/app/review?${searchParams.toString()}`);
     },
     [router]
+  );
+
+  const handleYearChange = useCallback(
+    (year: string) => pushWithParams({ year, rotation: selectedRotation }),
+    [pushWithParams, selectedRotation]
+  );
+
+  const handleRotationChange = useCallback(
+    (rotation: string) => pushWithParams({ year: String(selectedYear), rotation }),
+    [pushWithParams, selectedYear]
   );
 
   return (
@@ -41,9 +60,23 @@ function ReviewListPageContent() {
 
       <Separator />
 
-      <ReviewYearSelect selectedYear={selectedYear} onYearChange={handleYearChange} />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+        <ReviewYearSelect
+          selectedYear={selectedYear}
+          onYearChange={handleYearChange}
+          label="Year"
+        />
+        <ReviewRotationSelect
+          selectedRotation={selectedRotation}
+          onRotationChange={handleRotationChange}
+        />
+      </div>
 
-      <ReviewFormList year={selectedYear} />
+      <ReviewFormList
+        year={selectedYear}
+        rotationNumber={rotationNumber}
+        selectedRotation={selectedRotation}
+      />
     </div>
   );
 }

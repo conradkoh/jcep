@@ -1,15 +1,22 @@
 'use client';
 
 import { FileText } from 'lucide-react';
-import { useReviewFormsByYear } from '../hooks/useReviewForm';
+
 import { ReviewFormCard } from './ReviewFormCard';
+import { useReviewFormsByYear } from '../hooks/useReviewForm';
 
 interface ReviewFormListProps {
   year: number;
+  rotationNumber?: number;
+  selectedRotation?: string;
 }
 
-export function ReviewFormList({ year }: ReviewFormListProps) {
-  const { forms, isLoading } = useReviewFormsByYear(year);
+export function ReviewFormList({
+  year,
+  rotationNumber,
+  selectedRotation = 'all',
+}: ReviewFormListProps) {
+  const { forms, isLoading } = useReviewFormsByYear(year, rotationNumber);
 
   if (isLoading) {
     return (
@@ -27,14 +34,18 @@ export function ReviewFormList({ year }: ReviewFormListProps) {
         <FileText className="h-12 w-12 text-muted-foreground" aria-hidden />
         <h3 className="mt-4 text-lg font-semibold text-foreground">No Review Forms</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          You don’t have any review forms for {year} yet.
+          {selectedRotation !== 'all'
+            ? `You don\u2019t have any review forms for ${year} Rotation ${selectedRotation}.`
+            : `You don\u2019t have any review forms for ${year} yet.`}
         </p>
       </div>
     );
   }
 
+  const rotationLabel = selectedRotation !== 'all' ? ` Rotation ${selectedRotation}` : '';
+
   return (
-    <section aria-label={`Review forms for ${year}`} className="space-y-4">
+    <section aria-label={`Review forms for ${year}${rotationLabel}`} className="space-y-4">
       <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {forms.map((form) => (
           <li key={form._id} className="h-full">
