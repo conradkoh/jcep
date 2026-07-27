@@ -8,14 +8,11 @@
 'use client';
 
 import {
-  AlertTriangle,
   Archive,
   ArchiveRestore,
   Check,
   Copy,
   ExternalLink,
-  Eye,
-  EyeOff,
   MoreVertical,
   Trash2,
 } from 'lucide-react';
@@ -27,16 +24,15 @@ import { toast } from 'sonner';
 import {
   useArchiveReviewForm,
   useDeleteReviewForm,
-  useToggleResponseVisibility,
   useUnarchiveReviewForm,
 } from '../../hooks/useReviewForm';
 import type { ReviewForm } from '../../types';
 import { formatRotationLabel, getReviewFormRotationNumber } from '../../utils/rotationUtils';
 import {
-  isBuddyEvaluationComplete,
-  isJCFeedbackComplete,
-  isJCReflectionComplete,
-} from '../../utils/sectionCompletionHelpers';
+  ReviewFormBuddyProgressBadge,
+  ReviewFormJCProgressBadge,
+} from '../ReviewFormProgressBadges';
+import { ReviewFormVisibilityToggle } from '../ReviewFormVisibilityToggle';
 
 import {
   AlertDialog,
@@ -65,7 +61,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 
 /**
@@ -80,20 +75,6 @@ export interface AdminReviewListingTableProps {
   showArchiveAction?: boolean;
   /** Whether to show the unarchive action in the dropdown menu */
   showUnarchiveAction?: boolean;
-}
-
-/**
- * Combined visibility state for a review form.
- */
-interface _CombinedVisibilityState {
-  /** Whether the form should be displayed as visible (both visible OR mismatched) */
-  isVisible: boolean;
-  /** Whether visibility settings are mismatched (one visible, one hidden) */
-  isMismatched: boolean;
-  /** Whether buddy responses are visible to JC */
-  buddyVisible: boolean;
-  /** Whether JC responses are visible to Buddy */
-  jcVisible: boolean;
 }
 
 /**
@@ -118,10 +99,8 @@ export function AdminReviewListingTable({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [formToDelete, setFormToDelete] = useState<ReviewForm | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [togglingVisibility, setTogglingVisibility] = useState<string | null>(null);
   const [archivingFormId, setArchivingFormId] = useState<string | null>(null);
   const deleteReviewForm = useDeleteReviewForm();
-  const toggleVisibility = useToggleResponseVisibility();
   const archiveReviewForm = useArchiveReviewForm();
   const unarchiveReviewForm = useUnarchiveReviewForm();
 
@@ -175,33 +154,6 @@ export function AdminReviewListingTable({
       setIsDeleting(false);
     }
   }, [formToDelete, deleteReviewForm, onFormDeleted]);
-
-  /**
-   * Toggles both visibility settings simultaneously.
-   * If both are visible, hides both; otherwise shows both.
-   * @param form - The review form to update
-   */
-  const handleToggleBothVisibility = useCallback(
-    async (form: ReviewForm) => {
-      const key = `${form._id}-both`;
-      setTogglingVisibility(key);
-      try {
-        const bothVisible = form.buddyResponsesVisibleToJC && form.jcResponsesVisibleToBuddy;
-        await toggleVisibility({
-          formId: form._id,
-          buddyResponsesVisibleToJC: !bothVisible,
-          jcResponsesVisibleToBuddy: !bothVisible,
-        });
-        toast.success(!bothVisible ? 'Both responses now visible' : 'Both responses now hidden');
-      } catch (error) {
-        toast.error('Failed to update visibility');
-        console.error(error);
-      } finally {
-        setTogglingVisibility(null);
-      }
-    },
-    [toggleVisibility]
-  );
 
   /**
    * Archives a review form.
@@ -288,81 +240,18 @@ export function AdminReviewListingTable({
                     <div>{_getStatusBadge(form.status)}</div>
                     <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1 items-center">
                       <span className="text-xs text-muted-foreground">JC:</span>
-                      <div>{_getJCProgress(form)}</div>
+                      <div>
+                        <ReviewFormJCProgressBadge form={form} />
+                      </div>
                       <span className="text-xs text-muted-foreground">Buddy:</span>
-                      <div>{_getBuddyProgress(form)}</div>
+                      <div>
+                        <ReviewFormBuddyProgressBadge form={form} />
+                      </div>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center justify-center">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleToggleBothVisibility(form)}
-                            disabled={togglingVisibility === `${form._id}-both`}
-                            className="h-7 px-2"
-                            aria-label={`Toggle visibility for ${form.juniorCommanderName}`}
-                          >
-                            {(() => {
-                              const visibility = _getCombinedVisibilityState(form);
-                              if (visibility.isMismatched) {
-                                return (
-                                  <>
-                                    <AlertTriangle className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400 mr-1.5" />
-                                    <span className="text-xs">Partial</span>
-                                  </>
-                                );
-                              }
-                              if (visibility.isVisible) {
-                                return (
-                                  <>
-                                    <Eye className="h-3.5 w-3.5 text-green-600 dark:text-green-400 mr-1.5" />
-                                    <span className="text-xs">Visible</span>
-                                  </>
-                                );
-                              }
-                              return (
-                                <>
-                                  <EyeOff className="h-3.5 w-3.5 text-muted-foreground mr-1.5" />
-                                  <span className="text-xs">Hidden</span>
-                                </>
-                              );
-                            })()}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {(() => {
-                            const visibility = _getCombinedVisibilityState(form);
-                            if (visibility.isMismatched) {
-                              return (
-                                <div className="text-xs space-y-1">
-                                  <p className="font-semibold text-orange-600 dark:text-orange-400">
-                                    Warning: Visibility settings are mismatched
-                                  </p>
-                                  <p>
-                                    Buddy → JC: {visibility.buddyVisible ? 'Visible' : 'Hidden'}
-                                  </p>
-                                  <p>JC → Buddy: {visibility.jcVisible ? 'Visible' : 'Hidden'}</p>
-                                  <p className="mt-1">Click to sync both settings</p>
-                                </div>
-                              );
-                            }
-                            return (
-                              <p className="text-xs">
-                                {visibility.isVisible
-                                  ? 'Both responses are visible. Click to hide both.'
-                                  : 'Both responses are hidden. Click to show both.'}
-                              </p>
-                            );
-                          })()}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
+                  <ReviewFormVisibilityToggle form={form} />
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-center">
@@ -514,108 +403,4 @@ function _getStatusBadge(status: ReviewForm['status']): React.ReactElement {
         </Badge>
       );
   }
-}
-
-/**
- * Returns a badge component representing the buddy's evaluation progress.
- * @param form - The review form to check
- * @returns Badge component showing buddy progress status
- */
-function _getBuddyProgress(form: ReviewForm): React.ReactElement {
-  const isComplete = isBuddyEvaluationComplete(form);
-
-  if (!form.buddyEvaluation) {
-    return (
-      <Badge
-        variant="outline"
-        className="bg-gray-50 dark:bg-gray-950/20 text-gray-600 dark:text-gray-400"
-      >
-        Not Started
-      </Badge>
-    );
-  }
-
-  if (isComplete) {
-    return (
-      <Badge
-        variant="outline"
-        className="bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400"
-      >
-        Completed
-      </Badge>
-    );
-  }
-
-  return (
-    <Badge
-      variant="outline"
-      className="bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400"
-    >
-      In Progress
-    </Badge>
-  );
-}
-
-/**
- * Returns a badge component representing the JC's reflection and feedback progress.
- * @param form - The review form to check
- * @returns Badge component showing JC progress status
- */
-function _getJCProgress(form: ReviewForm): React.ReactElement {
-  const reflectionComplete = isJCReflectionComplete(form);
-  const feedbackComplete = isJCFeedbackComplete(form);
-  const hasReflection = form.jcReflection !== null;
-  const hasFeedback = form.jcFeedback !== null;
-
-  if (!hasReflection && !hasFeedback) {
-    return (
-      <Badge
-        variant="outline"
-        className="bg-gray-50 dark:bg-gray-950/20 text-gray-600 dark:text-gray-400"
-      >
-        Not Started
-      </Badge>
-    );
-  }
-
-  if (reflectionComplete && feedbackComplete) {
-    return (
-      <Badge
-        variant="outline"
-        className="bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400"
-      >
-        Completed
-      </Badge>
-    );
-  }
-
-  const completed = [reflectionComplete, feedbackComplete].filter(Boolean).length;
-  const total = 2;
-  return (
-    <Badge
-      variant="outline"
-      className="bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400"
-    >
-      {completed}/{total} Sections
-    </Badge>
-  );
-}
-
-/**
- * Calculates the combined visibility state for a review form.
- * Determines if visibility settings are synchronized or mismatched.
- * @param form - The review form to analyze
- * @returns Combined visibility state object
- */
-function _getCombinedVisibilityState(form: ReviewForm): _CombinedVisibilityState {
-  const bothVisible = form.buddyResponsesVisibleToJC && form.jcResponsesVisibleToBuddy;
-  const bothHidden = !form.buddyResponsesVisibleToJC && !form.jcResponsesVisibleToBuddy;
-  const mismatched = !bothVisible && !bothHidden;
-
-  return {
-    isVisible: bothVisible || mismatched,
-    isMismatched: mismatched,
-    buddyVisible: form.buddyResponsesVisibleToJC,
-    jcVisible: form.jcResponsesVisibleToBuddy,
-  };
 }
