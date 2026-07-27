@@ -26,13 +26,16 @@ import {
   isJCFeedbackComplete,
   isJCReflectionComplete,
 } from '../utils/sectionCompletionHelpers';
+import { REVIEWS_MANAGE_PERMISSION, authStateHasPermission } from '@/application/auth';
 
 /**
  * Hook to get a single review form with computed state
  */
 export function useReviewForm(formId: Id<'reviewForms'> | null | undefined): ReviewFormHookReturn {
   const form = useSessionQuery(api.reviewForms.getReviewForm, formId ? { formId } : 'skip') as
-    ReviewForm | undefined | null;
+    | ReviewForm
+    | undefined
+    | null;
 
   const authState = useSessionQuery(api.auth.getState, {});
   const currentUserId = authState?.state === 'authenticated' ? authState.user._id : undefined;
@@ -62,23 +65,21 @@ export function useReviewForm(formId: Id<'reviewForms'> | null | undefined): Rev
   const canEditBuddySection = useMemo(() => {
     if (!form || !currentUserId) return false;
     if (form.status === 'submitted') return false;
-    const isAdmin =
-      authState?.state === 'authenticated' && authState.user.accessLevel === 'system_admin';
+    const canManageReviews = authStateHasPermission(authState, REVIEWS_MANAGE_PERMISSION);
     const isBuddy = form.buddyUserId === currentUserId;
-    return isAdmin || isBuddy;
+    return canManageReviews || isBuddy;
   }, [form, currentUserId, authState]);
 
   const canEditJCSection = useMemo(() => {
     if (!form || !currentUserId) return false;
     if (form.status === 'submitted') return false;
-    const isAdmin =
-      authState?.state === 'authenticated' && authState.user.accessLevel === 'system_admin';
+    const canManageReviews = authStateHasPermission(authState, REVIEWS_MANAGE_PERMISSION);
     const isJC = form.juniorCommanderUserId === currentUserId;
-    return isAdmin || isJC;
+    return canManageReviews || isJC;
   }, [form, currentUserId, authState]);
 
   const isAdmin = useMemo(() => {
-    return authState?.state === 'authenticated' && authState.user.accessLevel === 'system_admin';
+    return authStateHasPermission(authState, REVIEWS_MANAGE_PERMISSION);
   }, [authState]);
 
   return {
@@ -258,7 +259,8 @@ export function useToggleResponseVisibility() {
  */
 export function useReviewFormsByBuddy(year?: number) {
   const forms = useSessionQuery(api.reviewForms.getReviewFormsByBuddy, year ? { year } : {}) as
-    ReviewForm[] | undefined;
+    | ReviewForm[]
+    | undefined;
 
   return {
     forms,

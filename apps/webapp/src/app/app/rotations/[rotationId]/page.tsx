@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useAuthState } from '@/modules/auth/AuthProvider';
+import { ROTATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 import { formatRotationLabel } from '@/modules/review/utils/rotationUtils';
 import { RotationRosterTable } from '@/modules/rotations/components/RotationRosterTable';
@@ -42,9 +42,7 @@ function getRotationDisplayLabel(rotation: {
 }
 
 function RotationDetailContent({ rotationId }: { rotationId: Id<'rotations'> }) {
-  const authState = useAuthState();
-  const isAdmin =
-    authState?.state === 'authenticated' && authState.user.accessLevel === 'system_admin';
+  const isAdmin = useHasPermission(ROTATIONS_MANAGE_PERMISSION);
 
   const { data, isLoading } = useRotationRoster(rotationId, isAdmin);
   const deleteRotation = useDeleteRotation();
@@ -59,7 +57,7 @@ function RotationDetailContent({ rotationId }: { rotationId: Id<'rotations'> }) 
               <Shield className="h-12 w-12 text-muted-foreground" />
               <h1 className="text-2xl font-bold text-foreground">Access Denied</h1>
               <p className="text-muted-foreground">
-                Only system administrators can manage rotations.
+                Only programme administrators can manage rotations.
               </p>
               <Button asChild variant="outline">
                 <Link href="/app">Back to Dashboard</Link>

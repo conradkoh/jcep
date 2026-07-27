@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { useAuthState } from '@/modules/auth/AuthProvider';
+import { APPLICATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 
 const AGE_GROUP_LABELS: Record<string, string> = {
@@ -29,9 +29,7 @@ const AGE_GROUP_LABELS: Record<string, string> = {
 };
 
 function ApplicationViewContent({ applicationId }: { applicationId: Id<'jcepApplications'> }) {
-  const authState = useAuthState();
-  const isAdmin =
-    authState?.state === 'authenticated' && authState.user.accessLevel === 'system_admin';
+  const isAdmin = useHasPermission(APPLICATIONS_MANAGE_PERMISSION);
 
   const application = useSessionQuery(
     api.jcepApplications.getApplication,

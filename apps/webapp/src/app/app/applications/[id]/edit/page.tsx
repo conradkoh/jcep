@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
-import { useAuthState } from '@/modules/auth/AuthProvider';
+import { APPLICATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 
 type AgeGroup = 'RK' | 'DR' | 'AR' | 'ER';
@@ -38,9 +38,7 @@ const AGE_GROUPS: { value: AgeGroup; label: string; description: string }[] = [
 
 function ApplicationEditContent({ applicationId }: { applicationId: Id<'jcepApplications'> }) {
   const router = useRouter();
-  const authState = useAuthState();
-  const isAdmin =
-    authState?.state === 'authenticated' && authState.user.accessLevel === 'system_admin';
+  const isAdmin = useHasPermission(APPLICATIONS_MANAGE_PERMISSION);
 
   const application = useSessionQuery(
     api.jcepApplications.getApplication,

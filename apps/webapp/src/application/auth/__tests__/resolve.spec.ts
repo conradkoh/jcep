@@ -34,6 +34,16 @@ describe('getRolesForUser', () => {
     expect(getRolesForUser({ accessLevel: 'user' })).toEqual(['user']);
     expect(getRolesForUser({ accessLevel: 'system_admin' })).toEqual(['system_admin']);
   });
+
+  it('resolves programme_admin via roleNames', () => {
+    expect(getRolesForUser({ accessLevel: 'user', roleNames: ['programme_admin'] })).toEqual([
+      'user',
+      'programme_admin',
+    ]);
+    expect(
+      getRolesForUser({ accessLevel: 'system_admin', roleNames: ['programme_admin'] })
+    ).toEqual(['system_admin', 'programme_admin']);
+  });
 });
 
 describe('hasPermission', () => {
@@ -91,5 +101,14 @@ describe('getPermissionsForUser', () => {
     expect(hasPermission({ accessLevel: 'system_admin' }, 'settings:write' as Permission)).toBe(
       true
     );
+  });
+
+  it('grants programme_admin permissions via roleNames', () => {
+    const user = { accessLevel: 'user' as const, roleNames: ['programme_admin'] };
+    expect(hasPermission(user, 'reviews:manage')).toBe(true);
+    expect(hasPermission(user, 'rotations:manage')).toBe(true);
+    expect(hasPermission(user, 'applications:manage')).toBe(true);
+    expect(hasPermission(user, 'system_admin:access')).toBe(false);
+    expect(hasPermission(user, 'auth:provider:manage')).toBe(false);
   });
 });

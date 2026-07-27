@@ -230,7 +230,14 @@ permissions: ['users:*', 'attendance:read'] as const satisfies readonly RolePerm
 | `undefined` or `'user'` | `['user']`         |
 | `'system_admin'`        | `['system_admin']` |
 
-Custom roles such as `manager` can be defined in `roleDefinitions` but are **not active** until users can be assigned multiple roles (planned Phase 1b: `users.roleNames`). Do not uncomment placeholder roles for production assignment until that field exists and `getRolesForUser` reads it.
+Custom roles such as `programme_admin` are assigned via `users.roleNames` (an `optional array of strings` field on both user union variants). To assign:
+
+1. Open the Convex dashboard → `users` table
+2. Find the user document
+3. Set `roleNames` to `["programme_admin"]`
+4. The resolution in `getRolesForUser` appends `programme_admin` to the user's roles if present in the array
+
+**Note:** `system_admin` users retain programme access via `systemAdminPermissions` (= `allPermissions`) without needing `roleNames`. The `roleNames` field is only needed for non-system_admin users who require programme-level permissions.
 
 ### 3. Use the same backend and frontend patterns
 

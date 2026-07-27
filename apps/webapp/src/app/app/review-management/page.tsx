@@ -4,7 +4,7 @@ import type { Id } from '@workspace/backend/convex/_generated/dataModel';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
-import { SYSTEM_ADMIN_ACCESS_PERMISSION, RequirePermission } from '@/application/auth';
+import { REVIEWS_MANAGE_PERMISSION, RequirePermission } from '@/application/auth';
 import { Button } from '@/components/ui/button';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 import { ReviewManagementDashboard } from '@/modules/review-management/components/ReviewManagementDashboard';
@@ -40,7 +40,7 @@ function ReviewManagementPageContent() {
 export default function ReviewManagementPage() {
   return (
     <RequireLogin>
-      <RequirePermission permission={SYSTEM_ADMIN_ACCESS_PERMISSION}>
+      <RequirePermission permission={REVIEWS_MANAGE_PERMISSION}>
         <ReviewManagementPageContent />
       </RequirePermission>
     </RequireLogin>
