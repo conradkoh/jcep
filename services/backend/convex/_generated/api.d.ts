@@ -16,6 +16,7 @@ import type * as checklists from "../checklists.js";
 import type * as cleanupTasks from "../cleanupTasks.js";
 import type * as crypto from "../crypto.js";
 import type * as discussions from "../discussions.js";
+import type * as feedbackSubmissions from "../feedbackSubmissions.js";
 import type * as jcepApplications from "../jcepApplications.js";
 import type * as migration from "../migration.js";
 import type * as migrations from "../migrations.js";
@@ -43,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   cleanupTasks: typeof cleanupTasks;
   crypto: typeof crypto;
   discussions: typeof discussions;
+  feedbackSubmissions: typeof feedbackSubmissions;
   jcepApplications: typeof jcepApplications;
   migration: typeof migration;
   migrations: typeof migrations;

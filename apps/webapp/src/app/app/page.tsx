@@ -3,8 +3,6 @@
 import { Calendar, ClipboardList, FileText, RotateCcw, Settings, Users } from 'lucide-react';
 import Link from 'next/link';
 
-import { Button } from '@/components/ui/button';
-import { useAuthState } from '@/modules/auth/AuthProvider';
 import {
   APPLICATIONS_MANAGE_PERMISSION,
   REVIEWS_MANAGE_PERMISSION,
@@ -12,6 +10,8 @@ import {
   SYSTEM_ADMIN_ACCESS_PERMISSION,
   useHasPermission,
 } from '@/application/auth';
+import { Button } from '@/components/ui/button';
+import { useAuthState } from '@/modules/auth/AuthProvider';
 
 /**
  * Navigation card component for dashboard links.

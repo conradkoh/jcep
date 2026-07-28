@@ -28,7 +28,7 @@ export async function setUserRoles(userId: Id<'users'>, roles: UserRoleSetup): P
       patch.roleNames = roles.roleNames;
     }
     if (Object.keys(patch).length > 0) {
-      await ctx.db.patch(userId, patch);
+      await ctx.db.patch('users', userId, patch);
     }
   });
 }

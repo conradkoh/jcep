@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { use, useState } from 'react';
 import { toast } from 'sonner';
 
+import { ROTATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +20,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ROTATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 import { formatRotationLabel } from '@/modules/review/utils/rotationUtils';
 import { RotationRosterTable } from '@/modules/rotations/components/RotationRosterTable';

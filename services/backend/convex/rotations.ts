@@ -3,8 +3,8 @@ import type { SessionId } from 'convex-helpers/server/sessions';
 import { SessionIdArg } from 'convex-helpers/server/sessions';
 
 import { mutation, query } from './_generated/server';
-import { getAuthUser } from '../modules/auth/getAuthUser';
 import { ROTATIONS_MANAGE_PERMISSION, requireAuthenticatedPermission } from '../application/auth';
+import { getAuthUser } from '../modules/auth/getAuthUser';
 
 const ageGroupValidator = v.union(
   v.literal('RK'),

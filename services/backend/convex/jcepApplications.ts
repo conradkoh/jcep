@@ -3,11 +3,11 @@ import type { SessionId } from 'convex-helpers/server/sessions';
 import { SessionIdArg } from 'convex-helpers/server/sessions';
 
 import { mutation, query } from './_generated/server';
-import { getAuthUser, getAuthUserOptional } from '../modules/auth/getAuthUser';
 import {
   APPLICATIONS_MANAGE_PERMISSION,
   requireAuthenticatedPermission,
 } from '../application/auth';
+import { getAuthUser, getAuthUserOptional } from '../modules/auth/getAuthUser';
 
 /**
  * Public mutation to submit a JCEP application form.

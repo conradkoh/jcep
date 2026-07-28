@@ -52,10 +52,7 @@ export interface JCReflectionSectionProps {
  * Field names available in the JC reflection section (excluding nextRotationPreference which is handled separately).
  */
 export type FieldName =
-  | 'activitiesParticipated'
-  | 'learningsFromJCEP'
-  | 'whatToDoDifferently'
-  | 'goalsForNextRotation';
+  'activitiesParticipated' | 'learningsFromJCEP' | 'whatToDoDifferently' | 'goalsForNextRotation';
 
 // Internal types
 type _SaveStatus = 'saved' | 'modified' | 'none';

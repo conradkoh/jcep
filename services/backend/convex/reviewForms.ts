@@ -16,8 +16,8 @@ import {
   isJCReflectionComplete,
 } from './utils/sectionCompletionHelpers';
 import { generateSecureToken, isTokenExpired } from './utils/tokenUtils';
-import { getAuthUser } from '../modules/auth/getAuthUser';
 import { hasPermission, REVIEWS_MANAGE_PERMISSION } from '../application/auth';
+import { getAuthUser } from '../modules/auth/getAuthUser';
 
 // Schema version constant
 export const CURRENT_SCHEMA_VERSION = 1;

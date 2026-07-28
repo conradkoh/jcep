@@ -464,4 +464,14 @@ export default defineSchema({
     .index('by_rotation', ['rotationId'])
     .index('by_rotation_and_application', ['rotationId', 'applicationId'])
     .index('by_application', ['applicationId']),
+
+  /**
+   * Standalone feedback submissions from the general feedback form.
+   */
+  feedbackSubmissions: defineTable({
+    respondentName: v.optional(v.string()),
+    message: v.string(),
+    submittedAt: v.number(),
+    userId: v.optional(v.id('users')),
+  }).index('by_submitted_at', ['submittedAt']),
 });

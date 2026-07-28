@@ -9,13 +9,13 @@ import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
+import { APPLICATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
-import { APPLICATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 
 type AgeGroup = 'RK' | 'DR' | 'AR' | 'ER';
