@@ -1,12 +1,13 @@
 'use client';
 
 import type { Id } from '@workspace/backend/convex/_generated/dataModel';
-import { Check, Copy, FilePlus } from 'lucide-react';
+import { FilePlus } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
-import { toast } from 'sonner';
 
+import { CopyReviewFormLinkButton } from './CopyReviewFormLinkButton';
 import { GenerateReviewFormDialog } from './GenerateReviewFormDialog';
+import { ReviewManagementParticipantList } from './ReviewManagementParticipantList';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -45,29 +46,6 @@ function findFormForParticipant(
   participantId: Id<'rotationParticipants'>
 ): ReviewForm | undefined {
   return forms?.find((form) => form.rotationParticipantId === participantId);
-}
-
-function CopyLinkButton({ token, label }: { token: string; label: string }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = useCallback(async () => {
-    const link = `${window.location.origin}/review/token/${token}`;
-    try {
-      await navigator.clipboard.writeText(link);
-      setCopied(true);
-      toast.success(`${label} link copied`);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error('Failed to copy link');
-    }
-  }, [token, label]);
-
-  return (
-    <Button variant="outline" size="sm" onClick={handleCopy}>
-      {copied ? <Check className="h-3.5 w-3.5 mr-1" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
-      {label}
-    </Button>
-  );
 }
 
 function ParticipantRow({
@@ -116,8 +94,8 @@ function ParticipantRow({
       <TableCell className="text-right">
         {form ? (
           <div className="flex flex-wrap justify-end gap-2">
-            <CopyLinkButton token={form.buddyAccessToken} label="Buddy" />
-            <CopyLinkButton token={form.jcAccessToken} label="JC" />
+            <CopyReviewFormLinkButton token={form.buddyAccessToken} label="Buddy" />
+            <CopyReviewFormLinkButton token={form.jcAccessToken} label="JC" />
             <Button asChild variant="ghost" size="sm">
               <Link href={`/app/review/${form._id}`}>View</Link>
             </Button>
@@ -208,29 +186,40 @@ export function ReviewManagementRotationPanel({ rotationId }: ReviewManagementRo
               .
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Junior Commander</TableHead>
-                  <TableHead>Age Group</TableHead>
-                  <TableHead>Form</TableHead>
-                  <TableHead>Buddy Sections</TableHead>
-                  <TableHead>JC Sections</TableHead>
-                  <TableHead className="text-center">Visibility</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {participants.map((participant) => (
-                  <ParticipantRow
-                    key={participant._id}
-                    participant={participant}
-                    form={findFormForParticipant(forms, participant._id)}
-                    onGenerate={handleGenerate}
-                  />
-                ))}
-              </TableBody>
-            </Table>
+            <>
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Junior Commander</TableHead>
+                      <TableHead>Age Group</TableHead>
+                      <TableHead>Form</TableHead>
+                      <TableHead>Buddy Sections</TableHead>
+                      <TableHead>JC Sections</TableHead>
+                      <TableHead className="text-center">Visibility</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {participants.map((participant) => (
+                      <ParticipantRow
+                        key={participant._id}
+                        participant={participant}
+                        form={findFormForParticipant(forms, participant._id)}
+                        onGenerate={handleGenerate}
+                      />
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <div className="md:hidden">
+                <ReviewManagementParticipantList
+                  participants={participants}
+                  forms={forms}
+                  onGenerate={handleGenerate}
+                />
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
