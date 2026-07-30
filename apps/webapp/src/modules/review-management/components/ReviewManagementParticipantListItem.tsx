@@ -66,12 +66,19 @@ export function ReviewManagementParticipantListItem({
           <span className="text-muted-foreground">&mdash;</span>
         )}
       </DataListField>
-      <DataListItemFooter>
+      <DataListItemFooter className={form ? 'justify-between' : undefined}>
         {form ? (
           <>
-            <CopyReviewFormLinkButton token={form.buddyAccessToken} label="Buddy" />
-            <CopyReviewFormLinkButton token={form.jcAccessToken} label="JC" />
-            <Button asChild variant="ghost" size="sm">
+            <div className="flex flex-wrap gap-2">
+              <CopyReviewFormLinkButton token={form.buddyAccessToken} label="Buddy" />
+              <CopyReviewFormLinkButton token={form.jcAccessToken} label="JC" />
+            </div>
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100"
+            >
               <Link href={`/app/review/${form._id}`}>View</Link>
             </Button>
           </>
