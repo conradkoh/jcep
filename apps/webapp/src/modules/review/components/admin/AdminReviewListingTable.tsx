@@ -17,7 +17,6 @@ import {
   Trash2,
 } from 'lucide-react';
 import Link from 'next/link';
-import type React from 'react';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -32,7 +31,9 @@ import {
   ReviewFormBuddyProgressBadge,
   ReviewFormJCProgressBadge,
 } from '../ReviewFormProgressBadges';
+import { ReviewFormStatusBadge } from '../ReviewFormStatusBadge';
 import { ReviewFormVisibilityToggle } from '../ReviewFormVisibilityToggle';
+import { AdminReviewListingList } from './AdminReviewListingList';
 
 import {
   AlertDialog,
@@ -44,7 +45,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -205,7 +205,7 @@ export function AdminReviewListingTable({
 
   return (
     <div className="rounded-lg border border-border bg-card overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="hidden md:block overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -237,7 +237,9 @@ export function AdminReviewListingTable({
                 </TableCell>
                 <TableCell>
                   <div className="space-y-1.5">
-                    <div>{_getStatusBadge(form.status)}</div>
+                    <div>
+                      <ReviewFormStatusBadge status={form.status} />
+                    </div>
                     <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1 items-center">
                       <span className="text-xs text-muted-foreground">JC:</span>
                       <div>
@@ -336,6 +338,21 @@ export function AdminReviewListingTable({
         </Table>
       </div>
 
+      <div className="md:hidden p-3">
+        <AdminReviewListingList
+          forms={forms}
+          copiedToken={copiedToken}
+          showArchiveAction={showArchiveAction}
+          showUnarchiveAction={showUnarchiveAction}
+          archivingFormId={archivingFormId}
+          onCopyBuddy={(form) => copyToClipboard(form.buddyAccessToken, 'buddy', form._id)}
+          onCopyJC={(form) => copyToClipboard(form.jcAccessToken, 'jc', form._id)}
+          onArchive={handleArchive}
+          onUnarchive={handleUnarchive}
+          onDelete={handleDeleteClick}
+        />
+      </div>
+
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -369,38 +386,4 @@ export function AdminReviewListingTable({
       </AlertDialog>
     </div>
   );
-}
-
-/**
- * Returns a badge component representing the form's overall status.
- * @param status - The review form status
- * @returns Badge component with appropriate styling
- */
-function _getStatusBadge(status: ReviewForm['status']): React.ReactElement {
-  switch (status) {
-    case 'not_started':
-      return (
-        <Badge variant="outline" className="bg-gray-50 dark:bg-gray-950/20">
-          Not Started
-        </Badge>
-      );
-    case 'in_progress':
-      return (
-        <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950/20">
-          In Progress
-        </Badge>
-      );
-    case 'complete':
-      return (
-        <Badge variant="outline" className="bg-green-50 dark:bg-green-950/20">
-          Complete
-        </Badge>
-      );
-    case 'submitted':
-      return (
-        <Badge variant="outline" className="bg-green-50 dark:bg-green-950/20">
-          Submitted
-        </Badge>
-      );
-  }
 }
