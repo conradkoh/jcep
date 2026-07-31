@@ -47,6 +47,16 @@ const HARDCODED_CANDIDATES = [
   { id: 'cand-020', fullName: 'Raeanne Cheong', birthYear: 2005 },
 ];
 
+const JCEP_BATCH_YEAR_OFFSET = 19;
+
+function birthYearToJcepBatchYear(birthYear: number): number {
+  return birthYear + JCEP_BATCH_YEAR_OFFSET;
+}
+
+function jcepBatchYearToBirthYear(jcepBatchYear: number): number {
+  return jcepBatchYear - JCEP_BATCH_YEAR_OFFSET;
+}
+
 async function requireApplicationsManage(
   ctx: Parameters<typeof getAuthUser>[0],
   args: { sessionId: SessionId }
@@ -61,17 +71,19 @@ export const listCandidateBatches = query({
   handler: async (ctx, args) => {
     await requireApplicationsManage(ctx, args);
     const birthYears = [...new Set(HARDCODED_CANDIDATES.map((c) => c.birthYear))];
-    return birthYears.sort((a, b) => b - a); // descending (newest batch first)
+    const jcepBatchYears = birthYears.map(birthYearToJcepBatchYear);
+    return jcepBatchYears.sort((a, b) => b - a); // descending (newest batch first)
   },
 });
 
 export const listCandidatesByBatch = query({
   args: {
     ...SessionIdArg,
-    birthYear: v.number(),
+    jcepBatchYear: v.number(),
   },
   handler: async (ctx, args) => {
     await requireApplicationsManage(ctx, args);
-    return HARDCODED_CANDIDATES.filter((c) => c.birthYear === args.birthYear);
+    const birthYear = jcepBatchYearToBirthYear(args.jcepBatchYear);
+    return HARDCODED_CANDIDATES.filter((c) => c.birthYear === birthYear);
   },
 });
