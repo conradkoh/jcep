@@ -23,7 +23,7 @@ export function CandidateBatchSelect({
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
       <Label htmlFor="batch-filter" className="text-sm font-medium text-foreground">
-        Batch (birth year)
+        JCEP Batch Year
       </Label>
       <Select value={String(selectedBatch)} onValueChange={onBatchChange}>
         <SelectTrigger id="batch-filter" className="w-full sm:w-[220px]">

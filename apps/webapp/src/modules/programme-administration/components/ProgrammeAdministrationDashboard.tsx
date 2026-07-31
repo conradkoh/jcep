@@ -20,13 +20,13 @@ function ProgrammeCandidatesLoadingSkeleton() {
 }
 
 function ProgrammeCandidatesResults({
-  selectedBatch,
+  selectedJcepBatchYear,
   isAdmin,
 }: {
-  selectedBatch: number | null;
+  selectedJcepBatchYear: number | null;
   isAdmin: boolean;
 }) {
-  const { candidates, isLoading } = useCandidatesByBatch(selectedBatch, isAdmin);
+  const { candidates, isLoading } = useCandidatesByBatch(selectedJcepBatchYear, isAdmin);
 
   if (isLoading) {
     return <Skeleton className="h-32 w-full" />;
@@ -38,13 +38,13 @@ function ProgrammeCandidatesResults({
 export function ProgrammeAdministrationDashboard() {
   const isAdmin = useHasPermission(APPLICATIONS_MANAGE_PERMISSION);
   const { batches, isLoading: batchesLoading } = useCandidateBatches(isAdmin);
-  const [selectedBatch, setSelectedBatch] = useState<number | null>(null);
+  const [selectedJcepBatchYear, setSelectedJcepBatchYear] = useState<number | null>(null);
 
   useEffect(() => {
-    if (batches && batches.length > 0 && selectedBatch === null) {
-      setSelectedBatch(batches[0]);
+    if (batches && batches.length > 0 && selectedJcepBatchYear === null) {
+      setSelectedJcepBatchYear(batches[0]);
     }
-  }, [batches, selectedBatch]);
+  }, [batches, selectedJcepBatchYear]);
 
   if (batchesLoading) {
     return <ProgrammeCandidatesLoadingSkeleton />;
@@ -55,19 +55,19 @@ export function ProgrammeAdministrationDashboard() {
       <div>
         <h1 className="text-2xl font-bold">Programme Candidates</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          View possible candidates grouped by birth-year batch.
+          View possible candidates grouped by JCEP batch year.
         </p>
       </div>
 
-      {batches && batches.length > 0 && selectedBatch !== null && (
+      {batches && batches.length > 0 && selectedJcepBatchYear !== null && (
         <CandidateBatchSelect
           batches={batches}
-          selectedBatch={selectedBatch}
-          onBatchChange={(year) => setSelectedBatch(Number(year))}
+          selectedBatch={selectedJcepBatchYear}
+          onBatchChange={(year) => setSelectedJcepBatchYear(Number(year))}
         />
       )}
 
-      <ProgrammeCandidatesResults selectedBatch={selectedBatch} isAdmin={isAdmin} />
+      <ProgrammeCandidatesResults selectedJcepBatchYear={selectedJcepBatchYear} isAdmin={isAdmin} />
     </div>
   );
 }
