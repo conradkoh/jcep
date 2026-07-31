@@ -2,7 +2,7 @@
 
 import type { ProgrammeCandidate } from '../types';
 
-import { DataListField, DataListItem, DataListItemHeader } from '@/components/ui/data-list';
+import { TableCell, TableRow } from '@/components/ui/table';
 
 interface CandidateListItemProps {
   candidate: ProgrammeCandidate;
@@ -10,9 +10,9 @@ interface CandidateListItemProps {
 
 export function CandidateListItem({ candidate }: CandidateListItemProps) {
   return (
-    <DataListItem>
-      <DataListItemHeader title={candidate.fullName} />
-      <DataListField label="Year born">{candidate.birthYear}</DataListField>
-    </DataListItem>
+    <TableRow>
+      <TableCell className="font-medium">{candidate.fullName}</TableCell>
+      <TableCell>{candidate.birthYear}</TableCell>
+    </TableRow>
   );
 }
