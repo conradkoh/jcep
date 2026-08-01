@@ -1,13 +1,16 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
   <rect width="1024" height="1024" fill="#ffffff"/>
   <text
-    x="512"
-    y="540"
     font-family="Arial, Helvetica, sans-serif"
     font-size="300"
     font-weight="700"
     fill="#000000"
     text-anchor="middle"
     dominant-baseline="middle"
-  >JCEP</text>
+  >
+    <tspan x="382" y="420">J</tspan>
+    <tspan x="642" y="420">C</tspan>
+    <tspan x="382" y="660">E</tspan>
+    <tspan x="642" y="660">P</tspan>
+  </text>
 </svg>
