@@ -12,7 +12,7 @@ export function ProgrammeApplicationsNavCards() {
         description="View all submitted JCEP applications"
       />
       <NavCard
-        href="/app/programme-administration"
+        href="/app/programme-candidates"
         icon={<Users className="h-6 w-6 text-primary" />}
         title="Programme Candidates"
         description="View possible candidates by birth-year batch"
