@@ -23,14 +23,6 @@ export const roleDefinitions = [
     ] as const satisfies readonly Permission[],
   },
   {
-    role: 'manager',
-    permissions: [
-      'users:list',
-      'users:read',
-      'attendance:manage',
-    ] as const satisfies readonly Permission[],
-  },
-  {
     role: 'system_admin',
     permissions: systemAdminPermissions,
   },
