@@ -68,3 +68,37 @@ test('listUsers maps legacy manager roleNames to standard_user effectiveRole', a
   const target = users.find((u) => u._id === targetUserId);
   expect(target?.effectiveRole).toBe('standard_user');
 });
+
+test('updateUserRoles assigns jcep_admin preset', async () => {
+  const { sessionId } = await loginAsSystemAdmin();
+  const targetSessionId = `jcep-${Math.random().toString(36).slice(2)}` as SessionId;
+  const login = await t.mutation(api.auth.loginAnon, { sessionId: targetSessionId });
+  const targetUserId = login.userId as Id<'users'>;
+
+  await t.mutation(api.system.users.updateUserRoles, {
+    sessionId,
+    userId: targetUserId,
+    effectiveRole: 'jcep_admin',
+  });
+
+  const user = await t.run((ctx) => ctx.db.get('users', targetUserId));
+  expect(user?.accessLevel).toBe('user');
+  expect(user?.roleNames).toEqual(['jcep_admin']);
+});
+
+test('listUsers maps jcep_admin roleNames to jcep_admin effectiveRole', async () => {
+  const { sessionId } = await loginAsSystemAdmin();
+  const targetSessionId = `jcep-list-${Math.random().toString(36).slice(2)}` as SessionId;
+  const login = await t.mutation(api.auth.loginAnon, { sessionId: targetSessionId });
+  const targetUserId = login.userId as Id<'users'>;
+  await t.run(async (ctx) => {
+    await ctx.db.patch('users', targetUserId, {
+      accessLevel: 'user',
+      roleNames: ['jcep_admin'],
+    });
+  });
+
+  const users = await t.query(api.system.users.listUsers, { sessionId });
+  const target = users.find((u) => u._id === targetUserId);
+  expect(target?.effectiveRole).toBe('jcep_admin');
+});

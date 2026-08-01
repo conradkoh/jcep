@@ -253,7 +253,7 @@ permissions: ['users:*', 'attendance:read'] as const satisfies readonly RolePerm
 
 Run `npx convex run migrations:run '{fn: "migrations:backfillUserRoleNames"}'` to backfill `roleNames` for non-admin users (optional for system admins).
 
-The starter admin UI at `/app/admin/users` exposes **Standard User** and **System Administrator** presets. Forks that add custom roles should extend both `roleDefinitions` and the admin assignment UI/API.
+The admin UI at `/app/admin/users` exposes **Standard User**, **Programme Administrator** (`jcep_admin`), and **System Administrator** presets.
 
 **JCEP programme admins:** set `roleNames` to `["jcep_admin"]` on the user document (Convex dashboard → `users` table). A `system_admin` with `roleNames: ["jcep_admin"]` resolves to both `['system_admin', 'jcep_admin']`, retaining full system access plus programme admin permissions.
 

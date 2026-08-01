@@ -19,10 +19,11 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 
-type EffectiveRole = 'standard_user' | 'system_admin';
+type EffectiveRole = 'standard_user' | 'jcep_admin' | 'system_admin';
 
 const ROLE_LABELS: Record<EffectiveRole, string> = {
   standard_user: 'Standard User',
+  jcep_admin: 'Programme Administrator',
   system_admin: 'System Administrator',
 };
 

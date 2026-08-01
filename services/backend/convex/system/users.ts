@@ -13,15 +13,15 @@ import { mutation, query, type MutationCtx } from '../_generated/server';
  * - `listUsers`       requires `users:list`  (system admins hold this via systemAdminPermissions).
  * - `updateUserRoles` requires `users:write` (system admins hold this).
  *
- * Starter ships two built-in roles only (user, system_admin). Forks extend
- * roleDefinitions and this UI separately for custom roles.
+ * Starter ships two built-in roles only (user, system_admin). JCEP fork extends
+ * roleDefinitions and this UI with the jcep_admin preset.
  */
 
 const USERS_LIST = 'users:list' as const;
 const USERS_WRITE = 'users:write' as const;
 
-/** Effective role preset — maps to the two built-in starter roles only */
-export type EffectiveRole = 'standard_user' | 'system_admin';
+/** Effective role preset — maps to the built-in starter roles plus the JCEP fork role */
+export type EffectiveRole = 'standard_user' | 'jcep_admin' | 'system_admin';
 
 export interface UserSummary {
   _id: Id<'users'>;
@@ -33,8 +33,12 @@ export interface UserSummary {
   effectiveRole: EffectiveRole;
 }
 
-function toEffectiveRole(user: { accessLevel?: 'user' | 'system_admin' }): EffectiveRole {
+function toEffectiveRole(user: {
+  accessLevel?: 'user' | 'system_admin';
+  roleNames?: string[];
+}): EffectiveRole {
   if (user.accessLevel === 'system_admin') return 'system_admin';
+  if (user.roleNames?.includes('jcep_admin')) return 'jcep_admin';
   return 'standard_user';
 }
 
@@ -45,6 +49,8 @@ function presetToStorage(effectiveRole: EffectiveRole): {
   switch (effectiveRole) {
     case 'system_admin':
       return { accessLevel: 'system_admin', roleNames: undefined };
+    case 'jcep_admin':
+      return { accessLevel: 'user', roleNames: ['jcep_admin'] };
     case 'standard_user':
       return { accessLevel: 'user', roleNames: ['user'] };
   }
@@ -108,7 +114,11 @@ export const listUsers = query({
 export const updateUserRoles = mutation({
   args: {
     userId: v.id('users'),
-    effectiveRole: v.union(v.literal('standard_user'), v.literal('system_admin')),
+    effectiveRole: v.union(
+      v.literal('standard_user'),
+      v.literal('jcep_admin'),
+      v.literal('system_admin')
+    ),
     ...SessionIdArg,
   },
   handler: async (ctx, args) => {
