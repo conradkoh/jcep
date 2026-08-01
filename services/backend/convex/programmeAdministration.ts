@@ -79,11 +79,16 @@ export const listCandidateBatches = query({
 export const listCandidatesByBatch = query({
   args: {
     ...SessionIdArg,
-    jcepBatchYear: v.number(),
+    jcepBatchYears: v.array(v.number()),
   },
   handler: async (ctx, args) => {
     await requireApplicationsManage(ctx, args);
-    const birthYear = jcepBatchYearToBirthYear(args.jcepBatchYear);
-    return HARDCODED_CANDIDATES.filter((c) => c.birthYear === birthYear);
+    if (args.jcepBatchYears.length === 0) {
+      return [];
+    }
+    const birthYears = new Set(args.jcepBatchYears.map(jcepBatchYearToBirthYear));
+    return HARDCODED_CANDIDATES.filter((c) => birthYears.has(c.birthYear)).sort(
+      (a, b) => b.birthYear - a.birthYear || a.fullName.localeCompare(b.fullName)
+    );
   },
 });
