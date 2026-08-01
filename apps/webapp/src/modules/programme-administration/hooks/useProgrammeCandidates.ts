@@ -9,10 +9,10 @@ export function useCandidateBatches(isAdmin: boolean) {
   return { batches, isLoading: batches === undefined };
 }
 
-export function useCandidatesByBatch(jcepBatchYear: number | null, isAdmin: boolean) {
+export function useCandidatesByBatches(jcepBatchYears: number[], isAdmin: boolean) {
   const candidates = useSessionQuery(
     api.programmeAdministration.listCandidatesByBatch,
-    isAdmin && jcepBatchYear !== null ? { jcepBatchYear } : 'skip'
+    isAdmin && jcepBatchYears.length > 0 ? { jcepBatchYears } : 'skip'
   );
   return { candidates, isLoading: candidates === undefined };
 }

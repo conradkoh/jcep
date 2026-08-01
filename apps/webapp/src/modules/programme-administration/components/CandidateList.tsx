@@ -12,7 +12,11 @@ interface CandidateListProps {
 
 export function CandidateList({ candidates }: CandidateListProps) {
   if (candidates.length === 0) {
-    return <p className="text-sm text-muted-foreground">No candidates found for this batch.</p>;
+    return (
+      <p className="text-sm text-muted-foreground">
+        No candidates found for the selected batch years.
+      </p>
+    );
   }
 
   return (

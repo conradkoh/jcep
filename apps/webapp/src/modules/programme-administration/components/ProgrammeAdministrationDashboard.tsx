@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { CandidateBatchSelect } from './CandidateBatchSelect';
 import { CandidateList } from './CandidateList';
-import { useCandidateBatches, useCandidatesByBatch } from '../hooks/useProgrammeCandidates';
+import { useCandidateBatches, useCandidatesByBatches } from '../hooks/useProgrammeCandidates';
 
 import { APPLICATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -20,13 +20,13 @@ function ProgrammeCandidatesLoadingSkeleton() {
 }
 
 function ProgrammeCandidatesResults({
-  selectedJcepBatchYear,
+  selectedJcepBatchYears,
   isAdmin,
 }: {
-  selectedJcepBatchYear: number | null;
+  selectedJcepBatchYears: number[];
   isAdmin: boolean;
 }) {
-  const { candidates, isLoading } = useCandidatesByBatch(selectedJcepBatchYear, isAdmin);
+  const { candidates, isLoading } = useCandidatesByBatches(selectedJcepBatchYears, isAdmin);
 
   if (isLoading) {
     return <Skeleton className="h-32 w-full" />;
@@ -38,13 +38,13 @@ function ProgrammeCandidatesResults({
 export function ProgrammeAdministrationDashboard() {
   const isAdmin = useHasPermission(APPLICATIONS_MANAGE_PERMISSION);
   const { batches, isLoading: batchesLoading } = useCandidateBatches(isAdmin);
-  const [selectedJcepBatchYear, setSelectedJcepBatchYear] = useState<number | null>(null);
+  const [selectedJcepBatchYears, setSelectedJcepBatchYears] = useState<number[]>([]);
 
   useEffect(() => {
-    if (batches && batches.length > 0 && selectedJcepBatchYear === null) {
-      setSelectedJcepBatchYear(batches[0]);
+    if (batches && batches.length > 0 && selectedJcepBatchYears.length === 0) {
+      setSelectedJcepBatchYears([batches[0]]);
     }
-  }, [batches, selectedJcepBatchYear]);
+  }, [batches, selectedJcepBatchYears]);
 
   if (batchesLoading) {
     return <ProgrammeCandidatesLoadingSkeleton />;
@@ -55,19 +55,22 @@ export function ProgrammeAdministrationDashboard() {
       <div>
         <h1 className="text-2xl font-bold">Programme Candidates</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          View possible candidates grouped by JCEP batch year.
+          View possible candidates across selected JCEP batch years.
         </p>
       </div>
 
-      {batches && batches.length > 0 && selectedJcepBatchYear !== null && (
+      {batches && batches.length > 0 && (
         <CandidateBatchSelect
           batches={batches}
-          selectedBatch={selectedJcepBatchYear}
-          onBatchChange={(year) => setSelectedJcepBatchYear(Number(year))}
+          selectedBatches={selectedJcepBatchYears}
+          onBatchesChange={setSelectedJcepBatchYears}
         />
       )}
 
-      <ProgrammeCandidatesResults selectedJcepBatchYear={selectedJcepBatchYear} isAdmin={isAdmin} />
+      <ProgrammeCandidatesResults
+        selectedJcepBatchYears={selectedJcepBatchYears}
+        isAdmin={isAdmin}
+      />
     </div>
   );
 }
