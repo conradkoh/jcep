@@ -8,9 +8,9 @@
     text-anchor="middle"
     dominant-baseline="middle"
   >
-    <tspan x="382" y="420">J</tspan>
-    <tspan x="642" y="420">C</tspan>
-    <tspan x="382" y="660">E</tspan>
-    <tspan x="642" y="660">P</tspan>
+    <tspan x="256" y="256">J</tspan>
+    <tspan x="768" y="256">C</tspan>
+    <tspan x="256" y="768">E</tspan>
+    <tspan x="768" y="768">P</tspan>
   </text>
 </svg>
