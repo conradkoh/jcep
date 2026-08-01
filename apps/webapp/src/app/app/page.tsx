@@ -1,10 +1,11 @@
 'use client';
 
-import { Calendar, ClipboardList, FileText, RotateCcw, Settings, Users } from 'lucide-react';
+import { Calendar, ClipboardList, FileText, Settings } from 'lucide-react';
 import Link from 'next/link';
 
-import { Button } from '@/components/ui/button';
-import { useAuthState } from '@/modules/auth/AuthProvider';
+import { NavCard } from './DashboardNavCard';
+import { ProgrammeAdministrationSection } from './ProgrammeAdministrationSection';
+
 import {
   APPLICATIONS_MANAGE_PERMISSION,
   REVIEWS_MANAGE_PERMISSION,
@@ -12,48 +13,8 @@ import {
   SYSTEM_ADMIN_ACCESS_PERMISSION,
   useHasPermission,
 } from '@/application/auth';
-
-/**
- * Navigation card component for dashboard links.
- */
-interface NavCardProps {
-  href: string;
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  external?: boolean;
-}
-
-function NavCard({ href, icon, title, description, external }: NavCardProps) {
-  const content = (
-    <div className="flex items-center gap-4">
-      <div className="p-3 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-        {icon}
-      </div>
-      <div>
-        <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-    </div>
-  );
-
-  const className =
-    'group p-6 border border-border rounded-lg hover:border-primary hover:bg-accent/50 transition-colors block';
-
-  if (external) {
-    return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
-        {content}
-      </a>
-    );
-  }
-
-  return (
-    <Link href={href} className={className}>
-      {content}
-    </Link>
-  );
-}
+import { Button } from '@/components/ui/button';
+import { useAuthState } from '@/modules/auth/AuthProvider';
 
 /**
  * Displays the main application dashboard with navigation links.
@@ -84,37 +45,11 @@ export default function AppPage() {
 
           <div className="space-y-8">
             {(canManageReviews || canManageRotations || canManageApplications) && (
-              <section className="space-y-3">
-                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Programme Administration
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {canManageApplications && (
-                    <NavCard
-                      href="/app/applications"
-                      icon={<Users className="h-6 w-6 text-primary" />}
-                      title="View Applications"
-                      description="View all submitted JCEP applications"
-                    />
-                  )}
-                  {canManageRotations && (
-                    <NavCard
-                      href="/app/rotations"
-                      icon={<RotateCcw className="h-6 w-6 text-primary" />}
-                      title="Rotation Management"
-                      description="Create rotations and assign Junior Commanders"
-                    />
-                  )}
-                  {canManageReviews && (
-                    <NavCard
-                      href="/app/review-management"
-                      icon={<ClipboardList className="h-6 w-6 text-primary" />}
-                      title="Review Management"
-                      description="Generate and manage review forms for all junior commanders"
-                    />
-                  )}
-                </div>
-              </section>
+              <ProgrammeAdministrationSection
+                canManageApplications={canManageApplications}
+                canManageRotations={canManageRotations}
+                canManageReviews={canManageReviews}
+              />
             )}
 
             {hasSystemAdminAccess && (

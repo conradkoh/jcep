@@ -20,6 +20,7 @@ import type * as jcepApplications from "../jcepApplications.js";
 import type * as migration from "../migration.js";
 import type * as migrations from "../migrations.js";
 import type * as presentations from "../presentations.js";
+import type * as programmeAdministration from "../programmeAdministration.js";
 import type * as reviewForms from "../reviewForms.js";
 import type * as rotations from "../rotations.js";
 import type * as serviceDesk from "../serviceDesk.js";
@@ -47,6 +48,7 @@ declare const fullApi: ApiFromModules<{
   migration: typeof migration;
   migrations: typeof migrations;
   presentations: typeof presentations;
+  programmeAdministration: typeof programmeAdministration;
   reviewForms: typeof reviewForms;
   rotations: typeof rotations;
   serviceDesk: typeof serviceDesk;
