@@ -44,6 +44,9 @@ export function ReviewManagementParticipantListItem({
           <Badge variant="outline">No form</Badge>
         )}
       </DataListItemHeader>
+      <DataListField label="Buddy">
+        {form ? form.buddyName : <span className="text-muted-foreground">&mdash;</span>}
+      </DataListField>
       <DataListField label="Age Group">{getAgeGroupLabel(participant.ageGroup)}</DataListField>
       <DataListField label="Buddy Sections">
         {form ? (

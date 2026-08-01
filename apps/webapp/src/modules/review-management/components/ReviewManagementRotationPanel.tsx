@@ -60,6 +60,9 @@ function ParticipantRow({
   return (
     <TableRow>
       <TableCell className="font-medium">{participant.fullName}</TableCell>
+      <TableCell>
+        {form ? form.buddyName : <span className="text-muted-foreground">&mdash;</span>}
+      </TableCell>
       <TableCell>{getAgeGroupLabel(participant.ageGroup)}</TableCell>
       <TableCell>
         {form ? (
@@ -192,6 +195,7 @@ export function ReviewManagementRotationPanel({ rotationId }: ReviewManagementRo
                   <TableHeader>
                     <TableRow>
                       <TableHead>Junior Commander</TableHead>
+                      <TableHead>Buddy</TableHead>
                       <TableHead>Age Group</TableHead>
                       <TableHead>Form</TableHead>
                       <TableHead>Buddy Sections</TableHead>
