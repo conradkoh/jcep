@@ -3,20 +3,18 @@
 /**
  * App Icon Generator
  *
- * Generates all PWA app icons from a 1024x1024 PNG source.
- * Optionally generates favicon.ico from the app icons (use --favicon flag).
+ * Generates all PWA app icons from the SVG source, plus the favicon.
  *
  * Usage:
- *   bun scripts/generate-icons.ts              # Generate app icons only
- *   bun scripts/generate-icons.ts --favicon    # Also generate favicon.ico
+ *   bun scripts/generate-icons.ts              # Generate all icons + favicon
  *
- * Source: public/appicon-1024x1024.png
+ * Source: public/svg-sources/app-icon.svg
  * Output:
  *   - public/appicon-{size}x{size}.png (all sizes for PWA manifest)
- *   - src/app/favicon.ico (only with --favicon flag)
+ *   - src/app/favicon.ico (browser favicon)
  *
  * Note: If you have a custom favicon design (different from app icon),
- * place it directly at src/app/favicon.ico and don't use --favicon flag.
+ * place it directly at src/app/favicon.ico and don't run this script.
  *
  * For complete documentation on PWA setup, see:
  * guides/pwa/pwa-setup.md
@@ -40,39 +38,34 @@ const SIZES = [16, 32, 64, 96, 128, 192, 256, 384, 512, 1024] as const;
 const ICON_BACKGROUND = { r: 255, g: 255, b: 255, alpha: 1 }; // #ffffff
 
 // Paths
-const SOURCE_FILE = join(__dirname, '../public/appicon-1024x1024.png');
+const SVG_SOURCE = join(__dirname, '../public/svg-sources/app-icon.svg');
 const PUBLIC_DIR = join(__dirname, '../public');
 const FAVICON_OUTPUT = join(__dirname, '../src/app/favicon.ico');
 
-// Check for --favicon flag
-const shouldGenerateFavicon = process.argv.includes('--favicon');
+/**
+ * Renders the SVG source to a 1024x1024 opaque PNG buffer.
+ */
+async function renderSourcePng(): Promise<Buffer> {
+  return sharp(SVG_SOURCE)
+    .resize(1024, 1024, { fit: 'contain', background: ICON_BACKGROUND })
+    .flatten({ background: ICON_BACKGROUND })
+    .removeAlpha()
+    .png()
+    .toBuffer();
+}
 
 async function generateAppIcons(): Promise<boolean> {
-  console.log('🎨 Generating app icons from appicon-1024x1024.png...\n');
+  console.log('🎨 Generating app icons from public/svg-sources/app-icon.svg...\n');
 
   try {
-    // Load the source image
-    const sourceImage = sharp(SOURCE_FILE);
-    const metadata = await sourceImage.metadata();
-
-    // Verify source image dimensions
-    if (metadata.width !== 1024 || metadata.height !== 1024) {
-      console.warn(
-        `⚠️  Warning: Source image is ${metadata.width}x${metadata.height}, expected 1024x1024`
-      );
-    }
+    // Render the SVG source once and reuse the buffer for all sizes
+    const sourcePng = await renderSourcePng();
 
     // Generate each size
     for (const size of SIZES) {
       const outputFile = join(PUBLIC_DIR, `appicon-${size}x${size}.png`);
 
-      // Skip if output file is the same as source file
-      if (outputFile === SOURCE_FILE) {
-        console.log(`⏭️  Skipped appicon-${size}x${size}.png (source file)`);
-        continue;
-      }
-
-      await sharp(SOURCE_FILE)
+      await sharp(sourcePng)
         .resize(size, size, {
           fit: 'contain',
           background: ICON_BACKGROUND,
@@ -134,14 +127,14 @@ async function generateFavicon(): Promise<boolean> {
 
 async function main(): Promise<void> {
   // Check if source file exists
-  if (!existsSync(SOURCE_FILE)) {
-    console.error('❌ Error: Source file not found at:', SOURCE_FILE);
-    console.error('Please ensure appicon-1024x1024.png exists in the public directory.');
+  if (!existsSync(SVG_SOURCE)) {
+    console.error('❌ Error: Source file not found at:', SVG_SOURCE);
+    console.error('Please ensure app-icon.svg exists in the public/svg-sources directory.');
     process.exit(1);
   }
 
   console.log('📦 Icon Generator\n');
-  console.log(`Source: ${SOURCE_FILE}\n`);
+  console.log(`Source: ${SVG_SOURCE}\n`);
 
   // Generate app icons
   const iconsSuccess = await generateAppIcons();
@@ -149,22 +142,16 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  // Generate favicon only if --favicon flag is passed
-  if (shouldGenerateFavicon) {
-    const faviconSuccess = await generateFavicon();
-    if (!faviconSuccess) {
-      process.exit(1);
-    }
-  } else {
-    console.log('\n💡 Tip: Use --favicon flag to also generate favicon.ico from app icons');
+  // Generate favicon
+  const faviconSuccess = await generateFavicon();
+  if (!faviconSuccess) {
+    process.exit(1);
   }
 
   console.log('\n🎉 All icons generated successfully!');
   console.log('\nOutput:');
   console.log('  - public/appicon-*.png (PWA manifest icons)');
-  if (shouldGenerateFavicon) {
-    console.log('  - src/app/favicon.ico (browser favicon)');
-  }
+  console.log('  - src/app/favicon.ico (browser favicon)');
 }
 
 main();
