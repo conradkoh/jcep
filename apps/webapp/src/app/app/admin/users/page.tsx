@@ -23,7 +23,7 @@ type EffectiveRole = 'standard_user' | 'jcep_admin' | 'system_admin';
 
 const ROLE_LABELS: Record<EffectiveRole, string> = {
   standard_user: 'Standard User',
-  jcep_admin: 'Programme Administrator',
+  jcep_admin: 'JCEP Admin',
   system_admin: 'System Administrator',
 };
 
