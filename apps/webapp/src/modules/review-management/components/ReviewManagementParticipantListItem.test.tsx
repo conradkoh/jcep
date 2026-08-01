@@ -33,10 +33,12 @@ describe('ReviewManagementParticipantListItem', () => {
     );
 
     expect(screen.getByText('Alice Tan')).toBeInTheDocument();
+    expect(screen.getByText('Buddy')).toBeInTheDocument();
     expect(screen.getByText('Age Group')).toBeInTheDocument();
     expect(screen.getByText('Buddy Sections')).toBeInTheDocument();
     expect(screen.getByText('JC Sections')).toBeInTheDocument();
     expect(screen.getByText('Visibility')).toBeInTheDocument();
+    expect(screen.getAllByText('—')).toHaveLength(4);
     expect(screen.getByText('No form')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /generate review form/i })).toBeInTheDocument();
   });
@@ -46,6 +48,7 @@ describe('ReviewManagementParticipantListItem', () => {
       _id: 'f1' as never,
       buddyAccessToken: 'btoken',
       jcAccessToken: 'jtoken',
+      buddyName: 'Buddy Smith',
       buddyEvaluation: null,
       jcReflection: null,
       jcFeedback: null,
@@ -66,6 +69,8 @@ describe('ReviewManagementParticipantListItem', () => {
     );
 
     expect(screen.getByText('Alice Tan')).toBeInTheDocument();
+    expect(screen.getAllByText('Buddy')).toHaveLength(2);
+    expect(screen.getByText('Buddy Smith')).toBeInTheDocument();
     expect(screen.getByText('Age Group')).toBeInTheDocument();
     expect(screen.getByText('Buddy Sections')).toBeInTheDocument();
     expect(screen.getByText('JC Sections')).toBeInTheDocument();
