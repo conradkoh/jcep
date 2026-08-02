@@ -58,16 +58,23 @@ export function InstallAppDialog() {
               <TabsTrigger value="android">Android</TabsTrigger>
               <TabsTrigger value="desktop">Desktop</TabsTrigger>
             </TabsList>
-            {(['ios', 'android', 'desktop'] as const).map((tab) => (
-              <TabsContent key={tab} value={tab} className="space-y-3">
-                {DIALOG_TAB_GROUPS[tab].map((platformKey) => (
-                  <InstallInstructionsPanel
-                    key={platformKey}
-                    instructions={getInstructionsForPlatform(platformKey)}
-                  />
-                ))}
-              </TabsContent>
-            ))}
+            <div className="grid">
+              {(['ios', 'android', 'desktop'] as const).map((tab) => (
+                <TabsContent
+                  key={tab}
+                  value={tab}
+                  forceMount
+                  className="col-start-1 row-start-1 space-y-3 data-[state=inactive]:pointer-events-none data-[state=inactive]:invisible [&[hidden]]:block"
+                >
+                  {DIALOG_TAB_GROUPS[tab].map((platformKey) => (
+                    <InstallInstructionsPanel
+                      key={platformKey}
+                      instructions={getInstructionsForPlatform(platformKey)}
+                    />
+                  ))}
+                </TabsContent>
+              ))}
+            </div>
           </Tabs>
         )}
       </DialogContent>
