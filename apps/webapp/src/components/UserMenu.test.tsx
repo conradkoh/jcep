@@ -28,6 +28,17 @@ vi.mock('next/link', () => ({
   ),
 }));
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock('@/modules/pwa-install', () => ({
+  usePwaInstall: () => ({
+    isInstalled: false,
+    isReady: true,
+    setDialogOpen: vi.fn(),
+    platform: 'desktop-chrome',
+    canNativeInstall: false,
+    promptInstall: vi.fn(),
+    dialogOpen: false,
+  }),
+}));
 
 describe('UserMenu', () => {
   it('renders nothing when unauthenticated', () => {
