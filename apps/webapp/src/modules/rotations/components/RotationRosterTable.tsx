@@ -117,7 +117,9 @@ export function RotationRosterTable({ currentRotationId, applicants }: RotationR
                     <TableCell className="w-[220px]">
                       <Select
                         value={selectValue}
-                        onValueChange={(value) => handleAgeGroupChange(applicant, value)}
+                        onValueChange={(value) =>
+                          value !== null && handleAgeGroupChange(applicant, value)
+                        }
                         disabled={isUpdating}
                       >
                         <SelectTrigger className="w-[200px]">

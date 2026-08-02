@@ -17,8 +17,9 @@ import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 
+import { APPLICATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
@@ -37,7 +38,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { APPLICATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
+import { cn } from '@/lib/utils';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 
 function ApplicationsPageContent() {
@@ -124,9 +125,9 @@ function ApplicationsPageContent() {
               <p className="text-muted-foreground">
                 Only system administrators can view JCEP applications.
               </p>
-              <Button asChild variant="outline">
-                <Link href="/app">Back to Dashboard</Link>
-              </Button>
+              <Link href="/app" className={buttonVariants({ variant: 'outline' })}>
+                Back to Dashboard
+              </Link>
             </div>
           </Card>
         </div>
@@ -291,25 +292,28 @@ function ApplicationsPageContent() {
                                     </TableCell>
                                     <TableCell>
                                       <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                            <MoreVertical className="h-4 w-4" />
-                                            <span className="sr-only">Open menu</span>
-                                          </Button>
+                                        <DropdownMenuTrigger
+                                          className={cn(
+                                            buttonVariants({ variant: 'ghost', size: 'sm' }),
+                                            'h-8 w-8 p-0'
+                                          )}
+                                        >
+                                          <MoreVertical className="h-4 w-4" />
+                                          <span className="sr-only">Open menu</span>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
-                                          <DropdownMenuItem asChild className="cursor-pointer">
-                                            <Link href={`/app/applications/${app._id}`}>
+                                          <Link href={`/app/applications/${app._id}`}>
+                                            <DropdownMenuItem className="cursor-pointer">
                                               <Eye className="mr-2 h-4 w-4" />
                                               View
-                                            </Link>
-                                          </DropdownMenuItem>
-                                          <DropdownMenuItem asChild className="cursor-pointer">
-                                            <Link href={`/app/applications/${app._id}/edit`}>
+                                            </DropdownMenuItem>
+                                          </Link>
+                                          <Link href={`/app/applications/${app._id}/edit`}>
+                                            <DropdownMenuItem className="cursor-pointer">
                                               <Pencil className="mr-2 h-4 w-4" />
                                               Edit
-                                            </Link>
-                                          </DropdownMenuItem>
+                                            </DropdownMenuItem>
+                                          </Link>
                                           <DropdownMenuSeparator />
                                           {showArchiveAction && (
                                             <DropdownMenuItem

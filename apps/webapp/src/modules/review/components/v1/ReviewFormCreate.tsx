@@ -14,7 +14,7 @@ import {
   getRotationNumberOptions,
 } from '../../utils/rotationUtils';
 
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import { AgeGroupSelect } from '@/modules/jcep/components/AgeGroupSelect';
 
 type UserRole = 'buddy' | 'jc';
@@ -159,19 +160,14 @@ export function ReviewFormCreate({
         </div>
 
         <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
-          <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-between text-muted-foreground"
-            >
-              <span>Advanced Options</span>
-              {showAdvanced ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </Button>
+          <CollapsibleTrigger
+            className={cn(
+              buttonVariants({ variant: 'ghost', size: 'sm' }),
+              'w-full justify-between text-muted-foreground'
+            )}
+          >
+            <span>Advanced Options</span>
+            {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-4 pt-4">
             <div className="rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">
@@ -202,7 +198,9 @@ export function ReviewFormCreate({
                 </Label>
                 <Select
                   value={String(rotationNumber)}
-                  onValueChange={(value) => setRotationNumber(Number.parseInt(value))}
+                  onValueChange={(value) =>
+                    value !== null && setRotationNumber(Number.parseInt(value))
+                  }
                 >
                   <SelectTrigger id="rotationNumber" className="mt-1">
                     <SelectValue placeholder="Select" />
@@ -233,17 +231,17 @@ export function ReviewFormCreate({
             <div>
               <Label className="text-sm font-medium text-foreground">Evaluation Date</Label>
               <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="mt-1 w-full justify-start text-left font-normal"
-                  >
-                    {evaluationDate.toLocaleDateString('en-GB', {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
-                  </Button>
+                <PopoverTrigger
+                  className={cn(
+                    buttonVariants({ variant: 'outline' }),
+                    'mt-1 w-full justify-start text-left font-normal'
+                  )}
+                >
+                  {evaluationDate.toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
 import { REVIEWS_MANAGE_PERMISSION, RequirePermission } from '@/application/auth';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 import { ReviewManagementDashboard } from '@/modules/review-management/components/ReviewManagementDashboard';
 
@@ -20,9 +20,9 @@ function ReviewManagementPageContent() {
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6">
       <div className="flex justify-end">
-        <Button asChild variant="outline">
-          <Link href="/app">Back to Dashboard</Link>
-        </Button>
+        <Link href="/app" className={buttonVariants({ variant: 'outline' })}>
+          Back to Dashboard
+        </Link>
       </div>
       <ReviewManagementDashboard
         selectedYear={selectedYear}

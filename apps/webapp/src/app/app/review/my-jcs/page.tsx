@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 import { useReviewFormsByBuddy } from '@/modules/review/hooks/useReviewForm';
@@ -202,7 +203,7 @@ function BuddyDashboardContent() {
             <Label htmlFor="year">Year</Label>
             <Select
               value={selectedYear.toString()}
-              onValueChange={(v) => setSelectedYear(Number.parseInt(v))}
+              onValueChange={(v) => v !== null && setSelectedYear(Number.parseInt(v))}
             >
               <SelectTrigger id="year">
                 <SelectValue />
@@ -218,7 +219,7 @@ function BuddyDashboardContent() {
           </div>
           <div className="w-full md:w-48">
             <Label htmlFor="status">Status</Label>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={(v) => v !== null && setStatusFilter(v)}>
               <SelectTrigger id="status">
                 <SelectValue />
               </SelectTrigger>
@@ -290,12 +291,10 @@ function BuddyDashboardContent() {
                     </div>
                   )}
                 </div>
-                <Button asChild className="w-full">
-                  <Link href={`/app/review/${form._id}`}>
-                    View Form
-                    <ExternalLink className="h-4 w-4 ml-2" />
-                  </Link>
-                </Button>
+                <Link href={`/app/review/${form._id}`} className={cn(buttonVariants(), 'w-full')}>
+                  View Form
+                  <ExternalLink className="h-4 w-4 ml-2" />
+                </Link>
               </CardContent>
             </Card>
           ))}

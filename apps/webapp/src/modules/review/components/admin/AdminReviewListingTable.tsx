@@ -45,7 +45,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,6 +61,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 
 /**
@@ -258,11 +259,14 @@ export function AdminReviewListingTable({
                 <TableCell>
                   <div className="flex items-center justify-center">
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreVertical className="h-4 w-4" />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
+                      <DropdownMenuTrigger
+                        className={cn(
+                          buttonVariants({ variant: 'ghost', size: 'sm' }),
+                          'h-8 w-8 p-0'
+                        )}
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                        <span className="sr-only">Open menu</span>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
@@ -288,12 +292,12 @@ export function AdminReviewListingTable({
                           Copy JC Link
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild className="cursor-pointer">
-                          <Link href={`/app/review/${form._id}`}>
+                        <Link href={`/app/review/${form._id}`}>
+                          <DropdownMenuItem className="cursor-pointer">
                             <ExternalLink className="mr-2 h-4 w-4" />
                             View Form
-                          </Link>
-                        </DropdownMenuItem>
+                          </DropdownMenuItem>
+                        </Link>
                         {showArchiveAction && (
                           <>
                             <DropdownMenuSeparator />

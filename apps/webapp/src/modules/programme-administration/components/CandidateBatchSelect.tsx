@@ -2,10 +2,11 @@
 
 import { ChevronDown } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 interface CandidateBatchSelectProps {
   batches: number[];
@@ -39,15 +40,15 @@ export function CandidateBatchSelect({
         JCEP Batch Years
       </Label>
       <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            id="batch-filter"
-            variant="outline"
-            className="w-full justify-between sm:w-[220px]"
-          >
-            {formatTriggerLabel(selectedBatches)}
-            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
+        <PopoverTrigger
+          id="batch-filter"
+          className={cn(
+            buttonVariants({ variant: 'outline' }),
+            'w-full justify-between sm:w-[220px]'
+          )}
+        >
+          {formatTriggerLabel(selectedBatches)}
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </PopoverTrigger>
         <PopoverContent className="w-[220px] p-2" align="start">
           <div className="flex flex-col gap-1">

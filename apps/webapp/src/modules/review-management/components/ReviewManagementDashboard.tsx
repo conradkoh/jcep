@@ -12,11 +12,12 @@ import { ReviewManagementRotationSelect } from './ReviewManagementRotationSelect
 import { useAutoSelectCurrentRotation } from '../hooks/useAutoSelectCurrentRotation';
 import { useReviewManagementFilters } from '../hooks/useReviewManagementFilters';
 
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 import { useAllReviewFormsByYear } from '@/modules/review/hooks/useReviewForm';
 import { getDefaultRotationNumber } from '@/modules/review/utils/rotationUtils';
 import { useListRotations } from '@/modules/rotations/hooks/useRotations';
@@ -133,12 +134,14 @@ export function ReviewManagementDashboard({
             Generate review forms for each junior commander, then copy and send access links
           </p>
         </div>
-        <Button asChild variant="outline" aria-label="Create a review form manually">
-          <Link href="/app/review/create?returnTo=review-management" className="flex items-center">
-            <FilePlus className="mr-2 h-4 w-4" />
-            Create Manually
-          </Link>
-        </Button>
+        <Link
+          href="/app/review/create?returnTo=review-management"
+          aria-label="Create a review form manually"
+          className={cn(buttonVariants({ variant: 'outline' }), 'flex items-center')}
+        >
+          <FilePlus className="mr-2 h-4 w-4" />
+          Create Manually
+        </Link>
       </div>
 
       <Tabs defaultValue="generate" className="space-y-6">

@@ -7,8 +7,9 @@ import { ArrowLeft, Calendar, Phone, Shield, User } from 'lucide-react';
 import Link from 'next/link';
 import { use } from 'react';
 
+import { APPLICATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -18,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { APPLICATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
+import { cn } from '@/lib/utils';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 
 const AGE_GROUP_LABELS: Record<string, string> = {
@@ -48,9 +49,9 @@ function ApplicationViewContent({ applicationId }: { applicationId: Id<'jcepAppl
               <p className="text-muted-foreground">
                 Only system administrators can view JCEP applications.
               </p>
-              <Button asChild variant="outline">
-                <Link href="/app">Back to Dashboard</Link>
-              </Button>
+              <Link href="/app" className={buttonVariants({ variant: 'outline' })}>
+                Back to Dashboard
+              </Link>
             </div>
           </Card>
         </div>
@@ -79,9 +80,9 @@ function ApplicationViewContent({ applicationId }: { applicationId: Id<'jcepAppl
           <Card className="p-8">
             <div className="text-center space-y-4">
               <p className="text-muted-foreground">Application not found.</p>
-              <Button asChild variant="outline">
-                <Link href="/app/applications">Back to Applications</Link>
-              </Button>
+              <Link href="/app/applications" className={buttonVariants({ variant: 'outline' })}>
+                Back to Applications
+              </Link>
             </div>
           </Card>
         </div>
@@ -105,12 +106,13 @@ function ApplicationViewContent({ applicationId }: { applicationId: Id<'jcepAppl
         <div className="mb-6">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/app/applications">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back
-                </Link>
-              </Button>
+              <Link
+                href="/app/applications"
+                className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Link>
               <div>
                 <h1 className="text-3xl font-bold text-foreground">Application Details</h1>
                 <p className="text-muted-foreground mt-1">
@@ -118,9 +120,9 @@ function ApplicationViewContent({ applicationId }: { applicationId: Id<'jcepAppl
                 </p>
               </div>
             </div>
-            <Button asChild>
-              <Link href={`/app/applications/${applicationId}/edit`}>Edit Application</Link>
-            </Button>
+            <Link href={`/app/applications/${applicationId}/edit`} className={buttonVariants()}>
+              Edit Application
+            </Link>
           </div>
         </div>
 
@@ -219,10 +221,13 @@ function ApplicationViewContent({ applicationId }: { applicationId: Id<'jcepAppl
                     Royal Rangers Motto, Pledge, and Code
                   </label>
                   <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="link" size="sm" className="h-auto p-0 text-xs">
-                        View Details
-                      </Button>
+                    <DialogTrigger
+                      className={cn(
+                        buttonVariants({ variant: 'link', size: 'sm' }),
+                        'h-auto p-0 text-xs'
+                      )}
+                    >
+                      View Details
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                       <DialogHeader>

@@ -8,6 +8,7 @@
 import { Check, Copy, ExternalLink, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,10 +20,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 import { useRegenerateAccessTokens } from '@/modules/review/hooks/useReviewForm';
 import type { ReviewForm } from '@/modules/review/types';
 
@@ -85,11 +87,12 @@ export function TokenDisplay({ form }: TokenDisplayProps) {
             </CardDescription>
           </div>
           <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline" size="sm" disabled={isRegenerating}>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Regenerate
-              </Button>
+            <AlertDialogTrigger
+              className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))}
+              disabled={isRegenerating}
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Regenerate
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>

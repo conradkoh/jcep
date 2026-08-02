@@ -46,7 +46,7 @@ export function ReviewManagementFilters({
         >
           Rotation
         </Label>
-        <Select value={selectedRotation} onValueChange={onRotationChange}>
+        <Select value={selectedRotation} onValueChange={(v) => v !== null && onRotationChange(v)}>
           <SelectTrigger id="rotation-filter" className="w-[160px]">
             <SelectValue placeholder="Select rotation" />
           </SelectTrigger>
