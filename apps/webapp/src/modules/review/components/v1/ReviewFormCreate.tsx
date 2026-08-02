@@ -248,7 +248,6 @@ export function ReviewFormCreate({
                     mode="single"
                     selected={evaluationDate}
                     onSelect={(date) => date && setEvaluationDate(date)}
-                    initialFocus
                   />
                 </PopoverContent>
               </Popover>
