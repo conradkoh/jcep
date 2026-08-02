@@ -1,7 +1,6 @@
 'use client';
 
-import { Pencil1Icon } from '@radix-ui/react-icons';
-import { CalendarIcon, Check, X } from 'lucide-react';
+import { CalendarIcon, Check, Pencil, X } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
 
@@ -237,7 +236,7 @@ export function ParticularsSection({
               className="h-4 w-4 p-0 text-muted-foreground hover:text-foreground self-center"
               onClick={() => startEditing('rotationYear')}
             >
-              <Pencil1Icon className="h-2.5 w-2.5" />
+              <Pencil className="h-2.5 w-2.5" />
             </Button>
           )}
         </div>
@@ -286,7 +285,7 @@ export function ParticularsSection({
               className="h-4 w-4 p-0 text-muted-foreground hover:text-foreground self-center"
               onClick={() => startEditing('buddyName')}
             >
-              <Pencil1Icon className="h-2.5 w-2.5" />
+              <Pencil className="h-2.5 w-2.5" />
             </Button>
           )}
         </div>
@@ -335,7 +334,7 @@ export function ParticularsSection({
               className="h-4 w-4 p-0 text-muted-foreground hover:text-foreground self-center"
               onClick={() => startEditing('juniorCommanderName')}
             >
-              <Pencil1Icon className="h-2.5 w-2.5" />
+              <Pencil className="h-2.5 w-2.5" />
             </Button>
           )}
         </div>
@@ -383,7 +382,7 @@ export function ParticularsSection({
               className="h-4 w-4 p-0 text-muted-foreground hover:text-foreground self-center"
               onClick={() => startEditing('ageGroup')}
             >
-              <Pencil1Icon className="h-2.5 w-2.5" />
+              <Pencil className="h-2.5 w-2.5" />
             </Button>
           )}
         </div>
@@ -449,7 +448,7 @@ export function ParticularsSection({
               className="h-4 w-4 p-0 text-muted-foreground hover:text-foreground self-center"
               onClick={() => startEditing('evaluationDate')}
             >
-              <Pencil1Icon className="h-2.5 w-2.5" />
+              <Pencil className="h-2.5 w-2.5" />
             </Button>
           )}
         </div>
