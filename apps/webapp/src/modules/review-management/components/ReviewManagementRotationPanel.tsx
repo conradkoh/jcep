@@ -59,19 +59,23 @@ function ParticipantRow({
 }) {
   return (
     <TableRow>
-      <TableCell className="font-medium">{participant.fullName}</TableCell>
-      <TableCell>
+      <TableCell className="font-medium whitespace-normal align-top break-words">
+        {participant.fullName}
+      </TableCell>
+      <TableCell className="whitespace-normal align-top break-words">
         {form ? form.buddyName : <span className="text-muted-foreground">&mdash;</span>}
       </TableCell>
-      <TableCell>{getAgeGroupLabel(participant.ageGroup)}</TableCell>
-      <TableCell>
+      <TableCell className="whitespace-normal align-top">
+        {getAgeGroupLabel(participant.ageGroup)}
+      </TableCell>
+      <TableCell className="whitespace-normal align-top break-words">
         {form?.nextRotationPreference ? (
           getAgeGroupLabel(form.nextRotationPreference)
         ) : (
           <span className="text-muted-foreground">{form ? 'Pending' : <>&mdash;</>}</span>
         )}
       </TableCell>
-      <TableCell>
+      <TableCell className="whitespace-normal align-top">
         {form ? (
           <Badge variant="outline" className="bg-green-50 dark:bg-green-950/20">
             Form created
@@ -80,28 +84,28 @@ function ParticipantRow({
           <Badge variant="outline">No form</Badge>
         )}
       </TableCell>
-      <TableCell>
+      <TableCell className="whitespace-normal align-top">
         {form ? (
           <ReviewFormBuddyProgressBadge form={form} />
         ) : (
           <span className="text-muted-foreground">&mdash;</span>
         )}
       </TableCell>
-      <TableCell>
+      <TableCell className="whitespace-normal align-top">
         {form ? (
           <ReviewFormJCProgressBadge form={form} />
         ) : (
           <span className="text-muted-foreground">&mdash;</span>
         )}
       </TableCell>
-      <TableCell className="text-center">
+      <TableCell className="whitespace-normal align-top text-center">
         {form ? (
           <ReviewFormVisibilityToggle form={form} />
         ) : (
           <span className="text-muted-foreground">&mdash;</span>
         )}
       </TableCell>
-      <TableCell className="text-right">
+      <TableCell className="whitespace-normal align-top text-right">
         {form ? (
           <div className="flex flex-wrap justify-end gap-2">
             <CopyReviewFormLinkButton token={form.buddyAccessToken} label="Buddy" />
@@ -114,7 +118,11 @@ function ParticipantRow({
             </Link>
           </div>
         ) : (
-          <Button size="sm" onClick={() => onGenerate(participant)}>
+          <Button
+            size="sm"
+            className="whitespace-normal h-auto"
+            onClick={() => onGenerate(participant)}
+          >
             <FilePlus className="h-4 w-4 mr-1" />
             Generate Review Form
           </Button>
@@ -200,19 +208,25 @@ export function ReviewManagementRotationPanel({ rotationId }: ReviewManagementRo
             </p>
           ) : (
             <>
-              <div className="hidden md:block overflow-x-auto">
-                <Table>
+              <div className="hidden md:block overflow-hidden [&_[data-slot=table-container]]:overflow-hidden">
+                <Table className="table-fixed w-full">
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Junior Commander</TableHead>
-                      <TableHead>Buddy</TableHead>
-                      <TableHead>Age Group</TableHead>
-                      <TableHead>Next Rotation Preference</TableHead>
-                      <TableHead>Form</TableHead>
-                      <TableHead>Buddy Sections</TableHead>
-                      <TableHead>JC Sections</TableHead>
-                      <TableHead className="text-center">Visibility</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="w-[13%] whitespace-normal">Junior Commander</TableHead>
+                      <TableHead className="w-[11%] whitespace-normal">Buddy</TableHead>
+                      <TableHead className="w-[7%] whitespace-normal">Age Group</TableHead>
+                      <TableHead className="w-[10%] whitespace-normal">
+                        Next Rotation Preference
+                      </TableHead>
+                      <TableHead className="w-[10%] whitespace-normal">Form</TableHead>
+                      <TableHead className="w-[9%] whitespace-normal">Buddy Sections</TableHead>
+                      <TableHead className="w-[9%] whitespace-normal">JC Sections</TableHead>
+                      <TableHead className="w-[7%] whitespace-normal text-center">
+                        Visibility
+                      </TableHead>
+                      <TableHead className="w-[24%] whitespace-normal text-right">
+                        Actions
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
