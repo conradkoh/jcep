@@ -35,10 +35,11 @@ describe('ReviewManagementParticipantListItem', () => {
     expect(screen.getByText('Alice Tan')).toBeInTheDocument();
     expect(screen.getByText('Buddy')).toBeInTheDocument();
     expect(screen.getByText('Age Group')).toBeInTheDocument();
+    expect(screen.getByText('Next Rotation Preference')).toBeInTheDocument();
     expect(screen.getByText('Buddy Sections')).toBeInTheDocument();
     expect(screen.getByText('JC Sections')).toBeInTheDocument();
     expect(screen.getByText('Visibility')).toBeInTheDocument();
-    expect(screen.getAllByText('—')).toHaveLength(4);
+    expect(screen.getAllByText('—')).toHaveLength(5);
     expect(screen.getByText('No form')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /generate review form/i })).toBeInTheDocument();
   });
@@ -56,6 +57,7 @@ describe('ReviewManagementParticipantListItem', () => {
       jcResponsesVisibleToBuddy: false,
       juniorCommanderName: 'Alice Tan',
       rotationParticipantId: 'p1' as never,
+      nextRotationPreference: null,
     } as unknown as ReviewForm;
 
     const onGenerate = vi.fn();
@@ -72,6 +74,8 @@ describe('ReviewManagementParticipantListItem', () => {
     expect(screen.getAllByText('Buddy')).toHaveLength(2);
     expect(screen.getByText('Buddy Smith')).toBeInTheDocument();
     expect(screen.getByText('Age Group')).toBeInTheDocument();
+    expect(screen.getByText('Next Rotation Preference')).toBeInTheDocument();
+    expect(screen.getByText('Pending')).toBeInTheDocument();
     expect(screen.getByText('Buddy Sections')).toBeInTheDocument();
     expect(screen.getByText('JC Sections')).toBeInTheDocument();
     expect(screen.getByText('Visibility')).toBeInTheDocument();
@@ -79,5 +83,33 @@ describe('ReviewManagementParticipantListItem', () => {
     expect(screen.getByRole('button', { name: /buddy/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /jc/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /view/i })).toBeInTheDocument();
+  });
+
+  it('renders next rotation preference label when set', () => {
+    const mockForm = {
+      _id: 'f1' as never,
+      buddyAccessToken: 'btoken',
+      jcAccessToken: 'jtoken',
+      buddyName: 'Buddy Smith',
+      buddyEvaluation: null,
+      jcReflection: null,
+      jcFeedback: null,
+      buddyResponsesVisibleToJC: false,
+      jcResponsesVisibleToBuddy: false,
+      juniorCommanderName: 'Alice Tan',
+      rotationParticipantId: 'p1' as never,
+      nextRotationPreference: 'DR',
+    } as unknown as ReviewForm;
+
+    render(
+      <ReviewManagementParticipantListItem
+        participant={mockParticipant}
+        form={mockForm}
+        onGenerate={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('Next Rotation Preference')).toBeInTheDocument();
+    expect(screen.getByText('Discovery Rangers')).toBeInTheDocument();
   });
 });

@@ -49,6 +49,13 @@ export function ReviewManagementParticipantListItem({
         {form ? form.buddyName : <span className="text-muted-foreground">&mdash;</span>}
       </DataListField>
       <DataListField label="Age Group">{getAgeGroupLabel(participant.ageGroup)}</DataListField>
+      <DataListField label="Next Rotation Preference">
+        {form?.nextRotationPreference ? (
+          getAgeGroupLabel(form.nextRotationPreference)
+        ) : (
+          <span className="text-muted-foreground">{form ? 'Pending' : <>&mdash;</>}</span>
+        )}
+      </DataListField>
       <DataListField label="Buddy Sections">
         {form ? (
           <ReviewFormBuddyProgressBadge form={form} />

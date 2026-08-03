@@ -65,6 +65,13 @@ function ParticipantRow({
       </TableCell>
       <TableCell>{getAgeGroupLabel(participant.ageGroup)}</TableCell>
       <TableCell>
+        {form?.nextRotationPreference ? (
+          getAgeGroupLabel(form.nextRotationPreference)
+        ) : (
+          <span className="text-muted-foreground">{form ? 'Pending' : <>&mdash;</>}</span>
+        )}
+      </TableCell>
+      <TableCell>
         {form ? (
           <Badge variant="outline" className="bg-green-50 dark:bg-green-950/20">
             Form created
@@ -193,13 +200,14 @@ export function ReviewManagementRotationPanel({ rotationId }: ReviewManagementRo
             </p>
           ) : (
             <>
-              <div className="hidden md:block">
+              <div className="hidden md:block overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Junior Commander</TableHead>
                       <TableHead>Buddy</TableHead>
                       <TableHead>Age Group</TableHead>
+                      <TableHead>Next Rotation Preference</TableHead>
                       <TableHead>Form</TableHead>
                       <TableHead>Buddy Sections</TableHead>
                       <TableHead>JC Sections</TableHead>
