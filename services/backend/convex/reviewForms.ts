@@ -16,8 +16,8 @@ import {
   isJCReflectionComplete,
 } from './utils/sectionCompletionHelpers';
 import { generateSecureToken, isTokenExpired } from './utils/tokenUtils';
-import { getAuthUser } from '../modules/auth/getAuthUser';
 import { hasPermission, REVIEWS_MANAGE_PERMISSION } from '../application/auth';
+import { getAuthUser } from '../modules/auth/getAuthUser';
 
 // Schema version constant
 export const CURRENT_SCHEMA_VERSION = 1;
@@ -45,7 +45,7 @@ function applyRotationNumberUpdate(
 }
 
 // fallow-ignore-next-line complexity
-async function _resolveRotationLinkForCreate(
+export async function resolveRotationLinkForCreate(
   ctx: MutationCtx,
   rotationId: Id<'rotations'> | undefined,
   rotationParticipantId: Id<'rotationParticipants'> | undefined
@@ -606,7 +606,7 @@ export const createReviewForm = mutation({
     let resolvedRotationId = args.rotationId;
 
     if (args.rotationParticipantId) {
-      resolvedRotationId = await _resolveRotationLinkForCreate(
+      resolvedRotationId = await resolveRotationLinkForCreate(
         ctx,
         args.rotationId,
         args.rotationParticipantId

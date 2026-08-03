@@ -3,8 +3,9 @@ import type { SessionId } from 'convex-helpers/server/sessions';
 import { SessionIdArg } from 'convex-helpers/server/sessions';
 
 import { mutation, query } from './_generated/server';
-import { getAuthUser } from '../modules/auth/getAuthUser';
+import { resolveRotationLinkForCreate } from './reviewForms';
 import { ROTATIONS_MANAGE_PERMISSION, requireAuthenticatedPermission } from '../application/auth';
+import { getAuthUser } from '../modules/auth/getAuthUser';
 
 const ageGroupValidator = v.union(
   v.literal('RK'),
@@ -395,5 +396,126 @@ export const setRotationParticipantAgeGroup = mutation({
       addedBy: user._id,
     });
     return { participantId };
+  },
+});
+
+/**
+ * Year overview of rotations, their participants, and the JC's stated next
+ * rotation preference from each participant's linked review form.
+ * Also returns active review forms for the year that are not linked to any
+ * participant ("unmatched forms").
+ */
+export const getRotationYearOverview = query({
+  args: {
+    ...SessionIdArg,
+    year: v.number(),
+  },
+  handler: async (ctx, args) => {
+    await requireRotationsManage(ctx, args);
+
+    const rotations = await ctx.db
+      .query('rotations')
+      .withIndex('by_year', (q) => q.eq('rotationYear', args.year))
+      .collect();
+    const sortedRotations = rotations.sort((a, b) => a.rotationQuarter - b.rotationQuarter);
+
+    const formsForYear = await ctx.db
+      .query('reviewForms')
+      .withIndex('by_rotation_year', (q) => q.eq('rotationYear', args.year))
+      .collect();
+    const activeForms = formsForYear.filter((form) => form.archivedAt == null);
+
+    const columns = await Promise.all(
+      sortedRotations.map(async (rotation) => {
+        const participants = await ctx.db
+          .query('rotationParticipants')
+          .withIndex('by_rotation', (q) => q.eq('rotationId', rotation._id))
+          .collect();
+        const sortedParticipants = participants.sort((a, b) =>
+          a.fullName.localeCompare(b.fullName)
+        );
+
+        const rows = sortedParticipants.map((participant) => {
+          const linkedForm = activeForms.find(
+            (form) => form.rotationParticipantId === participant._id
+          );
+          return {
+            participantId: participant._id,
+            fullName: participant.fullName,
+            ageGroup: participant.ageGroup,
+            nextRotationPreference: linkedForm?.nextRotationPreference ?? null,
+            reviewFormId: linkedForm?._id ?? null,
+          };
+        });
+
+        return { rotation, participants: rows };
+      })
+    );
+
+    const unmatchedForms = activeForms
+      .filter((form) => form.rotationParticipantId == null)
+      .sort((a, b) => a.juniorCommanderName.localeCompare(b.juniorCommanderName))
+      .map((form) => ({
+        formId: form._id,
+        juniorCommanderName: form.juniorCommanderName,
+        rotationYear: form.rotationYear,
+        rotationNumber: form.rotationNumber,
+        rotationId: form.rotationId,
+        ageGroup: form.ageGroup,
+      }));
+
+    return {
+      year: args.year,
+      rotations: columns,
+      unmatchedForms,
+    };
+  },
+});
+
+/**
+ * Link an existing review form to a rotation participant.
+ * Enforces the at-most-one-active-linked-form-per-participant invariant via
+ * resolveRotationLinkForCreate.
+ */
+export const linkReviewFormToParticipant = mutation({
+  args: {
+    ...SessionIdArg,
+    formId: v.id('reviewForms'),
+    participantId: v.id('rotationParticipants'),
+  },
+  handler: async (ctx, args) => {
+    await requireRotationsManage(ctx, args);
+
+    const form = await ctx.db.get('reviewForms', args.formId);
+    if (!form) throw new Error('Review form not found');
+    if (form.archivedAt != null) throw new Error('Cannot link archived form');
+
+    const participant = await ctx.db.get('rotationParticipants', args.participantId);
+    if (!participant) throw new Error('Participant not found');
+
+    const rotation = await ctx.db.get('rotations', participant.rotationId);
+    if (!rotation) throw new Error('Rotation not found');
+
+    if (form.rotationYear !== rotation.rotationYear) {
+      throw new Error('Form year does not match participant rotation year');
+    }
+    if (form.rotationNumber !== rotation.rotationQuarter) {
+      throw new Error('Form rotation number does not match participant rotation');
+    }
+
+    // Reject if form already linked to a different participant
+    if (form.rotationParticipantId != null && form.rotationParticipantId !== args.participantId) {
+      throw new Error('Form is already linked to another participant');
+    }
+
+    // Canonical duplicate check: participant must not have another active linked form
+    await resolveRotationLinkForCreate(ctx, participant.rotationId, args.participantId);
+
+    await ctx.db.patch('reviewForms', args.formId, {
+      rotationParticipantId: args.participantId,
+      rotationId: participant.rotationId,
+    });
+
+    return { formId: args.formId, participantId: args.participantId };
   },
 });

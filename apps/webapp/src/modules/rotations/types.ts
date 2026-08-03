@@ -51,3 +51,32 @@ export type RotationRoster = {
   rotation: Rotation;
   applicants: RosterApplicant[];
 };
+
+export type RotationYearParticipant = {
+  participantId: Id<'rotationParticipants'>;
+  fullName: string;
+  ageGroup: AgeGroup;
+  nextRotationPreference: AgeGroup | null;
+  reviewFormId: Id<'reviewForms'> | null;
+};
+
+export type RotationYearColumn = {
+  rotation: Rotation;
+  participants: RotationYearParticipant[];
+};
+
+export type UnmatchedReviewForm = {
+  formId: Id<'reviewForms'>;
+  juniorCommanderName: string;
+  rotationYear: number;
+  rotationNumber: number;
+  rotationId?: Id<'rotations'>;
+  ageGroup: AgeGroup;
+};
+
+// fallow-ignore-next-line unused-type
+export type RotationYearOverview = {
+  year: number;
+  rotations: RotationYearColumn[];
+  unmatchedForms: UnmatchedReviewForm[];
+};

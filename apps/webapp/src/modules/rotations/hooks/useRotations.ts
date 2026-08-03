@@ -50,3 +50,14 @@ export function useSetApplicantAssignment() {
 export function useSetRotationParticipantAgeGroup() {
   return useSessionMutation(api.rotations.setRotationParticipantAgeGroup);
 }
+
+// fallow-ignore-next-line unused-export
+export function useRotationYearOverview(year: number, isAdmin: boolean) {
+  const data = useSessionQuery(api.rotations.getRotationYearOverview, isAdmin ? { year } : 'skip');
+  return { data, isLoading: data === undefined };
+}
+
+// fallow-ignore-next-line unused-export
+export function useLinkReviewFormToParticipant() {
+  return useSessionMutation(api.rotations.linkReviewFormToParticipant);
+}
