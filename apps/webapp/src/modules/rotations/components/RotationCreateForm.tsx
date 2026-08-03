@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 
 import { useCreateRotation } from '../hooks/useRotations';
 
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Card } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import {
   getDefaultRotationNumber,
   getRotationNumberOptions,
@@ -98,7 +99,9 @@ export function RotationCreateForm({ onCreated }: RotationCreateFormProps) {
                 </Label>
                 <Select
                   value={String(rotationQuarter)}
-                  onValueChange={(value) => setRotationQuarter(Number.parseInt(value))}
+                  onValueChange={(value) =>
+                    value !== null && setRotationQuarter(Number.parseInt(value))
+                  }
                 >
                   <SelectTrigger id="rotationQuarter" className="mt-1">
                     <SelectValue placeholder="Select" />
@@ -116,24 +119,23 @@ export function RotationCreateForm({ onCreated }: RotationCreateFormProps) {
             <div>
               <Label className="text-sm font-medium text-foreground">Evaluation Date</Label>
               <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="mt-1 w-full justify-start text-left font-normal"
-                  >
-                    {evaluationDate.toLocaleDateString('en-GB', {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
-                  </Button>
+                <PopoverTrigger
+                  className={cn(
+                    buttonVariants({ variant: 'outline' }),
+                    'mt-1 w-full justify-start text-left font-normal'
+                  )}
+                >
+                  {evaluationDate.toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={evaluationDate}
                     onSelect={(date) => date && setEvaluationDate(date)}
-                    initialFocus
                   />
                 </PopoverContent>
               </Popover>

@@ -75,7 +75,10 @@ export function AdminReviewFilters({
           <Label htmlFor="year-filter" className="text-sm font-medium text-foreground">
             Year
           </Label>
-          <Select value={String(year)} onValueChange={(v) => onYearChange(Number.parseInt(v, 10))}>
+          <Select
+            value={String(year)}
+            onValueChange={(v) => v !== null && onYearChange(Number.parseInt(v, 10))}
+          >
             <SelectTrigger id="year-filter" className="mt-1">
               <SelectValue placeholder="Select year" />
             </SelectTrigger>
@@ -96,7 +99,7 @@ export function AdminReviewFilters({
           <Select
             value={String(rotationNumber)}
             onValueChange={(v) =>
-              onRotationNumberChange(v === 'all' ? 'all' : Number.parseInt(v, 10))
+              v !== null && onRotationNumberChange(v === 'all' ? 'all' : Number.parseInt(v, 10))
             }
           >
             <SelectTrigger id="rotation-filter" className="mt-1">
@@ -117,7 +120,7 @@ export function AdminReviewFilters({
           <Label htmlFor="status-filter" className="text-sm font-medium text-foreground">
             Status
           </Label>
-          <Select value={status} onValueChange={onStatusChange}>
+          <Select value={status} onValueChange={(v) => v !== null && onStatusChange(v)}>
             <SelectTrigger id="status-filter" className="mt-1">
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
@@ -135,7 +138,7 @@ export function AdminReviewFilters({
           <Label htmlFor="age-group-filter" className="text-sm font-medium text-foreground">
             Age group
           </Label>
-          <Select value={ageGroup} onValueChange={onAgeGroupChange}>
+          <Select value={ageGroup} onValueChange={(v) => v !== null && onAgeGroupChange(v)}>
             <SelectTrigger id="age-group-filter" className="mt-1">
               <SelectValue placeholder="All age groups" />
             </SelectTrigger>

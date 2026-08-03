@@ -37,7 +37,7 @@ export function ReviewRotationSelect({
       <Label htmlFor={id} className="text-sm font-medium text-foreground">
         {label}
       </Label>
-      <Select value={selectedRotation} onValueChange={onRotationChange}>
+      <Select value={selectedRotation} onValueChange={(v) => v !== null && onRotationChange(v)}>
         <SelectTrigger id={id} className={triggerClassName}>
           <SelectValue placeholder="Select rotation" />
         </SelectTrigger>

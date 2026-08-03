@@ -9,13 +9,13 @@ import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button';
+import { APPLICATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
-import { APPLICATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 
 type AgeGroup = 'RK' | 'DR' | 'AR' | 'ER';
@@ -138,9 +138,9 @@ function ApplicationEditContent({ applicationId }: { applicationId: Id<'jcepAppl
               <p className="text-muted-foreground">
                 Only system administrators can edit JCEP applications.
               </p>
-              <Button asChild variant="outline">
-                <Link href="/app">Back to Dashboard</Link>
-              </Button>
+              <Link href="/app" className={buttonVariants({ variant: 'outline' })}>
+                Back to Dashboard
+              </Link>
             </div>
           </Card>
         </div>
@@ -169,9 +169,9 @@ function ApplicationEditContent({ applicationId }: { applicationId: Id<'jcepAppl
           <Card className="p-8">
             <div className="text-center space-y-4">
               <p className="text-muted-foreground">Application not found.</p>
-              <Button asChild variant="outline">
-                <Link href="/app/applications">Back to Applications</Link>
-              </Button>
+              <Link href="/app/applications" className={buttonVariants({ variant: 'outline' })}>
+                Back to Applications
+              </Link>
             </div>
           </Card>
         </div>
@@ -184,12 +184,13 @@ function ApplicationEditContent({ applicationId }: { applicationId: Id<'jcepAppl
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <div className="flex items-center gap-4">
-            <Button asChild variant="ghost" size="sm">
-              <Link href={`/app/applications/${applicationId}`}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
-              </Link>
-            </Button>
+            <Link
+              href={`/app/applications/${applicationId}`}
+              className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Link>
             <div>
               <h1 className="text-3xl font-bold text-foreground">Edit Application</h1>
               <p className="text-muted-foreground mt-1">Update the application details</p>
@@ -349,9 +350,12 @@ function ApplicationEditContent({ applicationId }: { applicationId: Id<'jcepAppl
 
             {/* Action Buttons */}
             <div className="flex justify-end gap-4">
-              <Button type="button" variant="outline" asChild>
-                <Link href={`/app/applications/${applicationId}`}>Cancel</Link>
-              </Button>
+              <Link
+                href={`/app/applications/${applicationId}`}
+                className={buttonVariants({ variant: 'outline' })}
+              >
+                Cancel
+              </Link>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>

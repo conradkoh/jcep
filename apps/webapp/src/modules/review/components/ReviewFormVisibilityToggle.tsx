@@ -8,8 +8,9 @@ import { useToggleResponseVisibility } from '../hooks/useReviewForm';
 import type { ReviewForm } from '../types';
 import { getCombinedVisibilityState } from '../utils/visibilityHelpers';
 
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 
 interface ReviewFormVisibilityToggleProps {
   form: ReviewForm;
@@ -43,32 +44,28 @@ export function ReviewFormVisibilityToggle({ form }: ReviewFormVisibilityToggleP
     <div className="flex items-center justify-center">
       <TooltipProvider>
         <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleToggleBothVisibility}
-              disabled={togglingVisibility}
-              className="h-7 px-2"
-              aria-label={`Toggle visibility for ${form.juniorCommanderName}`}
-            >
-              {visibility.isMismatched ? (
-                <>
-                  <AlertTriangle className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400 mr-1.5" />
-                  <span className="text-xs">Partial</span>
-                </>
-              ) : visibility.isVisible ? (
-                <>
-                  <Eye className="h-3.5 w-3.5 text-green-600 dark:text-green-400 mr-1.5" />
-                  <span className="text-xs">Visible</span>
-                </>
-              ) : (
-                <>
-                  <EyeOff className="h-3.5 w-3.5 text-muted-foreground mr-1.5" />
-                  <span className="text-xs">Hidden</span>
-                </>
-              )}
-            </Button>
+          <TooltipTrigger
+            className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'h-7 px-2')}
+            onClick={handleToggleBothVisibility}
+            disabled={togglingVisibility}
+            aria-label={`Toggle visibility for ${form.juniorCommanderName}`}
+          >
+            {visibility.isMismatched ? (
+              <>
+                <AlertTriangle className="h-3.5 w-3.5 text-orange-600 dark:text-orange-400 mr-1.5" />
+                <span className="text-xs">Partial</span>
+              </>
+            ) : visibility.isVisible ? (
+              <>
+                <Eye className="h-3.5 w-3.5 text-green-600 dark:text-green-400 mr-1.5" />
+                <span className="text-xs">Visible</span>
+              </>
+            ) : (
+              <>
+                <EyeOff className="h-3.5 w-3.5 text-muted-foreground mr-1.5" />
+                <span className="text-xs">Hidden</span>
+              </>
+            )}
           </TooltipTrigger>
           <TooltipContent>
             {visibility.isMismatched ? (

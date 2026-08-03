@@ -10,7 +10,7 @@ import { GenerateReviewFormDialog } from './GenerateReviewFormDialog';
 import { ReviewManagementParticipantList } from './ReviewManagementParticipantList';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -99,9 +99,12 @@ function ParticipantRow({
           <div className="flex flex-wrap justify-end gap-2">
             <CopyReviewFormLinkButton token={form.buddyAccessToken} label="Buddy" />
             <CopyReviewFormLinkButton token={form.jcAccessToken} label="JC" />
-            <Button asChild variant="ghost" size="sm">
-              <Link href={`/app/review/${form._id}`}>View</Link>
-            </Button>
+            <Link
+              href={`/app/review/${form._id}`}
+              className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+            >
+              View
+            </Link>
           </div>
         ) : (
           <Button size="sm" onClick={() => onGenerate(participant)}>

@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback } from 'react';
 
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 import { ReviewFormList } from '@/modules/review/components/ReviewFormList';
 import { ReviewRotationSelect } from '@/modules/review/components/ReviewRotationSelect';
@@ -50,12 +51,14 @@ function ReviewListPageContent() {
           <h1 className="text-3xl font-bold text-foreground">My Review Forms</h1>
           <p className="text-sm text-muted-foreground">View and manage your JCEP review forms</p>
         </div>
-        <Button asChild aria-label="Create a new review form">
-          <Link href="/app/review/create" className="flex items-center">
-            <Plus className="mr-2 h-4 w-4" />
-            Create New Form
-          </Link>
-        </Button>
+        <Link
+          href="/app/review/create"
+          aria-label="Create a new review form"
+          className={cn(buttonVariants(), 'flex items-center')}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Create New Form
+        </Link>
       </div>
 
       <Separator />

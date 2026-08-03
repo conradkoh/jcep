@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { use, useState } from 'react';
 import { toast } from 'sonner';
 
+import { ROTATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,9 +18,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ROTATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
+import { cn } from '@/lib/utils';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 import { formatRotationLabel } from '@/modules/review/utils/rotationUtils';
 import { RotationRosterTable } from '@/modules/rotations/components/RotationRosterTable';
@@ -59,9 +60,9 @@ function RotationDetailContent({ rotationId }: { rotationId: Id<'rotations'> }) 
               <p className="text-muted-foreground">
                 Only programme administrators can manage rotations.
               </p>
-              <Button asChild variant="outline">
-                <Link href="/app">Back to Dashboard</Link>
-              </Button>
+              <Link href="/app" className={buttonVariants({ variant: 'outline' })}>
+                Back to Dashboard
+              </Link>
             </div>
           </Card>
         </div>
@@ -90,9 +91,9 @@ function RotationDetailContent({ rotationId }: { rotationId: Id<'rotations'> }) 
           <Card className="p-8">
             <div className="text-center space-y-4">
               <p className="text-muted-foreground">Rotation not found.</p>
-              <Button asChild variant="outline">
-                <Link href="/app/rotations">Back to Rotations</Link>
-              </Button>
+              <Link href="/app/rotations" className={buttonVariants({ variant: 'outline' })}>
+                Back to Rotations
+              </Link>
             </div>
           </Card>
         </div>
@@ -121,12 +122,13 @@ function RotationDetailContent({ rotationId }: { rotationId: Id<'rotations'> }) 
         {/* Header */}
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-4">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/app/rotations">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
-              </Link>
-            </Button>
+            <Link
+              href="/app/rotations"
+              className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Link>
             <div>
               <h1 className="text-3xl font-bold text-foreground">
                 {getRotationDisplayLabel(rotation)}
@@ -135,11 +137,12 @@ function RotationDetailContent({ rotationId }: { rotationId: Id<'rotations'> }) 
             </div>
           </div>
           <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="sm" disabled={participantCount > 0}>
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Rotation
-              </Button>
+            <AlertDialogTrigger
+              className={cn(buttonVariants({ variant: 'destructive', size: 'sm' }))}
+              disabled={participantCount > 0}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Rotation
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>

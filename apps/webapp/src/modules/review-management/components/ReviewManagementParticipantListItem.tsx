@@ -6,13 +6,14 @@ import Link from 'next/link';
 import { CopyReviewFormLinkButton } from './CopyReviewFormLinkButton';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import {
   DataListField,
   DataListItem,
   DataListItemFooter,
   DataListItemHeader,
 } from '@/components/ui/data-list';
+import { cn } from '@/lib/utils';
 import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 import {
   ReviewFormBuddyProgressBadge,
@@ -76,14 +77,15 @@ export function ReviewManagementParticipantListItem({
               <CopyReviewFormLinkButton token={form.buddyAccessToken} label="Buddy" />
               <CopyReviewFormLinkButton token={form.jcAccessToken} label="JC" />
             </div>
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-              className="dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100"
+            <Link
+              href={`/app/review/${form._id}`}
+              className={cn(
+                buttonVariants({ variant: 'outline', size: 'sm' }),
+                'dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100'
+              )}
             >
-              <Link href={`/app/review/${form._id}`}>View</Link>
-            </Button>
+              View
+            </Link>
           </>
         ) : (
           <Button size="sm" onClick={() => onGenerate(participant)}>

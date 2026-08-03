@@ -10,9 +10,10 @@ import { formatRotationLabel, getReviewFormRotationNumber } from '../utils/rotat
 import { getSectionCompletionSummary } from '../utils/sectionCompletionHelpers';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
 import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 
 interface ReviewFormCardProps {
@@ -105,16 +106,15 @@ export function ReviewFormCard({ form }: ReviewFormCardProps) {
         </div>
       </CardContent>
       <CardFooter className="mt-auto pt-2">
-        <Button asChild variant="secondary" className="w-full justify-between">
-          <Link
-            href={`/app/review/${form._id}`}
-            aria-labelledby={`${titleId} ${statusId}`}
-            aria-describedby={progressId}
-          >
-            Open form
-            <ChevronRight className="h-4 w-4" aria-hidden />
-          </Link>
-        </Button>
+        <Link
+          href={`/app/review/${form._id}`}
+          aria-labelledby={`${titleId} ${statusId}`}
+          aria-describedby={progressId}
+          className={cn(buttonVariants({ variant: 'secondary' }), 'w-full justify-between')}
+        >
+          Open form
+          <ChevronRight className="h-4 w-4" aria-hidden />
+        </Link>
       </CardFooter>
     </Card>
   );

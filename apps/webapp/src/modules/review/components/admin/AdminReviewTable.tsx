@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -141,16 +141,13 @@ export function AdminReviewTable({ forms, onFormDeleted }: AdminReviewTableProps
               <TableCell>{getCompletionStatus(form)}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
-                  <Button
-                    asChild
-                    variant="ghost"
-                    size="sm"
+                  <Link
+                    href={`/app/review/${form._id}`}
                     aria-label={`Open form for ${form.juniorCommanderName}`}
+                    className={buttonVariants({ variant: 'ghost', size: 'sm' })}
                   >
-                    <Link href={`/app/review/${form._id}`}>
-                      <ExternalLink className="h-4 w-4" />
-                    </Link>
-                  </Button>
+                    <ExternalLink className="h-4 w-4" />
+                  </Link>
                   <Button
                     variant="ghost"
                     size="sm"

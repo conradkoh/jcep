@@ -37,7 +37,7 @@ export function ReviewYearSelect({
       <Label htmlFor={id} className="text-sm font-medium text-foreground">
         {label}
       </Label>
-      <Select value={String(selectedYear)} onValueChange={onYearChange}>
+      <Select value={String(selectedYear)} onValueChange={(v) => v !== null && onYearChange(v)}>
         <SelectTrigger id={id} className={triggerClassName}>
           <SelectValue placeholder="Select year" />
         </SelectTrigger>

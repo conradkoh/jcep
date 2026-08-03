@@ -4,9 +4,9 @@ import { RotateCcw, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { ROTATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 import { RotationCreateForm } from '@/modules/rotations/components/RotationCreateForm';
 import { RotationList } from '@/modules/rotations/components/RotationList';
@@ -29,9 +29,9 @@ function RotationsPageContent() {
               <p className="text-muted-foreground">
                 Only programme administrators can manage rotations.
               </p>
-              <Button asChild variant="outline">
-                <Link href="/app">Back to Dashboard</Link>
-              </Button>
+              <Link href="/app" className={buttonVariants({ variant: 'outline' })}>
+                Back to Dashboard
+              </Link>
             </div>
           </Card>
         </div>

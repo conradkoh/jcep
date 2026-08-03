@@ -1,7 +1,6 @@
 'use client';
 
-import { Pencil1Icon } from '@radix-ui/react-icons';
-import { CalendarIcon, Check, X } from 'lucide-react';
+import { CalendarIcon, Check, Pencil, X } from 'lucide-react';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
 
@@ -12,7 +11,7 @@ import {
   getRotationNumberOptions,
 } from '../../utils/rotationUtils';
 
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -188,7 +187,9 @@ export function ParticularsSection({
                 />
                 <Select
                   value={String(rotationNumber)}
-                  onValueChange={(value) => setRotationNumber(Number.parseInt(value))}
+                  onValueChange={(value) =>
+                    value !== null && setRotationNumber(Number.parseInt(value))
+                  }
                 >
                   <SelectTrigger className="h-7 text-sm">
                     <SelectValue />
@@ -235,7 +236,7 @@ export function ParticularsSection({
               className="h-4 w-4 p-0 text-muted-foreground hover:text-foreground self-center"
               onClick={() => startEditing('rotationYear')}
             >
-              <Pencil1Icon className="h-2.5 w-2.5" />
+              <Pencil className="h-2.5 w-2.5" />
             </Button>
           )}
         </div>
@@ -284,7 +285,7 @@ export function ParticularsSection({
               className="h-4 w-4 p-0 text-muted-foreground hover:text-foreground self-center"
               onClick={() => startEditing('buddyName')}
             >
-              <Pencil1Icon className="h-2.5 w-2.5" />
+              <Pencil className="h-2.5 w-2.5" />
             </Button>
           )}
         </div>
@@ -333,7 +334,7 @@ export function ParticularsSection({
               className="h-4 w-4 p-0 text-muted-foreground hover:text-foreground self-center"
               onClick={() => startEditing('juniorCommanderName')}
             >
-              <Pencil1Icon className="h-2.5 w-2.5" />
+              <Pencil className="h-2.5 w-2.5" />
             </Button>
           )}
         </div>
@@ -381,7 +382,7 @@ export function ParticularsSection({
               className="h-4 w-4 p-0 text-muted-foreground hover:text-foreground self-center"
               onClick={() => startEditing('ageGroup')}
             >
-              <Pencil1Icon className="h-2.5 w-2.5" />
+              <Pencil className="h-2.5 w-2.5" />
             </Button>
           )}
         </div>
@@ -393,28 +394,25 @@ export function ParticularsSection({
             {editingField === 'evaluationDate' ? (
               <div className="mt-1 space-y-2">
                 <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'h-7 w-full justify-start text-left text-sm font-normal',
-                        !evaluationDate && 'text-muted-foreground'
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-3 w-3" />
-                      {evaluationDate ? (
-                        formatDate(evaluationDate.getTime())
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                    </Button>
+                  <PopoverTrigger
+                    className={cn(
+                      buttonVariants({ variant: 'outline' }),
+                      'h-7 w-full justify-start text-left text-sm font-normal',
+                      !evaluationDate && 'text-muted-foreground'
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-3 w-3" />
+                    {evaluationDate ? (
+                      formatDate(evaluationDate.getTime())
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={evaluationDate}
                       onSelect={(date) => date && setEvaluationDate(date)}
-                      initialFocus
                     />
                   </PopoverContent>
                 </Popover>
@@ -450,7 +448,7 @@ export function ParticularsSection({
               className="h-4 w-4 p-0 text-muted-foreground hover:text-foreground self-center"
               onClick={() => startEditing('evaluationDate')}
             >
-              <Pencil1Icon className="h-2.5 w-2.5" />
+              <Pencil className="h-2.5 w-2.5" />
             </Button>
           )}
         </div>

@@ -63,8 +63,8 @@ export function InstallAppDialog() {
                 <TabsContent
                   key={tab}
                   value={tab}
-                  forceMount
-                  className="col-start-1 row-start-1 space-y-3 data-[state=inactive]:pointer-events-none data-[state=inactive]:invisible [&[hidden]]:block"
+                  keepMounted
+                  className="col-start-1 row-start-1 space-y-3 data-inactive:pointer-events-none data-inactive:invisible [&[hidden]]:block"
                 >
                   {DIALOG_TAB_GROUPS[tab].map((platformKey) => (
                     <InstallInstructionsPanel

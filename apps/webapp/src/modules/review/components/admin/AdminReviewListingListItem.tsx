@@ -20,7 +20,7 @@ import {
 import { ReviewFormStatusBadge } from '../ReviewFormStatusBadge';
 import { ReviewFormVisibilityToggle } from '../ReviewFormVisibilityToggle';
 
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import {
   DataListField,
   DataListItem,
@@ -34,6 +34,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
 
 export interface AdminReviewListingListItemProps {
@@ -92,11 +93,9 @@ export function AdminReviewListingListItem({
       </DataListField>
       <DataListItemFooter className="justify-end">
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <MoreVertical className="mr-1 h-4 w-4" />
-              Actions
-            </Button>
+          <DropdownMenuTrigger className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))}>
+            <MoreVertical className="mr-1 h-4 w-4" />
+            Actions
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onCopyBuddy(form)} className="cursor-pointer">
@@ -116,12 +115,12 @@ export function AdminReviewListingListItem({
               Copy JC Link
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild className="cursor-pointer">
-              <Link href={`/app/review/${form._id}`}>
+            <Link href={`/app/review/${form._id}`}>
+              <DropdownMenuItem className="cursor-pointer">
                 <ExternalLink className="mr-2 h-4 w-4" />
                 View Form
-              </Link>
-            </DropdownMenuItem>
+              </DropdownMenuItem>
+            </Link>
             {showArchiveAction && (
               <>
                 <DropdownMenuSeparator />
