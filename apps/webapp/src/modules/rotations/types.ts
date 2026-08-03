@@ -74,7 +74,6 @@ export type UnmatchedReviewForm = {
   ageGroup: AgeGroup;
 };
 
-// fallow-ignore-next-line unused-type
 export type RotationYearOverview = {
   year: number;
   rotations: RotationYearColumn[];

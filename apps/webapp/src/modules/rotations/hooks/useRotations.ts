@@ -51,13 +51,23 @@ export function useSetRotationParticipantAgeGroup() {
   return useSessionMutation(api.rotations.setRotationParticipantAgeGroup);
 }
 
-// fallow-ignore-next-line unused-export
 export function useRotationYearOverview(year: number, isAdmin: boolean) {
   const data = useSessionQuery(api.rotations.getRotationYearOverview, isAdmin ? { year } : 'skip');
   return { data, isLoading: data === undefined };
 }
 
-// fallow-ignore-next-line unused-export
 export function useLinkReviewFormToParticipant() {
   return useSessionMutation(api.rotations.linkReviewFormToParticipant);
+}
+
+export function useSearchApplicants(
+  searchTerm: string,
+  rotationId: Id<'rotations'> | undefined,
+  isAdmin: boolean
+) {
+  const results = useSessionQuery(
+    api.rotations.searchApplicants,
+    isAdmin && searchTerm.trim().length >= 2 && rotationId ? { searchTerm, rotationId } : 'skip'
+  );
+  return { results, isLoading: results === undefined };
 }

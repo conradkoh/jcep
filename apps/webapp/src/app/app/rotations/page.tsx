@@ -7,11 +7,14 @@ import { useRouter } from 'next/navigation';
 import { ROTATIONS_MANAGE_PERMISSION, useHasPermission } from '@/application/auth';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RequireLogin } from '@/modules/auth/RequireLogin';
 import { RotationCreateForm } from '@/modules/rotations/components/RotationCreateForm';
 import { RotationList } from '@/modules/rotations/components/RotationList';
+import { RotationYearOverviewTab } from '@/modules/rotations/components/RotationYearOverviewTab';
 import { useListRotations } from '@/modules/rotations/hooks/useRotations';
 
+// fallow-ignore-next-line complexity
 function RotationsPageContent() {
   const router = useRouter();
   const isAdmin = useHasPermission(ROTATIONS_MANAGE_PERMISSION);
@@ -73,13 +76,24 @@ function RotationsPageContent() {
           </div>
         </div>
 
-        <RotationCreateForm
-          onCreated={(rotationId) => {
-            router.push(`/app/rotations/${rotationId}`);
-          }}
-        />
+        <Tabs defaultValue="manage" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="manage">Manage Rotations</TabsTrigger>
+            <TabsTrigger value="overview">Year Overview</TabsTrigger>
+          </TabsList>
+          <TabsContent value="manage" className="space-y-6">
+            <RotationCreateForm
+              onCreated={(rotationId) => {
+                router.push(`/app/rotations/${rotationId}`);
+              }}
+            />
 
-        {rotations && <RotationList rotations={rotations} />}
+            {rotations && <RotationList rotations={rotations} />}
+          </TabsContent>
+          <TabsContent value="overview">
+            <RotationYearOverviewTab isAdmin={isAdmin} rotations={rotations ?? []} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
