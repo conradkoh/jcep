@@ -71,6 +71,8 @@
       "services/backend/application/auth/permissions.ts",
       "services/backend/application/auth/roles.ts",
       "services/backend/application/auth/resolve.ts",
+      "services/backend/convex/auth.ts",
+      "services/backend/convex/auth/**",
     ],
   },
   "health": {
@@ -80,6 +82,8 @@
       "**/*.test.{ts,tsx}",
       "**/*.spec.{ts,tsx}",
       "**/tests/**",
+      "services/backend/convex/auth.ts",
+      "services/backend/convex/auth/**",
     ],
   },
   "audit": {

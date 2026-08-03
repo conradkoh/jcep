@@ -19,5 +19,5 @@
     "test.setup.ts",
     "vitest.config.mts"
   ],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["convex/_generated", "node_modules", "dist"]
 }

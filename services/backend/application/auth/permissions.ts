@@ -13,6 +13,7 @@ const permissions = {
   'settings:read': { description: 'View application settings' },
   'settings:write': { description: 'Update application settings' },
   'auth:provider:manage': { description: 'Configure authentication providers' },
+  'invites:manage': { description: 'Create and manage invite codes' },
   'attendance:read': { description: 'View attendance records' },
   'attendance:manage': { description: 'Manage attendance records' },
   'presentation:read': { description: 'View presentations' },
@@ -33,3 +34,5 @@ export const REVIEWS_MANAGE_PERMISSION = 'reviews:manage' as const satisfies Per
 export const ROTATIONS_MANAGE_PERMISSION = 'rotations:manage' as const satisfies Permission;
 // fallow-ignore-next-line unused-export
 export const APPLICATIONS_MANAGE_PERMISSION = 'applications:manage' as const satisfies Permission;
+
+export const INVITES_MANAGE_PERMISSION = 'invites:manage' as const satisfies Permission;
