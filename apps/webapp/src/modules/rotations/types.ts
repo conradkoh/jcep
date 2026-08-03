@@ -4,6 +4,8 @@ import type { AgeGroup } from '@/modules/jcep/types';
 
 export type { AgeGroup };
 
+export const UNASSIGNED_AGE_GROUP = '__unassigned__';
+
 export type Rotation = {
   _id: Id<'rotations'>;
   _creationTime: number;
