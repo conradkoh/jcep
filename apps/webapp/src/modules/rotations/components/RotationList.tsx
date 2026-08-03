@@ -3,9 +3,11 @@
 import { useRouter } from 'next/navigation';
 
 import type { Rotation } from '../types';
+import { RotationListListItem } from './RotationListListItem';
 
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { DataList } from '@/components/ui/data-list';
 import {
   Table,
   TableBody,
@@ -47,7 +49,8 @@ export function RotationList({ rotations }: RotationListProps) {
 
   return (
     <Card>
-      <div className="overflow-hidden [&_[data-slot=table-container]]:overflow-hidden">
+      {/* Desktop table — unchanged markup, only wrapped */}
+      <div className="hidden md:block overflow-hidden [&_[data-slot=table-container]]:overflow-hidden">
         <Table className="table-fixed w-full">
           <TableHeader className="sticky top-0 bg-card z-10">
             <TableRow>
@@ -76,6 +79,20 @@ export function RotationList({ rotations }: RotationListProps) {
             ))}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile list */}
+      <div className="md:hidden p-3">
+        <DataList>
+          {rotations.map((rotation) => (
+            <RotationListListItem
+              key={rotation._id}
+              rotation={rotation}
+              displayLabel={getRotationDisplayLabel(rotation)}
+              formattedDate={formatDate(rotation.evaluationDate)}
+            />
+          ))}
+        </DataList>
       </div>
     </Card>
   );
