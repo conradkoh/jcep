@@ -6,10 +6,12 @@ import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import { useSetRotationParticipantAgeGroup } from '../hooks/useRotations';
-import type { AgeGroup, RosterApplicant } from '../types';
+import { UNASSIGNED_AGE_GROUP, type AgeGroup, type RosterApplicant } from '../types';
+import { RotationRosterListItem } from './RotationRosterListItem';
 
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { DataList } from '@/components/ui/data-list';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -27,8 +29,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { getAgeGroupLabel } from '@/modules/jcep/utils/ageGroupLabels';
-
-const UNASSIGNED = '__unassigned__';
 
 interface RotationRosterTableProps {
   currentRotationId: Id<'rotations'>;
@@ -49,7 +49,7 @@ export function RotationRosterTable({ currentRotationId, applicants }: RotationR
   const handleAgeGroupChange = async (applicant: RosterApplicant, value: string) => {
     setUpdatingId(applicant.applicationId);
     try {
-      const ageGroup = value === UNASSIGNED ? null : (value as AgeGroup);
+      const ageGroup = value === UNASSIGNED_AGE_GROUP ? null : (value as AgeGroup);
       await setParticipantAgeGroup({
         rotationId: currentRotationId,
         applicationId: applicant.applicationId,
@@ -86,7 +86,8 @@ export function RotationRosterTable({ currentRotationId, applicants }: RotationR
       </div>
 
       <Card>
-        <div className="overflow-hidden [&_[data-slot=table-container]]:overflow-hidden">
+        {/* Desktop table — unchanged markup, only wrapped */}
+        <div className="hidden md:block overflow-hidden [&_[data-slot=table-container]]:overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -100,7 +101,7 @@ export function RotationRosterTable({ currentRotationId, applicants }: RotationR
               {filteredApplicants.map((applicant) => {
                 const isAssigned = applicant.ageGroupOnRotation !== null;
                 const isUpdating = updatingId === applicant.applicationId;
-                const selectValue = applicant.ageGroupOnRotation ?? UNASSIGNED;
+                const selectValue = applicant.ageGroupOnRotation ?? UNASSIGNED_AGE_GROUP;
 
                 return (
                   <TableRow
@@ -126,7 +127,7 @@ export function RotationRosterTable({ currentRotationId, applicants }: RotationR
                           <SelectValue placeholder="Unassigned" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value={UNASSIGNED}>Unassigned</SelectItem>
+                          <SelectItem value={UNASSIGNED_AGE_GROUP}>Unassigned</SelectItem>
                           <SelectItem value="RK">{getAgeGroupLabel('RK')}</SelectItem>
                           <SelectItem value="DR">{getAgeGroupLabel('DR')}</SelectItem>
                           <SelectItem value="AR">{getAgeGroupLabel('AR')}</SelectItem>
@@ -139,6 +140,21 @@ export function RotationRosterTable({ currentRotationId, applicants }: RotationR
               })}
             </TableBody>
           </Table>
+        </div>
+
+        {/* Mobile list */}
+        <div className="md:hidden p-3">
+          <DataList>
+            {filteredApplicants.map((applicant) => (
+              <RotationRosterListItem
+                key={applicant.applicationId}
+                applicant={applicant}
+                selectValue={applicant.ageGroupOnRotation ?? UNASSIGNED_AGE_GROUP}
+                isUpdating={updatingId === applicant.applicationId}
+                onAgeGroupChange={handleAgeGroupChange}
+              />
+            ))}
+          </DataList>
         </div>
       </Card>
 
